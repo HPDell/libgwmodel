@@ -550,7 +550,7 @@ extern "C" GWMODEL_API GwmRegressionDiagnostic gwmodel_get_gwr_diagnostic(CGwmGW
  * @param gwss Pointer to GWSS algorithm.
  * @return CGwmSimpleLayer* Pointer to result layer.
  */
-extern "C" GWMODEL_API CGwmSimpleLayer* gwmodel_get_gwss_result_layer(CGwmGWRBasic* gwss);
+extern "C" GWMODEL_API CGwmSimpleLayer* gwmodel_get_gwss_result_layer(CGwmGWSS* gwss);
 
 /**
  * @brief Get local mean from GWSS algorithm.

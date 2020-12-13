@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.1)
 project(gwmodel)
 
 set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 option(BUILD_SHARED_LIBS "Weather to build a shared library" OFF) 
 if(BUILD_SHARED_LIBS)
@@ -13,6 +14,14 @@ if(MSVC)
 endif(MSVC)
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/src)
+
+if(BUILD_SHARED_LIBS)
+    option(WITH_PYTHON "Whether to build python extension" OFF)
+    if(WITH_PYTHON)
+        add_subdirectory(${CMAKE_SOURCE_DIR}/python)
+    endif(WITH_PYTHON)
+endif(BUILD_SHARED_LIBS)
+
 
 enable_testing()
 
