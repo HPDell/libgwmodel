@@ -10,6 +10,7 @@ cdef extern from "gwmodel.h":
     cdef struct GwmNameListInterface:
         size_t size
         GwmNameInterface* items
+    cdef void gwmodel_delete_string_list(GwmNameListInterface* interface)
 
     cdef struct GwmVariableInterface:
         int index
@@ -75,10 +76,10 @@ cdef class GWSS:
     cdef CGwmGWSS* _c_instance
 
 cdef class MatInterface:
-    cdef GwmMatInterface* _c_instance
+    cdef GwmMatInterface _c_instance
 
 cdef class NameListInterface:
-    cdef GwmNameListInterface* _c_instance
+    cdef GwmNameListInterface _c_instance
 
 cdef class SimpleLayer:
     cdef CGwmSimpleLayer* _c_instance
@@ -99,4 +100,4 @@ cdef class VariableListInterface:
     cdef GwmVariableListInterface* _c_instance
 
 cdef MatInterface numpy2mat(double[:, ::1] array)
-cdef MatInterface mat2numpy(GwmMatInterface interface)
+cdef mat2numpy(GwmMatInterface interface)

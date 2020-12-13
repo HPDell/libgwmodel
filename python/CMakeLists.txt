@@ -1,9 +1,10 @@
 cmake_minimum_required(VERSION 3.11)
 project(pygwmodel)
 
-find_package(PythonInterp 3)
-find_package(Cython REQUIRED)
+find_package(PythonInterp REQUIRED)
+find_package(PythonLibs REQUIRED)
 find_package(PythonExtensions REQUIRED)
+find_package(Cython REQUIRED)
 
 set(CY_SOURCE 
     ${CMAKE_CURRENT_SOURCE_DIR}/gwss.pyx
@@ -25,14 +26,25 @@ endif(MSVC)
 
 add_cython_target(mat_interface.pyx CXX)
 add_library(mat_interface MODULE ${mat_interface})
-target_link_libraries(mat_interface gwmodel LINKED_MODULES_VAR linked_module_list FORWARD_DECL_MODULES_VAR fdecl_module_list)
-python_extension_module(mat_interface)
+target_link_libraries(mat_interface gwmodel)
+python_extension_module(mat_interface LINKED_MODULES_VAR linked_module_list FORWARD_DECL_MODULES_VAR fdecl_module_list)
 
-add_cython_target(gwss.pyx CXX)
-add_library(gwss MODULE ${gwss})
-target_link_libraries(gwss gwmodel LINKED_MODULES_VAR linked_module_list FORWARD_DECL_MODULES_VAR fdecl_module_list)
-python_extension_module(gwss)
+add_cython_target(name_list_interface.pyx CXX)
+add_library(name_list_interface MODULE ${name_list_interface})
+target_link_libraries(name_list_interface gwmodel)
+python_extension_module(name_list_interface LINKED_MODULES_VAR linked_module_list FORWARD_DECL_MODULES_VAR fdecl_module_list)
+
+add_cython_target(simple_layer.pyx CXX)
+add_library(simple_layer MODULE ${simple_layer})
+target_link_libraries(simple_layer gwmodel)
+python_extension_module(simple_layer LINKED_MODULES_VAR linked_module_list FORWARD_DECL_MODULES_VAR fdecl_module_list)
+
+# add_cython_target(gwss.pyx CXX)
+# add_library(gwss MODULE ${gwss})
+# target_link_libraries(gwss gwmodel)
+# python_extension_module(gwss LINKED_MODULES_VAR linked_module_list FORWARD_DECL_MODULES_VAR fdecl_module_list)
 
 add_cython_target(pygwmodel.pyx CXX)
 add_library(pygwmodel MODULE ${pygwmodel})
 target_link_libraries(pygwmodel ${linked_module_list})
+python_extension_module(pygwmodel)
