@@ -1,8 +1,7 @@
 cimport cbase
 from cbase cimport GwmVariableInterface, GwmVariableListInterface
-from numpy import ndarray
 from libc.stdlib cimport malloc
-from libc.string cimport strcpy, strncpy
+from libc.string cimport strncpy, strcpy, memcpy
 
 cdef class VariableInterface:
     cdef GwmVariableInterface _c_instance
@@ -20,17 +19,13 @@ cdef class VariableInterface:
 cdef class VariableListInterface:
     cdef GwmVariableListInterface _c_instance
     
-    def __cinit__(self, int size, list variables):
-        self._c_instance = GwmVariableListInterface()
-        self._c_instance.size = size
+    def __cinit__(self, int size, VariableInterface[:] variables):
         cdef cbase.GwmVariableInterface* items = <cbase.GwmVariableInterface*>malloc(size * sizeof(cbase.GwmVariableInterface))
+        cdef int i
         for i in range(size):
             items[i] = variables[i]._c_instance
-        self._c_instance.items = items
+        self._c_instance = GwmVariableListInterface(size, items)
 
     def __dealloc__(self):
         cbase.gwmodel_delete_variable_list(&self._c_instance)
     
-    @property
-    def size(self):
-        return self._c_instance.size
