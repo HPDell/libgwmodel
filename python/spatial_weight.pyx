@@ -1,4 +1,5 @@
 cimport cbase
+from cbase cimport CGwmDistance, CGwmWeight, CGwmSpatialWeight
 
 cdef class Distance:
     cdef CGwmDistance* _c_instance
@@ -7,11 +8,7 @@ cdef class Distance:
         self._c_instance = cbase.gwmodel_create_crs_distance(geographical)
     
     def __dealloc__(self):
-        cbase.gwmodel_delete_crs_distance(self)
-
-    @property
-    def geographical(self):
-        return self._c_instance.geographical
+        cbase.gwmodel_delete_crs_distance(self._c_instance)
 
 
 cdef class Weight:
@@ -21,19 +18,7 @@ cdef class Weight:
         self._c_instance = cbase.gwmodel_create_bandwidth_weight(size, adaptive, kernel)
     
     def __dealloc__(self):
-        cbase.gwmodel_delete_bandwidth_weight(self)
-
-    @property
-    def size(self):
-        return self._c_instance.size
-
-    @property
-    def adaptive(self):
-        return self._c_instance.adaptive
-
-    @property
-    def kernel(self):
-        return self._c_instance.kernel
+        cbase.gwmodel_delete_bandwidth_weight(self._c_instance)
 
 
 cdef class SpatialWeight:
@@ -45,4 +30,4 @@ cdef class SpatialWeight:
         self._c_instance = cbase.gwmodel_create_spatial_weight(distance._c_instance, weight._c_instance)
     
     def __dealloc__(self):
-        cbase.gwmodel_delete_spatial_weight(self)
+        cbase.gwmodel_delete_spatial_weight(self._c_instance)

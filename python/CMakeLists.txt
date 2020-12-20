@@ -44,6 +44,11 @@ add_library(variable_interface MODULE ${variable_interface})
 target_link_libraries(variable_interface gwmodel)
 python_extension_module(variable_interface LINKED_MODULES_VAR linked_module_list FORWARD_DECL_MODULES_VAR fdecl_module_list)
 
+add_cython_target(spatial_weight.pyx CXX)
+add_library(spatial_weight MODULE ${spatial_weight})
+target_link_libraries(spatial_weight gwmodel)
+python_extension_module(spatial_weight LINKED_MODULES_VAR linked_module_list FORWARD_DECL_MODULES_VAR fdecl_module_list)
+
 # add_cython_target(gwss.pyx CXX)
 # add_library(gwss MODULE ${gwss})
 # target_link_libraries(gwss gwmodel)

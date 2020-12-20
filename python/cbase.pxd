@@ -21,6 +21,14 @@ cdef extern from "gwmodel.h":
         size_t size
         GwmVariableInterface* items
     cdef void gwmodel_delete_variable_list(GwmVariableListInterface* interface)
+    
+    ctypedef struct CGwmSimpleLayer:
+        pass
+    cdef CGwmSimpleLayer* gwmodel_create_simple_layer(GwmMatInterface points, GwmMatInterface data, GwmNameListInterface fields)
+    cdef void gwmodel_delete_simple_layer(CGwmSimpleLayer* instance)
+    cdef GwmMatInterface gwmodel_get_simple_layer_points(CGwmSimpleLayer* layer)
+    cdef GwmMatInterface gwmodel_get_simple_layer_data(CGwmSimpleLayer* layer)
+    cdef GwmNameListInterface gwmodel_get_simple_layer_fields(CGwmSimpleLayer* layer)
 
     cdef enum KernelFunctionType:
         Gaussian
@@ -32,22 +40,17 @@ cdef extern from "gwmodel.h":
     ctypedef struct CGwmDistance:
         pass
     cdef CGwmDistance* gwmodel_create_crs_distance(bint isGeogrphical)
-    
-    ctypedef struct CGwmSimpleLayer:
-        pass
-    cdef CGwmSimpleLayer* gwmodel_create_simple_layer(GwmMatInterface points, GwmMatInterface data, GwmNameListInterface fields)
-    cdef void gwmodel_delete_simple_layer(CGwmSimpleLayer* instance)
-    cdef GwmMatInterface gwmodel_get_simple_layer_points(CGwmSimpleLayer* layer)
-    cdef GwmMatInterface gwmodel_get_simple_layer_data(CGwmSimpleLayer* layer)
-    cdef GwmNameListInterface gwmodel_get_simple_layer_fields(CGwmSimpleLayer* layer)
+    cdef void gwmodel_delete_crs_distance(CGwmDistance* instance)
 
     ctypedef struct CGwmWeight:
         pass
     cdef CGwmWeight* gwmodel_create_bandwidth_weight(double size, bint isAdaptive, KernelFunctionType kernel)
+    cdef void gwmodel_delete_bandwidth_weight(CGwmWeight* instance)
 
     ctypedef struct CGwmSpatialWeight:
         pass
     cdef CGwmSpatialWeight* gwmodel_create_spatial_weight(CGwmDistance* distance, CGwmWeight* weight)
+    cdef void gwmodel_delete_spatial_weight(CGwmSpatialWeight* instance)
 
     ctypedef struct CGwmGWSS:
         pass
