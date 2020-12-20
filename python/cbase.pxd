@@ -94,10 +94,10 @@ cdef class SpatialWeight:
     cdef CGwmSpatialWeight* _c_instance
 
 cdef class VariableInterface:
-    cdef GwmVariableInterface* _c_instance
+    cdef GwmVariableInterface _c_instance
 
 cdef class VariableListInterface:
-    cdef GwmVariableListInterface* _c_instance
+    cdef GwmVariableListInterface _c_instance
 
 cdef MatInterface numpy2mat(double[:, ::1] array)
 cdef mat2numpy(GwmMatInterface interface)

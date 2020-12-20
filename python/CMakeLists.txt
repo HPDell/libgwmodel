@@ -39,6 +39,11 @@ add_library(simple_layer MODULE ${simple_layer})
 target_link_libraries(simple_layer gwmodel)
 python_extension_module(simple_layer LINKED_MODULES_VAR linked_module_list FORWARD_DECL_MODULES_VAR fdecl_module_list)
 
+add_cython_target(variable_interface.pyx CXX)
+add_library(variable_interface MODULE ${variable_interface})
+target_link_libraries(variable_interface gwmodel)
+python_extension_module(variable_interface LINKED_MODULES_VAR linked_module_list FORWARD_DECL_MODULES_VAR fdecl_module_list)
+
 # add_cython_target(gwss.pyx CXX)
 # add_library(gwss MODULE ${gwss})
 # target_link_libraries(gwss gwmodel)
