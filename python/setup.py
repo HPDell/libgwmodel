@@ -11,5 +11,5 @@ setup(
         "simple_layer.pyx",
         "spatial_weight.pyx",
         "variable_interface.pyx"
-    ], libraries=["libgwmodel"])])
+    ], language="c++", libraries=["libgwmodel"])])
 )
