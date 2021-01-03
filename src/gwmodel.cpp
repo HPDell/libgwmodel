@@ -323,7 +323,7 @@ GwmVariablesCriterionListInterface gwmodel_get_gwr_indep_var_criterions(CGwmGWRB
     return interface;
 }
 
-CGwmSimpleLayer* gwmodel_get_gwss_result_layer(CGwmGWRBasic* gwss)
+CGwmSimpleLayer* gwmodel_get_gwss_result_layer(CGwmGWSS* gwss)
 {
     return gwss->resultLayer();
 }

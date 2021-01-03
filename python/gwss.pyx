@@ -11,7 +11,7 @@ cdef class GWSS:
         self._c_instance = cbase.gwmodel_create_gwss_algorithm()
         cbase.gwmodel_set_gwss_source_layer(self._c_instance, source_layer._c_instance)
         cbase.gwmodel_set_gwss_spatial_weight(self._c_instance, spatial_weight._c_instance)
-        cbase.gwmodel_set_gwss_variables(self._c_instance, variables._c_instance[0])
+        cbase.gwmodel_set_gwss_variables(self._c_instance, variables._c_instance)
         cbase.gwmodel_set_gwss_options(self._c_instance, quantile, first_only)
     
     def __dealloc__(self):
