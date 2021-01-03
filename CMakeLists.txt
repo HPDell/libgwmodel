@@ -45,3 +45,8 @@ install(TARGETS gwmodel
     RUNTIME DESTINATION bin
 )
 install(DIRECTORY include/ DESTINATION include)
+
+if(WITH_PYTHON)
+    install(TARGETS pygwmodel gwss mat_interface name_list_interface simple_layer spatial_weight variable_interface
+            LIBRARY DESTINATION py)
+endif(WITH_PYTHON)

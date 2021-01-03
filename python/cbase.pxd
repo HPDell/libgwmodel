@@ -74,33 +74,3 @@ cdef extern from "gwmodel.h":
     cdef void gwmodel_set_gwss_options(CGwmGWSS* algorithm, bint quantile, bint corrWithFirstOnly)
     cdef void gwmodel_set_gwss_openmp(CGwmGWSS* algorithm, int threads)
     cdef void gwmodel_run_gwss(CGwmGWSS* algorithm)
-    
-cdef class GWSS:
-    cdef CGwmGWSS* _c_instance
-
-cdef class MatInterface:
-    cdef GwmMatInterface _c_instance
-
-cdef class NameListInterface:
-    cdef GwmNameListInterface _c_instance
-
-cdef class SimpleLayer:
-    cdef CGwmSimpleLayer* _c_instance
-
-cdef class Distance:
-    cdef CGwmDistance* _c_instance
-
-cdef class Weight:
-    cdef CGwmWeight* _c_instance
-
-cdef class SpatialWeight:
-    cdef CGwmSpatialWeight* _c_instance
-
-cdef class VariableInterface:
-    cdef GwmVariableInterface _c_instance
-
-cdef class VariableListInterface:
-    cdef GwmVariableListInterface _c_instance
-
-cdef MatInterface numpy2mat(double[:, ::1] array)
-cdef mat2numpy(GwmMatInterface interface)
