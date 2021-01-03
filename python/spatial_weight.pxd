@@ -1,5 +1,3 @@
-__all__ = ["Distance", "Weight", "SpatialWeight"]
-
 from cbase cimport CGwmDistance, CGwmWeight, CGwmSpatialWeight, KernelFunctionType
 from cbase cimport gwmodel_create_crs_distance, gwmodel_delete_crs_distance
 from cbase cimport gwmodel_create_bandwidth_weight, gwmodel_delete_bandwidth_weight

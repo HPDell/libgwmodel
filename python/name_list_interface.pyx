@@ -6,10 +6,12 @@ cdef class NameListInterface:
     def __cinit__(self, list names):
         cdef size_t size = len(names)
         cdef GwmNameInterface* data_ptr = <GwmNameInterface*>malloc(size * sizeof(GwmNameInterface))
-        cdef char[:] src
+        cdef const unsigned char[:] src
+        cdef int i
         for i in range(size):
             src = names[i]
-            strncpy(data_ptr[i], &src[0], len(src))
+            print("Copy str", names[i])
+            strncpy(data_ptr[i], <const char*>(&src[0]), len(src))
         self._c_instance = GwmNameListInterface(size, data_ptr)
     
     def __dealloc__(self):

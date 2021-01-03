@@ -1,5 +1,3 @@
-__all__ = ["VariableInterface", "VariableListInterface"]
-
 from variable_interface cimport GwmVariableInterface, GwmVariableListInterface, gwmodel_delete_variable_list
 from libc.stdlib cimport malloc
 from libc.string cimport strncpy, strcpy, memcpy

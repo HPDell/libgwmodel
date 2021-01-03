@@ -1,5 +1,3 @@
-__all__ = ["GWSS"]
-
 from gwss cimport *
 from simple_layer cimport SimpleLayer, CGwmSimpleLayer
 from spatial_weight cimport Distance, Weight, SpatialWeight

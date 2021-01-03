@@ -1,5 +1,3 @@
-__all__ = ["Distance", "Weight", "SpatialWeight"]
-
 from spatial_weight cimport KernelFunctionType
 from spatial_weight cimport gwmodel_create_crs_distance, gwmodel_delete_crs_distance
 from spatial_weight cimport gwmodel_create_bandwidth_weight, gwmodel_delete_bandwidth_weight

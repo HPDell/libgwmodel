@@ -1,5 +1,3 @@
-__all__ = ["GWSS"]
-
 from cbase cimport CGwmGWSS
 from cbase cimport gwmodel_create_gwss_algorithm
 from cbase cimport gwmodel_set_gwss_source_layer

@@ -1,5 +1,3 @@
-__all__ = ["VariableInterface", "VariableListInterface"]
-
 from cbase cimport GwmVariableInterface, GwmVariableListInterface
 from cbase cimport gwmodel_delete_variable_list
 

@@ -75,5 +75,6 @@
         "xtree": "cpp",
         "xutility": "cpp",
         "iosfwd": "cpp"
-    }
+    },
+    "python.pythonPath": "D:\\Miniconda3\\python.exe"
 }
