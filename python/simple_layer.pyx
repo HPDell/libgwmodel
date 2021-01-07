@@ -1,5 +1,5 @@
 from mat_interface cimport MatInterface, numpy2mat, mat2numpy
-from name_list_interface cimport NameListInterface
+from name_list_interface cimport NameListInterface, names2list
 from simple_layer cimport gwmodel_create_simple_layer, gwmodel_delete_simple_layer, gwmodel_get_simple_layer_points, gwmodel_get_simple_layer_data, gwmodel_get_simple_layer_fields
 
 cdef class SimpleLayer:
@@ -25,9 +25,9 @@ cdef class SimpleLayer:
     # def data(self, MatInterface value):
     #     self._c_instance.data = value._c_instance
 
-    # @property
-    # def fields(self):
-    #     return mat2numpy(gwmodel_get_simple_layer_fields(self._c_instance))
+    @property
+    def fields(self):
+        return names2list(gwmodel_get_simple_layer_fields(self._c_instance))
     
     # @fields.setter
     # def fields(self, NameListInterface value):

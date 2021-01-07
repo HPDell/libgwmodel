@@ -8,6 +8,7 @@ from cbase cimport gwmodel_delete_gwss_algorithm
 from cbase cimport gwmodel_get_gwss_result_layer
 from cbase cimport gwmodel_get_simple_layer_points
 from cbase cimport gwmodel_get_simple_layer_data
+from cbase cimport gwmodel_get_simple_layer_fields
 from cbase cimport gwmodel_get_gwss_local_mean
 from cbase cimport gwmodel_get_gwss_local_sdev
 from cbase cimport gwmodel_get_gwss_local_var
