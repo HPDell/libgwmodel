@@ -74,3 +74,36 @@ cdef extern from "gwmodel.h":
     cdef void gwmodel_set_gwss_options(CGwmGWSS* algorithm, bint quantile, bint corrWithFirstOnly)
     cdef void gwmodel_set_gwss_openmp(CGwmGWSS* algorithm, int threads)
     cdef void gwmodel_run_gwss(CGwmGWSS* algorithm)
+
+    cdef enum BandwidthSelectionCriterionType:
+        AIC,
+        CV
+
+    cdef struct GwmRegressionDiagnostic:
+        double RSS;
+        double AIC;
+        double AICc;
+        double ENP;
+        double EDF;
+        double RSquare;
+        double RSquareAdjust;
+
+    ctypedef struct CGwmGWRBasic:
+        pass
+    cdef CGwmGWRBasic* gwmodel_create_gwr_algorithm()
+    cdef void gwmodel_delete_gwr_algorithm(CGwmGWRBasic* instance)
+    cdef void gwmodel_set_gwr_source_layer(CGwmGWRBasic* algorithm, CGwmSimpleLayer* layer)
+    cdef void gwmodel_set_gwr_spatial_weight(CGwmGWRBasic* algorithm, CGwmSpatialWeight* spatial)
+    cdef void gwmodel_set_gwr_dependent_variable(CGwmGWRBasic* regression, GwmVariableInterface depVar)
+    cdef void gwmodel_set_gwr_independent_variable(CGwmGWRBasic* regression, GwmVariableListInterface indepVarList)
+    cdef void gwmodel_set_gwr_predict_layer(CGwmGWRBasic* algorithm, CGwmSimpleLayer* layer)
+    cdef void gwmodel_set_gwr_bandwidth_autoselection(CGwmGWRBasic* algorithm, BandwidthSelectionCriterionType criterion)
+    cdef void gwmodel_set_gwr_indep_vars_autoselection(CGwmGWRBasic* algorithm, double threshold)
+    cdef void gwmodel_set_gwr_options(CGwmGWRBasic* algorithm, bint hasHatMatrix)
+    cdef void gwmodel_set_gwr_openmp(CGwmGWRBasic* algorithm, int threads)
+    cdef CGwmSpatialWeight* gwmodel_get_gwr_spatial_weight(CGwmGWRBasic* gwr)
+    cdef CGwmSimpleLayer* gwmodel_get_gwr_result_layer(CGwmGWRBasic* gwr)
+    cdef GwmMatInterface gwmodel_get_gwr_coefficients(CGwmGWRBasic* gwr)
+    # cdef GwmVariablesCriterionListInterface gwmodel_get_gwr_indep_var_criterions(CGwmGWRBasic* gwr)
+    cdef GwmRegressionDiagnostic gwmodel_get_gwr_diagnostic(CGwmGWRBasic* gwr)
+    cdef void gwmodel_run_gwr(CGwmGWRBasic* algorithm)
