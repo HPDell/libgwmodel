@@ -2,10 +2,11 @@ from gwr_basic cimport *
 from simple_layer cimport SimpleLayer, CGwmSimpleLayer
 from spatial_weight cimport Distance, Weight, SpatialWeight
 from mat_interface cimport MatInterface, mat2numpy, mat2interface
-from variable_interface cimport VariableInterface, VariableListInterface
+from variable_interface cimport VariableInterface, VariableListInterface, GwmVariableListInterface, GwmVariableInterface
 from name_list_interface cimport NameListInterface, names2list
 from regression_diagnostic cimport RegressionDiagnostic
 from cython.view cimport array as cvarray
+from libcpp.string cimport string
 
 cdef class GWRBasic:
     def __cinit__(self, SimpleLayer source_layer, SpatialWeight spatial_weight, VariableListInterface indep_variables, VariableInterface dep_variable, bint hat_matrix):
@@ -33,6 +34,27 @@ cdef class GWRBasic:
     @property
     def diagnostic(self):
         return RegressionDiagnostic.wrap(gwmodel_get_gwr_diagnostic(self._c_instance))
+    
+    @property
+    def variable_select_criterions(self):
+        criterion_list = []
+        cdef GwmVariablesCriterionListInterface interf = gwmodel_get_gwr_indep_var_criterions(self._c_instance)
+        cdef int size = interf.size, p, v
+        cdef double value = 0.0
+        cdef GwmVariableListInterface var_list
+        cdef GwmVariableInterface variable
+        cdef string name
+        for p in range(size):
+            var_list = interf.items[p].variables
+            value = interf.items[p].criterion
+            var_names = []
+            for v in range(var_list.size):
+                name = string(&(var_list.items[v].name[0]))
+                py_str = name.decode()
+                var_names.append(py_str)
+            criterion_list.append((var_names, value))
+        return criterion_list
+        return VariablesCriterionListInterface.wrap().to_list()
 
     def set_predict_layer(self, SimpleLayer predict_layer):
         gwmodel_set_gwr_predict_layer(self._c_instance, predict_layer._c_instance)

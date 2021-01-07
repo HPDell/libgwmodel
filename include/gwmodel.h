@@ -221,7 +221,7 @@ extern "C" GWMODEL_API void gwmodel_delete_variable_criterion_pair(GwmVariablesC
 /**
  * @brief A struct representing a list of GwmVariablesCriterionPairInterface.
  */
-struct GwmVariablesCriterionListInterface
+extern "C" struct GwmVariablesCriterionListInterface
 {
     size_t size = 0;
     GwmVariablesCriterionPairInterface* items = nullptr;

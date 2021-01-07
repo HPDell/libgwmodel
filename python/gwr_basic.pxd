@@ -1,4 +1,4 @@
-from cbase cimport CGwmGWRBasic, BandwidthSelectionCriterionType
+from cbase cimport CGwmGWRBasic, BandwidthSelectionCriterionType, GwmVariablesCriterionPairInterface, GwmVariablesCriterionListInterface
 from cbase cimport gwmodel_get_simple_layer_points
 from cbase cimport gwmodel_get_simple_layer_data
 from cbase cimport gwmodel_get_simple_layer_fields
@@ -17,6 +17,7 @@ from cbase cimport gwmodel_get_gwr_spatial_weight
 from cbase cimport gwmodel_get_gwr_result_layer
 from cbase cimport gwmodel_get_gwr_coefficients
 from cbase cimport gwmodel_get_gwr_diagnostic
+from cbase cimport gwmodel_get_gwr_indep_var_criterions
 from cbase cimport gwmodel_run_gwr
 
 cdef class GWRBasic:

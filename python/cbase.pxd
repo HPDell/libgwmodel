@@ -87,6 +87,14 @@ cdef extern from "gwmodel.h":
         double EDF;
         double RSquare;
         double RSquareAdjust;
+    
+    cdef struct GwmVariablesCriterionPairInterface:
+        GwmVariableListInterface variables
+        double criterion
+
+    cdef struct GwmVariablesCriterionListInterface:
+        size_t size
+        GwmVariablesCriterionPairInterface* items
 
     ctypedef struct CGwmGWRBasic:
         pass
@@ -104,6 +112,6 @@ cdef extern from "gwmodel.h":
     cdef CGwmSpatialWeight* gwmodel_get_gwr_spatial_weight(CGwmGWRBasic* gwr)
     cdef CGwmSimpleLayer* gwmodel_get_gwr_result_layer(CGwmGWRBasic* gwr)
     cdef GwmMatInterface gwmodel_get_gwr_coefficients(CGwmGWRBasic* gwr)
-    # cdef GwmVariablesCriterionListInterface gwmodel_get_gwr_indep_var_criterions(CGwmGWRBasic* gwr)
+    cdef GwmVariablesCriterionListInterface gwmodel_get_gwr_indep_var_criterions(CGwmGWRBasic* gwr)
     cdef GwmRegressionDiagnostic gwmodel_get_gwr_diagnostic(CGwmGWRBasic* gwr)
     cdef void gwmodel_run_gwr(CGwmGWRBasic* algorithm)
