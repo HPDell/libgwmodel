@@ -21,8 +21,6 @@ cdef class Weight:
 
 cdef class SpatialWeight:    
     def __cinit__(self, Distance distance, Weight weight):
-        self.distance = distance
-        self.weight = weight
         self._c_instance = gwmodel_create_spatial_weight(distance._c_instance, weight._c_instance)
     
     def __dealloc__(self):

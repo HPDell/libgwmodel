@@ -10,7 +10,6 @@ cdef class NameListInterface:
         cdef int i
         for i in range(size):
             src = names[i]
-            print("Copy str", names[i])
             strncpy(data_ptr[i], <const char*>(&src[0]), len(src))
         self._c_instance = GwmNameListInterface(size, data_ptr)
     

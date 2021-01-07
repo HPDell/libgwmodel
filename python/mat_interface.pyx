@@ -27,9 +27,10 @@ cdef mat2numpy(GwmMatInterface interface):
     cdef const double* src = interface.data
     cdef unsigned long long rows = interface.rows
     cdef unsigned long long cols = interface.cols
-    cdef double[:, ::1] dst = np.zeros((rows, cols), dtype=np.float64, order="C")
+    result = np.zeros((rows, cols), dtype=np.float64, order="C")
+    cdef double[:, ::1] dst = result
     cdef unsigned long long i, j
     for i in range(rows):
         for j in range(cols):
-            dst[i, j] = src[i * interface.cols + j]
-    return dst
+            dst[i, j] = src[j * interface.rows + i]
+    return result
