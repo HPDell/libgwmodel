@@ -534,6 +534,14 @@ extern "C" GWMODEL_API GwmMatInterface gwmodel_get_gwr_coefficients(CGwmGWRBasic
  * @param gwr Pointer to GWR algorithm.
  * @return GwmVariablesCriterionListInterface Struct of independent variables and its criterions.
  */
+extern "C" GWMODEL_API GwmBandwidthCriterionListInterface gwmodel_get_gwr_bandwidth_criterions(CGwmGWRBasic* gwr);
+
+/**
+ * @brief Get independent variables and its criterions tested in variable autoselection from GWR algorithm.
+ * 
+ * @param gwr Pointer to GWR algorithm.
+ * @return GwmVariablesCriterionListInterface Struct of independent variables and its criterions.
+ */
 extern "C" GWMODEL_API GwmVariablesCriterionListInterface gwmodel_get_gwr_indep_var_criterions(CGwmGWRBasic* gwr);
 
 /**

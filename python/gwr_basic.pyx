@@ -36,7 +36,18 @@ cdef class GWRBasic:
         return RegressionDiagnostic.wrap(gwmodel_get_gwr_diagnostic(self._c_instance))
     
     @property
-    def variable_select_criterions(self):
+    def bandwidth_select_criterions(self):
+        criterion_list = []
+        cdef GwmBandwidthCriterionListInterface interf = gwmodel_get_gwr_bandwidth_criterions(self._c_instance)
+        cdef int size = interf.size, p
+        for p in range(size):
+            bw = interf.items[p].bandwidth
+            value = interf.items[p].criterion
+            criterion_list.append((bw, value))
+        return criterion_list
+    
+    @property
+    def indep_var_select_criterions(self):
         criterion_list = []
         cdef GwmVariablesCriterionListInterface interf = gwmodel_get_gwr_indep_var_criterions(self._c_instance)
         cdef int size = interf.size, p, v
@@ -54,7 +65,6 @@ cdef class GWRBasic:
                 var_names.append(py_str)
             criterion_list.append((var_names, value))
         return criterion_list
-        return VariablesCriterionListInterface.wrap().to_list()
 
     def set_predict_layer(self, SimpleLayer predict_layer):
         gwmodel_set_gwr_predict_layer(self._c_instance, predict_layer._c_instance)

@@ -299,6 +299,21 @@ GwmRegressionDiagnostic gwmodel_get_gwr_diagnostic(CGwmGWRBasic* gwr)
     return gwr->diagnostic();
 }
 
+GwmBandwidthCriterionListInterface gwmodel_get_gwr_bandwidth_criterions(CGwmGWRBasic* gwr)
+{
+    BandwidthCriterionList criterions = gwr->bandwidthSelectionCriterionList();
+    GwmBandwidthCriterionListInterface interface;
+    interface.size = criterions.size();
+    interface.items = new GwmBandwidthCriterionPairInterface[interface.size];
+    for (size_t i = 0; i < interface.size; i++)
+    {
+        GwmBandwidthCriterionPairInterface* item = interface.items + i;
+        item->bandwidth = criterions[i].first;
+        item->criterion = criterions[i].second;
+    }
+    return interface;
+}
+
 GwmVariablesCriterionListInterface gwmodel_get_gwr_indep_var_criterions(CGwmGWRBasic* gwr)
 {
     VariablesCriterionList criterions = gwr->indepVarsSelectionCriterionList();
