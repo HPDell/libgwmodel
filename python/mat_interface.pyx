@@ -8,7 +8,6 @@ cdef class MatInterface:
         self._c_instance = GwmMatInterface(rows, cols, &array[0, 0])
 
     def __dealloc__(self):
-        print("deleteing", self._c_instance.rows, self._c_instance.cols)
         gwmodel_delete_mat(&self._c_instance)
 
     def show(self):

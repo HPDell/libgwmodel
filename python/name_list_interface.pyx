@@ -7,7 +7,6 @@ cdef class NameListInterface:
     def __cinit__(self, list names):
         cdef size_t size = len(names)
         cdef GwmNameInterface* data_ptr = <GwmNameInterface*>malloc(size * sizeof(GwmNameInterface))
-        print(sizeof(GwmNameInterface))
         cdef const unsigned char[:] src
         cdef int i
         for i in range(size):
@@ -30,5 +29,4 @@ cdef names2list(GwmNameListInterface instance):
         name = string(&instance.items[i][0])
         py_str = name
         name_list.append(py_str)
-    print(name_list)
     return name_list

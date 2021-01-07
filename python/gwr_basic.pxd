@@ -1,4 +1,4 @@
-from cbase cimport CGwmGWRBasic
+from cbase cimport CGwmGWRBasic, BandwidthSelectionCriterionType
 from cbase cimport gwmodel_get_simple_layer_points
 from cbase cimport gwmodel_get_simple_layer_data
 from cbase cimport gwmodel_get_simple_layer_fields
