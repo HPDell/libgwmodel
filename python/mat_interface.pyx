@@ -1,5 +1,6 @@
 from mat_interface cimport GwmMatInterface, gwmodel_delete_mat
 from libc.stdlib cimport malloc, free
+from cython cimport view
 import numpy as np
 
 cdef class MatInterface:
@@ -7,6 +8,7 @@ cdef class MatInterface:
         self._c_instance = GwmMatInterface(rows, cols, &array[0, 0])
 
     def __dealloc__(self):
+        print("deleteing", self._c_instance.rows, self._c_instance.cols)
         gwmodel_delete_mat(&self._c_instance)
 
     def show(self):
@@ -22,6 +24,12 @@ cpdef MatInterface numpy2mat(double[::1, :] array):
     cdef unsigned long long cols = array.shape[1]
     return MatInterface(rows, cols, array)
 
+cdef MatInterface mat2interface(GwmMatInterface interface):
+    cdef unsigned long long rows = interface.rows
+    cdef unsigned long long cols = interface.cols
+    cdef view.array data = view.array(shape=(rows, cols), itemsize=sizeof(double), format="d", mode="fortran", allocate_buffer=False)
+    data.data = <char*>interface.data
+    return MatInterface(rows, cols, data)
 
 cdef mat2numpy(GwmMatInterface interface):
     cdef const double* src = interface.data

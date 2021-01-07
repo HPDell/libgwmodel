@@ -1,7 +1,7 @@
 from gwss cimport *
 from simple_layer cimport SimpleLayer, CGwmSimpleLayer
 from spatial_weight cimport Distance, Weight, SpatialWeight
-from mat_interface cimport MatInterface, mat2numpy
+from mat_interface cimport MatInterface, mat2numpy, mat2interface
 from variable_interface cimport VariableListInterface
 from name_list_interface cimport NameListInterface
 from cython.view cimport array as cvarray
@@ -19,8 +19,8 @@ cdef class GWSS:
     
     def result_layer(self):
         cdef CGwmSimpleLayer* layer = gwmodel_get_gwss_result_layer(self._c_instance)
-        cdef MatInterface points = mat2numpy(gwmodel_get_simple_layer_points(layer))
-        cdef MatInterface data = mat2numpy(gwmodel_get_simple_layer_data(layer))
+        cdef MatInterface points = mat2interface(gwmodel_get_simple_layer_points(layer))
+        cdef MatInterface data = mat2interface(gwmodel_get_simple_layer_data(layer))
         return SimpleLayer(points, data, NameListInterface([]))
     
     def local_mean(self):

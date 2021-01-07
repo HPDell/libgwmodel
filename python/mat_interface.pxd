@@ -5,4 +5,5 @@ cdef class MatInterface:
 
 cpdef MatInterface numpy2mat(double[::1, :] array)
 cdef mat2numpy(GwmMatInterface interface)
+cdef MatInterface mat2interface(GwmMatInterface interface)
     
