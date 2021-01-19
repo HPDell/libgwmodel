@@ -17,6 +17,7 @@ cdef class GWSS:
     def __dealloc__(self):
         gwmodel_delete_gwss_algorithm(self._c_instance)
     
+    @property
     def result_layer(self):
         cdef CGwmSimpleLayer* layer = gwmodel_get_gwss_result_layer(self._c_instance)
         cdef MatInterface points = mat2interface(gwmodel_get_simple_layer_points(layer))
