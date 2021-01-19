@@ -1,9 +1,6 @@
 #ifndef CGWMSPATIALALGORITHM_H
 #define CGWMSPATIALALGORITHM_H
 
-#include <armadillo>
-using namespace arma;
-
 #include "CGwmAlgorithm.h"
 #include "CGwmSimpleLayer.h"
 
@@ -34,7 +31,7 @@ public:
     /**
      * @brief Destroy the CGwmSpatialAlgorithm object.
      */
-    ~CGwmSpatialAlgorithm();
+    virtual ~CGwmSpatialAlgorithm();
 
 public:
 

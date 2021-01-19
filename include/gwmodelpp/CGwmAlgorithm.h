@@ -26,7 +26,7 @@ public:
     /**
      * @brief Destroy the CGwmAlgorithm object.
      */
-    ~CGwmAlgorithm();
+    virtual ~CGwmAlgorithm();
 
 public:
 

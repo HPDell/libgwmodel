@@ -28,7 +28,7 @@ public:
     /**
      * @brief Destroy the CGwmSpatialMonoscaleAlgorithm object.
      */
-    ~CGwmSpatialMonoscaleAlgorithm();
+    virtual ~CGwmSpatialMonoscaleAlgorithm();
 
 public:
 
