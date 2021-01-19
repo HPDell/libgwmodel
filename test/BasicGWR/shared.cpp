@@ -80,6 +80,7 @@ TEST_CASE("BasicGWR: basic flow")
     REQUIRE_NOTHROW(gwmodel_delete_gwr_algorithm(algorithm));
     REQUIRE_NOTHROW(gwmodel_delete_string_list(&londonhp100_field_interface));
     REQUIRE_NOTHROW(gwmodel_delete_variable_list(&indepVars));
+    REQUIRE_NOTHROW(gwmodel_delete_simple_layer(londonhp));
 }
 
 TEST_CASE("BasicGWR: adaptive bandwidth autoselection of with CV")
@@ -161,6 +162,7 @@ TEST_CASE("BasicGWR: adaptive bandwidth autoselection of with CV")
     REQUIRE_NOTHROW(gwmodel_delete_string_list(&londonhp100_field_interface));
     REQUIRE_NOTHROW(gwmodel_delete_variable_list(&indepVars));
     REQUIRE_NOTHROW(gwmodel_delete_spatial_weight(spatial_new));
+    REQUIRE_NOTHROW(gwmodel_delete_simple_layer(londonhp));
 }
 
 vector<int> variables2indices(const GwmVariableListInterface& variables)
@@ -269,4 +271,5 @@ TEST_CASE("BasicGWR: indepdent variable autoselection with AIC")
     REQUIRE_NOTHROW(gwmodel_delete_string_list(&londonhp100_field_interface));
     REQUIRE_NOTHROW(gwmodel_delete_variable_list(&indepVars));
     REQUIRE_NOTHROW(gwmodel_delete_variable_criterion_list(&criterionList));
+    REQUIRE_NOTHROW(gwmodel_delete_simple_layer(londonhp));
 }

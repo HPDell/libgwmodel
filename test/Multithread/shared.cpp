@@ -140,6 +140,7 @@ TEST_CASE("BasicGWR: Multithread")
     REQUIRE_NOTHROW(gwmodel_delete_gwr_algorithm(algorithm));
     REQUIRE_NOTHROW(gwmodel_delete_string_list(&londonhp100_field_interface));
     REQUIRE_NOTHROW(gwmodel_delete_variable_list(&indepVars));
+    REQUIRE_NOTHROW(gwmodel_delete_simple_layer(londonhp));
 }
 
 TEST_CASE("GWSS: Multithread")
@@ -282,4 +283,5 @@ TEST_CASE("GWSS: Multithread")
     REQUIRE_NOTHROW(gwmodel_delete_gwss_algorithm(algorithm));
     REQUIRE_NOTHROW(gwmodel_delete_string_list(&londonhp100_field_interface));
     REQUIRE_NOTHROW(gwmodel_delete_variable_list(&vars));
+    REQUIRE_NOTHROW(gwmodel_delete_simple_layer(londonhp));
 }

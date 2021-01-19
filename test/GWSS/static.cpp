@@ -24,11 +24,11 @@ TEST_CASE("GWSS: basic flow")
         FAIL("Cannot load londonhp100 data.");
     }
 
-    CGwmSimpleLayer* londonhp = new CGwmSimpleLayer(londonhp100_coord, londonhp100_data, londonhp100_fields);
-    REQUIRE(londonhp->points().n_rows);
-    REQUIRE(londonhp->data().n_rows);
-    REQUIRE(londonhp->fields().size());
-    REQUIRE(londonhp->featureCount());
+    CGwmSimpleLayer londonhp(londonhp100_coord, londonhp100_data, londonhp100_fields);
+    REQUIRE(londonhp.points().n_rows);
+    REQUIRE(londonhp.data().n_rows);
+    REQUIRE(londonhp.fields().size());
+    REQUIRE(londonhp.featureCount());
 
     CGwmCRSDistance distance(false);
     CGwmBandwidthWeight bandwidth(36, true, CGwmBandwidthWeight::Gaussian);
@@ -41,7 +41,7 @@ TEST_CASE("GWSS: basic flow")
     vector<GwmVariable> variables = { purchase, floorsz, unemploy, prof };
 
     CGwmGWSS algorithm;
-    algorithm.setSourceLayer(londonhp);
+    algorithm.setSourceLayer(&londonhp);
     algorithm.setVariables(variables);
     algorithm.setSpatialWeight(spatial);
     REQUIRE_NOTHROW(algorithm.run());
@@ -118,11 +118,11 @@ TEST_CASE("GWSS: correlation with first variable only")
         FAIL("Cannot load londonhp100 data.");
     }
 
-    CGwmSimpleLayer* londonhp = new CGwmSimpleLayer(londonhp100_coord, londonhp100_data, londonhp100_fields);
-    REQUIRE(londonhp->points().n_rows);
-    REQUIRE(londonhp->data().n_rows);
-    REQUIRE(londonhp->fields().size());
-    REQUIRE(londonhp->featureCount());
+    CGwmSimpleLayer londonhp(londonhp100_coord, londonhp100_data, londonhp100_fields);
+    REQUIRE(londonhp.points().n_rows);
+    REQUIRE(londonhp.data().n_rows);
+    REQUIRE(londonhp.fields().size());
+    REQUIRE(londonhp.featureCount());
 
     CGwmCRSDistance distance(false);
     CGwmBandwidthWeight bandwidth(36, true, CGwmBandwidthWeight::Gaussian);
@@ -135,7 +135,7 @@ TEST_CASE("GWSS: correlation with first variable only")
     vector<GwmVariable> variables = { purchase, floorsz, unemploy, prof };
 
     CGwmGWSS algorithm;
-    algorithm.setSourceLayer(londonhp);
+    algorithm.setSourceLayer(&londonhp);
     algorithm.setVariables(variables);
     algorithm.setSpatialWeight(spatial);
     algorithm.setIsCorrWithFirstOnly(true);
