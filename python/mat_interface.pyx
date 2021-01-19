@@ -21,7 +21,14 @@ cdef class MatInterface:
 cpdef MatInterface numpy2mat(double[::1, :] array):
     cdef unsigned long long rows = array.shape[0]
     cdef unsigned long long cols = array.shape[1]
-    return MatInterface(rows, cols, array)
+    cdef double* ptr = <double*>malloc(cols * rows * sizeof(double))
+    cdef unsigned long long i, j
+    for i in range(cols):
+        for j in range(rows):
+            ptr[i * rows + j] = array[j, i]
+    cdef view.array data = view.array(shape=(cols, rows), itemsize=sizeof(double), format="d", mode="fortran", allocate_buffer=False)
+    data.data = <char*>ptr
+    return MatInterface(rows, cols, data)
 
 cdef MatInterface mat2interface(GwmMatInterface interface):
     cdef unsigned long long rows = interface.rows
