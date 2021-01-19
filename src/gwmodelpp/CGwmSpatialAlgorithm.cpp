@@ -7,7 +7,7 @@ CGwmSpatialAlgorithm::CGwmSpatialAlgorithm()
 
 CGwmSpatialAlgorithm::~CGwmSpatialAlgorithm()
 {
-    printf("~CGwmSpatialAlgorithm %lld");
+
 }
 
 bool CGwmSpatialAlgorithm::isValid()
