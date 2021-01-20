@@ -8,8 +8,9 @@ add_custom_target(testPythonDeps ALL
         make_directory
         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<$<CONFIG:Release>:Release>$<$<CONFIG:Debug>:Debug>/pygwmodel
     COMMAND ${CMAKE_COMMAND} -E
-        touch
-        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<$<CONFIG:Release>:Release>$<$<CONFIG:Debug>:Debug>/pygwmodel/__init__.py
+        copy_if_different
+        ${CMAKE_SOURCE_DIR}/python/__init__.py
+        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<$<CONFIG:Release>:Release>$<$<CONFIG:Debug>:Debug>/pygwmodel
     COMMAND ${CMAKE_COMMAND} -E
         copy_if_different
         $<TARGET_FILE:gwss>

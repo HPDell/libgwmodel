@@ -58,8 +58,3 @@ add_cython_target(gwr_basic.pyx CXX)
 add_library(gwr_basic MODULE ${gwr_basic})
 target_link_libraries(gwr_basic gwmodel)
 python_extension_module(gwr_basic LINKED_MODULES_VAR linked_module_list FORWARD_DECL_MODULES_VAR fdecl_module_list)
-
-add_cython_target(pygwmodel.pyx CXX)
-add_library(pygwmodel MODULE ${pygwmodel})
-target_link_libraries(pygwmodel ${linked_module_list})
-python_extension_module(pygwmodel)
