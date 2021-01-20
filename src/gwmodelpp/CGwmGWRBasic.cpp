@@ -103,6 +103,7 @@ void CGwmGWRBasic::run()
     }
     else
     {
+        createPredictionDistanceParameter();
         mBetas = regression(mX, mY);
         createResultLayer({
             make_tuple(string("%1"), mBetas, NameFormat::VarName)
@@ -124,13 +125,13 @@ void CGwmGWRBasic::createPredictionDistanceParameter()
     if (mSpatialWeight.distance()->type() == CGwmDistance::DistanceType::CRSDistance || 
         mSpatialWeight.distance()->type() == CGwmDistance::DistanceType::MinkwoskiDistance)
     {
-        mRegressionDistanceParameter = new CRSDistanceParameter(mPredictLayer->points(), mSourceLayer->points());
+        mPredictionDistanceParameter = new CRSDistanceParameter(hasPredictLayer() ? mPredictLayer->points() : mSourceLayer->points(), mSourceLayer->points());
     }
 }
 
 mat CGwmGWRBasic::regressionSerial(const mat& x, const vec& y)
 {
-    uword nRp = mPredictLayer->featureCount(), nVar = mIndepVars.size() + 1;
+    uword nRp = hasPredictLayer() ? mPredictLayer->featureCount() : mSourceLayer->featureCount(), nVar = mIndepVars.size() + 1;
     mat betas(nVar, nRp, fill::zeros);
     for (uword i = 0; i < nRp; i++)
     {
@@ -191,7 +192,7 @@ mat CGwmGWRBasic::regressionHatmatrixSerial(const mat& x, const vec& y, mat& bet
 #ifdef ENABLE_OPENMP
 mat CGwmGWRBasic::regressionOmp(const mat& x, const vec& y)
 {
-    uword nRp = mPredictLayer->featureCount(), nVar = mIndepVars.size() + 1;
+    uword nRp = hasPredictLayer() ? mPredictLayer->featureCount() : mSourceLayer->featureCount(), nVar = mIndepVars.size() + 1;
     mat betas(nVar, nRp, arma::fill::zeros);
     int current = 0;
 #pragma omp parallel for num_threads(mOmpThreadNum)

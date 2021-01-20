@@ -8,8 +8,7 @@ CGwmGWRBase::CGwmGWRBase()
 
 CGwmGWRBase::~CGwmGWRBase()
 {
-    if (mPredictLayer) delete mPredictLayer;
-    mPredictLayer = nullptr;
+
 }
 
 bool CGwmGWRBase::isValid()

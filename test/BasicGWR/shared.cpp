@@ -83,6 +83,69 @@ TEST_CASE("BasicGWR: basic flow")
     REQUIRE_NOTHROW(gwmodel_delete_simple_layer(londonhp));
 }
 
+TEST_CASE("BasicGWR: predict flow")
+{
+    mat londonhp100_coord, londonhp100_data;
+    vector<string> londonhp100_fields;
+    if (!read_londonhp100(londonhp100_coord, londonhp100_data, londonhp100_fields))
+    {
+        FAIL("Cannot load londonhp100 data.");
+    }
+
+    GwmMatInterface londonhp100_coord_interface; 
+    londonhp100_coord_interface.rows = londonhp100_coord.n_rows;
+    londonhp100_coord_interface.cols = londonhp100_coord.n_cols;
+    londonhp100_coord_interface.data = londonhp100_coord.mem;
+    GwmMatInterface londonhp100_data_interface;
+    londonhp100_data_interface.rows = londonhp100_data.n_rows;
+    londonhp100_data_interface.cols = londonhp100_data.n_cols;
+    londonhp100_data_interface.data = londonhp100_data.mem;
+    GwmNameListInterface londonhp100_field_interface;
+    londonhp100_field_interface.size = londonhp100_fields.size();
+    londonhp100_field_interface.items = new GwmNameInterface[londonhp100_field_interface.size];
+    for (int i = 0; i < londonhp100_fields.size(); i++)
+    {
+        strcpy(londonhp100_field_interface.items[i], londonhp100_fields[i].data());
+    }
+    CGwmSimpleLayer* londonhp = gwmodel_create_simple_layer(londonhp100_coord_interface, londonhp100_data_interface, londonhp100_field_interface);
+
+    CGwmDistance* distance = gwmodel_create_crs_distance(false);
+    CGwmWeight* bandwidth = gwmodel_create_bandwidth_weight(36, true, KernelFunctionType::Gaussian);
+    CGwmSpatialWeight* spatial = gwmodel_create_spatial_weight(distance, bandwidth);
+
+    GwmVariableInterface purchase;
+    purchase.index = 0;
+    purchase.isNumeric = true;
+    strcpy(purchase.name, "PURCHASE");
+    GwmVariableInterface floorsz;
+    floorsz.index = 1;
+    floorsz.isNumeric = true;
+    strcpy(floorsz.name, "FLOORSZ");
+    GwmVariableInterface unemploy;
+    unemploy.index = 2;
+    unemploy.isNumeric = true;
+    strcpy(unemploy.name, "UNEMPLOY");
+    GwmVariableInterface prof;
+    prof.index = 3;
+    prof.isNumeric = true;
+    strcpy(prof.name, "PROF");
+    GwmVariableListInterface indepVars;
+    indepVars.size = 3;
+    indepVars.items = new GwmVariableInterface[indepVars.size];
+    indepVars.items[0] = floorsz;
+    indepVars.items[1] = unemploy;
+    indepVars.items[2] = prof;
+
+    CGwmGWRBasic* algorithm = gwmodel_create_gwr_algorithm();
+    gwmodel_set_gwr_source_layer(algorithm, londonhp);
+    gwmodel_set_gwr_predict_layer(algorithm, londonhp);
+    gwmodel_set_gwr_dependent_variable(algorithm, purchase);
+    gwmodel_set_gwr_independent_variable(algorithm, indepVars);
+    gwmodel_set_gwr_spatial_weight(algorithm, spatial);
+    gwmodel_set_gwr_options(algorithm, false);
+    REQUIRE_NOTHROW(gwmodel_run_gwr(algorithm));
+}
+
 TEST_CASE("BasicGWR: adaptive bandwidth autoselection of with CV")
 {
     mat londonhp100_coord, londonhp100_data;
