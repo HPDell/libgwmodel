@@ -58,3 +58,8 @@ add_cython_target(gwr_basic.pyx CXX)
 add_library(gwr_basic MODULE ${gwr_basic})
 target_link_libraries(gwr_basic gwmodel)
 python_extension_module(gwr_basic LINKED_MODULES_VAR linked_module_list FORWARD_DECL_MODULES_VAR fdecl_module_list)
+
+
+install(TARGETS gwss mat_interface name_list_interface simple_layer spatial_weight variable_interface gwr_basic
+        LIBRARY DESTINATION pygwmodel)
+install(FILES ${CMAKE_SOURCE_DIR}/python/__init__.py DESTINATION pygwmodel)

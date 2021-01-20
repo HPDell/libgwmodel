@@ -9,3 +9,8 @@ endif(BUILD_SHARED_LIBS)
 
 add_executable(testBasicGWR ${SOURCES} ${SAMPL_LONDONHP100})
 target_link_libraries(testBasicGWR PRIVATE gwmodel ${ARMADILLO_LIBRARIES} Catch2::Catch2)
+
+add_test(
+    NAME testBasicGWR 
+    COMMAND $<TARGET_FILE:testBasicGWR> --success
+)

@@ -22,32 +22,5 @@ if(BUILD_SHARED_LIBS)
     endif(WITH_PYTHON)
 endif(BUILD_SHARED_LIBS)
 
-
 enable_testing()
-
 add_subdirectory(${CMAKE_SOURCE_DIR}/test)
-add_test(
-    NAME testBasicGWR 
-    COMMAND $<TARGET_FILE:testBasicGWR> --success
-)
-add_test(
-    NAME testGWSS 
-    COMMAND $<TARGET_FILE:testGWSS> --success
-)
-add_test(
-    NAME testMultithread 
-    COMMAND $<TARGET_FILE:testMultithread> --success
-)
-
-install(TARGETS gwmodel
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
-    RUNTIME DESTINATION bin
-)
-install(DIRECTORY include/ DESTINATION include)
-
-if(WITH_PYTHON)
-    install(TARGETS gwss mat_interface name_list_interface simple_layer spatial_weight variable_interface gwr_basic
-            LIBRARY DESTINATION pygwmodel)
-    install(FILES ${CMAKE_SOURCE_DIR}/python/__init__.py DESTINATION pygwmodel)
-endif(WITH_PYTHON)

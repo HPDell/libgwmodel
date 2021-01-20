@@ -113,3 +113,10 @@ if(OpenMP_FOUND)
         ${OpenMP_CXX_LIBRARIES}
     )
 endif(OpenMP_FOUND)
+
+install(TARGETS gwmodel
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    RUNTIME DESTINATION bin
+)
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION include)
