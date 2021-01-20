@@ -545,14 +545,27 @@ void CGwmGWRBasic::createResultLayer(initializer_list<ResultLayerDataItem> items
     mResultLayer = new CGwmSimpleLayer(layerPoints, layerData, layerFields);
 }
 
-void CGwmGWRBasic::setBandwidthSelectionCriterion(BandwidthSelectionCriterionType type)
+void CGwmGWRBasic::setBandwidthSelectionCriterion(const BandwidthSelectionCriterionType& criterion)
 {
-    mBandwidthSelectionCriterion = type;
-    unordered_map<BandwidthSelectionCriterionType, BandwidthSelectionCriterionCalculator> mapper = {
-        make_pair(BandwidthSelectionCriterionType::CV, &CGwmGWRBasic::bandwidthSizeCriterionCVSerial),
-        make_pair(BandwidthSelectionCriterionType::AIC, &CGwmGWRBasic::bandwidthSizeCriterionAICSerial)
-    };
-    mBandwidthSelectionCriterionFunction = mapper[mBandwidthSelectionCriterion];
+    mBandwidthSelectionCriterion = criterion;
+    unordered_map<ParallelType, BandwidthSelectionCriterionCalculator> mapper;
+    switch (mBandwidthSelectionCriterion)
+    {
+    case BandwidthSelectionCriterionType::CV:
+        mapper = {
+            make_pair(ParallelType::SerialOnly, &CGwmGWRBasic::bandwidthSizeCriterionCVSerial),
+            make_pair(ParallelType::OpenMP, &CGwmGWRBasic::bandwidthSizeCriterionAICOmp)
+        };
+        break;
+    case BandwidthSelectionCriterionType::AIC:
+        mapper = {
+            make_pair(ParallelType::SerialOnly, &CGwmGWRBasic::bandwidthSizeCriterionCVSerial),
+            make_pair(ParallelType::OpenMP, &CGwmGWRBasic::bandwidthSizeCriterionAICOmp)
+        };
+    default:
+        break;
+    }
+    mBandwidthSelectionCriterionFunction = mapper[mParallelType];
 }
 
 void CGwmGWRBasic::setParallelType(const ParallelType& type)

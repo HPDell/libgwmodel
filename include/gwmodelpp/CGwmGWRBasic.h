@@ -51,7 +51,7 @@ public:
     void setIsAutoselectBandwidth(bool isAutoSelect);
 
     BandwidthSelectionCriterionType bandwidthSelectionCriterion() const;
-    void setBandwidthSelectionCriterion(BandwidthSelectionCriterionType type);
+    void setBandwidthSelectionCriterion(const BandwidthSelectionCriterionType& criterion);
 
     bool isAutoselectIndepVars() const;
     void setIsAutoselectIndepVars(bool isAutoSelect);
