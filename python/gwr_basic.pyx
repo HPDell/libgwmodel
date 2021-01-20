@@ -4,7 +4,6 @@ from spatial_weight cimport Distance, Weight, SpatialWeight
 from mat_interface cimport MatInterface, mat2numpy, mat2interface
 from variable_interface cimport VariableInterface, VariableListInterface, GwmVariableListInterface, GwmVariableInterface
 from name_list_interface cimport NameListInterface, names2list
-from regression_diagnostic cimport RegressionDiagnostic
 from cython.view cimport array as cvarray
 from libcpp.string cimport string
 
@@ -36,15 +35,23 @@ cdef class GWRBasic:
             return bw_ker.size
         else:
             raise TypeError("Cannot convert to Bandwidth Weight")
-        
+    
+    @property
+    def diagnostic(self):
+        cdef GwmRegressionDiagnostic diagnostic = gwmodel_get_gwr_diagnostic(self._c_instance)
+        return {
+            "RSS": diagnostic.RSS,
+            "AIC": diagnostic.AIC,
+            "AICc": diagnostic.AICc,
+            "ENP": diagnostic.ENP,
+            "EDF": diagnostic.EDF,
+            "RSquare": diagnostic.RSquare,
+            "RSquareAdjust": diagnostic.RSquareAdjust
+        }
     
     @property
     def coefficients(self):
         return mat2numpy(gwmodel_get_gwr_coefficients(self._c_instance))
-
-    @property
-    def diagnostic(self):
-        return RegressionDiagnostic.wrap(gwmodel_get_gwr_diagnostic(self._c_instance))
     
     @property
     def bandwidth_select_criterions(self):

@@ -18,7 +18,6 @@ add_custom_target(testPythonDeps ALL
         $<TARGET_FILE:simple_layer>
         $<TARGET_FILE:spatial_weight>
         $<TARGET_FILE:variable_interface>
-        $<TARGET_FILE:regression_diagnostic>
         $<TARGET_FILE:gwr_basic>
         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<$<CONFIG:Release>:Release>$<$<CONFIG:Debug>:Debug>/pygwmodel
     # COMMAND ${CMAKE_COMMAND} -E

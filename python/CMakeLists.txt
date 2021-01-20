@@ -54,11 +54,6 @@ add_library(gwss MODULE ${gwss})
 target_link_libraries(gwss gwmodel)
 python_extension_module(gwss LINKED_MODULES_VAR linked_module_list FORWARD_DECL_MODULES_VAR fdecl_module_list)
 
-add_cython_target(regression_diagnostic.pyx CXX)
-add_library(regression_diagnostic MODULE ${regression_diagnostic})
-target_link_libraries(regression_diagnostic gwmodel)
-python_extension_module(regression_diagnostic LINKED_MODULES_VAR linked_module_list FORWARD_DECL_MODULES_VAR fdecl_module_list)
-
 add_cython_target(gwr_basic.pyx CXX)
 add_library(gwr_basic MODULE ${gwr_basic})
 target_link_libraries(gwr_basic gwmodel)

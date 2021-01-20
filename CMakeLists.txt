@@ -47,6 +47,6 @@ install(TARGETS gwmodel
 install(DIRECTORY include/ DESTINATION include)
 
 if(WITH_PYTHON)
-    install(TARGETS pygwmodel gwss mat_interface name_list_interface simple_layer spatial_weight variable_interface regression_diagnostic gwr_basic
+    install(TARGETS pygwmodel gwss mat_interface name_list_interface simple_layer spatial_weight variable_interface gwr_basic
             LIBRARY DESTINATION py)
 endif(WITH_PYTHON)
