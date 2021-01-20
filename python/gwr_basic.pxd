@@ -1,4 +1,4 @@
-from cbase cimport CGwmGWRBasic, BandwidthSelectionCriterionType, GwmBandwidthKernelInterface, CGwmSpatialWeight
+from cbase cimport CGwmGWRBasic, BandwidthSelectionCriterionType, GwmBandwidthKernelInterface, CGwmSpatialWeight, GwmRegressionDiagnostic, GwmMatInterface
 from cbase cimport GwmVariablesCriterionPairInterface, GwmVariablesCriterionListInterface
 from cbase cimport GwmBandwidthCriterionPairInterface, GwmBandwidthCriterionListInterface
 from cbase cimport gwmodel_get_simple_layer_points

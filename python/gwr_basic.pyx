@@ -27,6 +27,12 @@ cdef class GWRBasic:
         return SimpleLayer(points, data, NameListInterface(names2list(gwmodel_get_simple_layer_fields(layer))))
     
     @property
+    def indep_vars(self):
+        cdef CGwmSimpleLayer* layer = gwmodel_get_gwr_result_layer(self._c_instance)
+        cdef GwmMatInterface coef = gwmodel_get_gwr_coefficients(self._c_instance)
+        return names2list(gwmodel_get_simple_layer_fields(layer))[1:coef.cols]
+    
+    @property
     def bandwidth(self):
         cdef CGwmSpatialWeight* spw = gwmodel_get_gwr_spatial_weight(self._c_instance)
         cdef GwmBandwidthKernelInterface bw_ker = GwmBandwidthKernelInterface()
