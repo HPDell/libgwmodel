@@ -28,6 +28,17 @@ cdef class GWRBasic:
         return SimpleLayer(points, data, NameListInterface(names2list(gwmodel_get_simple_layer_fields(layer))))
     
     @property
+    def bandwidth(self):
+        cdef CGwmSpatialWeight* spw = gwmodel_get_gwr_spatial_weight(self._c_instance)
+        cdef GwmBandwidthKernelInterface bw_ker = GwmBandwidthKernelInterface()
+        cdef bint flag = gwmodel_get_spatial_bandwidth_weight(spw, &bw_ker)
+        if flag:
+            return bw_ker.size
+        else:
+            raise TypeError("Cannot convert to Bandwidth Weight")
+        
+    
+    @property
     def coefficients(self):
         return mat2numpy(gwmodel_get_gwr_coefficients(self._c_instance))
 

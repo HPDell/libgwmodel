@@ -36,6 +36,11 @@ cdef extern from "gwmodel.h":
         Bisquare
         Tricube
         Boxcar
+    
+    ctypedef struct GwmBandwidthKernelInterface:
+        double size;
+        bint isAdaptive;
+        KernelFunctionType type;
 
     ctypedef struct CGwmDistance:
         pass
@@ -124,3 +129,5 @@ cdef extern from "gwmodel.h":
     cdef GwmVariablesCriterionListInterface gwmodel_get_gwr_indep_var_criterions(CGwmGWRBasic* gwr)
     cdef GwmRegressionDiagnostic gwmodel_get_gwr_diagnostic(CGwmGWRBasic* gwr)
     cdef void gwmodel_run_gwr(CGwmGWRBasic* algorithm)
+
+    cdef bint gwmodel_get_spatial_bandwidth_weight(CGwmSpatialWeight* spatial, GwmBandwidthKernelInterface* bandwidth)
