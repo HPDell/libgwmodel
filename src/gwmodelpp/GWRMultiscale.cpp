@@ -426,17 +426,17 @@ vec GWRMultiscale::fitVarSerial(const vec &x, const vec &y, const uword var, mat
     if (mHasHatMatrix)
     {
         mat ci, si;
-        S = mat(mHasHatMatrix ? nDp : 1, nDp, fill::zeros);
+        S = mat(nDp, nDp, fill::zeros);
         for (uword i = 0; i < nDp  ; i++)
         {
             GWM_LOG_STOP_BREAK(mStatus);
             vec w = mSpatialWeights[var].weightVector(i);
             mat xtw = trans(x % w);
-            mat xtwx = xtw * x;
-            mat xtwy = xtw * y;
+            double xtwx = as_scalar(xtw * x);
+            double xtwy = as_scalar(xtw * y);
             try
             {
-                mat xtwx_inv = inv_sympd(xtwx);
+                double xtwx_inv = 1.0 / xtwx;
                 betas.col(i) = xtwx_inv * xtwy;
                 ci = xtwx_inv * xtw;
                 si = x(i) * ci;
@@ -570,12 +570,12 @@ double GWRMultiscale::bandwidthSizeCriterionVarCVSerial(BandwidthWeight *bandwid
         vec w = bandwidthWeight->weight(d);
         w(i) = 0.0;
         mat xtw = trans(mXi % w);
-        mat xtwx = xtw * mXi;
-        mat xtwy = xtw * mYi;
+        double xtwx = as_scalar(xtw * mXi);
+        double xtwy = as_scalar(xtw * mYi);
         try
         {
-            mat xtwx_inv = inv_sympd(xtwx);
-            vec beta = xtwx_inv * xtwy;
+            double xtwx_inv = 1.0 / xtwx;
+            double beta = xtwx_inv * xtwy;
             double res = mYi(i) - det(mXi(i) * beta);
             cv += res * res;
         }
@@ -607,11 +607,11 @@ double GWRMultiscale::bandwidthSizeCriterionVarAICSerial(BandwidthWeight *bandwi
         vec d = mSpatialWeights[var].distance()->distance(i);
         vec w = bandwidthWeight->weight(d);
         mat xtw = trans(mXi % w);
-        mat xtwx = xtw * mXi;
-        mat xtwy = xtw * mYi;
+        double xtwx = as_scalar(xtw * mXi);
+        double xtwy = as_scalar(xtw * mYi);
         try
         {
-            mat xtwx_inv = inv_sympd(xtwx);
+            double xtwx_inv = 1.0 / xtwx;
             betas.col(i) = xtwx_inv * xtwy;
             mat ci = xtwx_inv * xtw;
             mat si = mXi(i) * ci;
