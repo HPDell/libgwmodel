@@ -10,6 +10,7 @@
 #include "gwmodelpp/spatialweight/CRSDistance.h"
 #include "gwmodelpp/spatialweight/BandwidthWeight.h"
 #include "gwmodelpp/spatialweight/SpatialWeight.h"
+#include "londonhp.h"
 #include "londonhp100.h"
 #include "TerminateCheckTelegram.h"
 #include "FileTelegram.h"
@@ -335,4 +336,48 @@ TEST_CASE("Multiscale GWR: cancel")
         REQUIRE(algorithm.status() == Status::Terminated);
     }
 
+}
+
+TEST_CASE("Large Data Repeate")
+{
+    mat londonhp_coord, londonhp_data;
+    vector<string> londonhp_fields;
+    if (!read_londonhp(londonhp_coord, londonhp_data, londonhp_fields))
+    {
+        FAIL("Cannot load londonhp100 data.");
+    }
+
+    vec y = londonhp_data.col(0);
+    mat x = join_rows(ones(londonhp_data.n_rows), londonhp_data.cols(uvec({1, 3})));
+    uword nVar = 3;
+
+    BENCHMARK("specified bandwidth")
+    {
+        vector<SpatialWeight> spatials;
+        vector<bool> preditorCentered;
+        vector<GWRMultiscale::BandwidthInitilizeType> bandwidthInitialize;
+        vector<GWRMultiscale::BandwidthSelectionCriterionType> bandwidthSelectionApproach;
+        for (size_t i = 0; i < nVar; i++)
+        {
+            CRSDistance distance;
+            BandwidthWeight bandwidth(64, true, BandwidthWeight::Bisquare);
+            spatials.push_back(SpatialWeight(&bandwidth, &distance));
+            preditorCentered.push_back(i != 0);
+            bandwidthInitialize.push_back(GWRMultiscale::BandwidthInitilizeType::Specified);
+            bandwidthSelectionApproach.push_back(GWRMultiscale::BandwidthSelectionCriterionType::CV);
+        }
+
+        GWRMultiscale algorithm;
+        algorithm.setCoords(londonhp_coord);
+        algorithm.setDependentVariable(y);
+        algorithm.setIndependentVariables(x);
+        algorithm.setSpatialWeights(spatials);
+        algorithm.setHasHatMatrix(true);
+        algorithm.setPreditorCentered(preditorCentered);
+        algorithm.setBandwidthInitilize(bandwidthInitialize);
+        algorithm.setBandwidthSelectionApproach(bandwidthSelectionApproach);
+        algorithm.setBandwidthSelectThreshold(vector(3, 1e-5));
+        algorithm.fit();
+        return algorithm.betas();
+    };
 }
