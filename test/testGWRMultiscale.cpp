@@ -363,7 +363,7 @@ TEST_CASE("Large Data Repeate")
             BandwidthWeight bandwidth(64, true, BandwidthWeight::Bisquare);
             spatials.push_back(SpatialWeight(&bandwidth, &distance));
             preditorCentered.push_back(i != 0);
-            bandwidthInitialize.push_back(GWRMultiscale::BandwidthInitilizeType::Specified);
+            bandwidthInitialize.push_back(GWRMultiscale::BandwidthInitilizeType::Initial);
             bandwidthSelectionApproach.push_back(GWRMultiscale::BandwidthSelectionCriterionType::CV);
         }
 
