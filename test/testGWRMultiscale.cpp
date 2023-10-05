@@ -338,7 +338,7 @@ TEST_CASE("Multiscale GWR: cancel")
 
 }
 
-TEST_CASE("Large Data Repeate")
+TEST_CASE("Large Data Repeate", "[benchmark]")
 {
     mat londonhp_coord, londonhp_data;
     vector<string> londonhp_fields;
