@@ -6,6 +6,7 @@ set(CMAKE_MODULE_PATH cmake)
 
 option(ENABLE_OpenMP "Determines whether OpemMP support should be built" ON)
 option(ENABLE_CUDA "Determines whether CUDA support should be built" OFF)
+option(ENABLE_MPI "Determines whether MPI support should be built" OFF)
 option(WITH_TESTS "Determines whether to build and run tests" ON)
 
 if(ENABLE_CUDA)

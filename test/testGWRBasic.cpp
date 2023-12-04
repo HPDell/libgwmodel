@@ -377,6 +377,7 @@ TEST_CASE("Basic GWR: cancel")
 
 }
 
+#ifdef ENABLE_CUDA
 TEST_CASE("BasicGWR: Benchmark")
 {
     size_t n = 50000, k = 3;
@@ -417,3 +418,4 @@ TEST_CASE("BasicGWR: Benchmark")
         return algorithm.betas();
     };
 }
+#endif // ENABLE_CUDA

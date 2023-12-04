@@ -375,7 +375,7 @@ public:     // Implement IRegressionAnalysis
 public:     // Implement IVariableSelectable
     Status getCriterion(const std::vector<size_t>& variables, double& criterion) override
     {
-        criterion = indepVarsSelectionCriterion(variables);
+        criterion = (this->*mIndepVarsSelectionCriterionFunction)(variables);
         return mStatus;
     }
 
@@ -699,7 +699,9 @@ public:     // Implement IGwmParallelOpenmpEnabled
     void setOmpThreadNum(const int threadNum) override { mOmpThreadNum = threadNum; }
     void setGPUId(const int gpuId) override { mGpuId = gpuId; };
     void setGroupSize(const double size) override { mGroupLength = size; };
-    int workerId() { return mWorkerId; }
+    int workerId() override { return mWorkerId; }
+    void setWorkerId(int id) override { mWorkerId = id; };
+    void setWorkerNum(int size) override { mWorkerNum = size; };
 
 protected:
 
@@ -765,7 +767,7 @@ protected:
     int mGpuId = 0; //!< \~english The ID of selected GPU. \~chinese 选择的 GPU 的 ID。
     int mWorkerId = 0;
     int mWorkerNum = 0;
-    std::optional<std::pair<uword, uword>> mWorkRange;
+    std::optional<std::pair<arma::uword, arma::uword>> mWorkRange;
 
     arma::mat mBetasSE;  //!< \~english Standard errors of coefficient estimates. \~chinese 回归系数估计值的标准差。
     arma::vec mSHat;  //!< \~english A vector of \f$tr(S)\f$ and \f$tr(SS^T)\f$. \~chinese 由 \f$tr(S)\f$ 和 \f$tr(SS^T)\f$ 组成的向量。

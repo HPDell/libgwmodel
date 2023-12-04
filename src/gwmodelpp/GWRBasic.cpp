@@ -58,7 +58,7 @@ mat GWRBasic::fit()
         {
             // sync matrix dimensions
             uword nDim = mCoords.n_cols;
-            uword nWorkRangeSize = nDp / mWorkerNum + (nDp % mWorkerNum == 0) ? 0 : 1;
+            uword nWorkRangeSize = nDp / mWorkerNum + ((nDp % mWorkerNum == 0) ? 0 : 1);
             aShape[0] = nDp;
             aShape[1] = nVars;
             aShape[2] = nDim;
@@ -274,7 +274,6 @@ mat GWRBasic::fitCVSerial(const mat& x, const vec& y, const SpatialWeight& sw)
     uword nDp = mCoords.n_rows, nVar = x.n_cols;
     vec shat(2, fill::zeros);
     mat betas(nVar, nDp, fill::zeros);
-    double cv = 0.0;
     std::pair<uword, uword> workRange = mWorkRange.value_or(make_pair(0, nDp));
     for (uword i = workRange.first; i < workRange.second; i++)
     {
@@ -434,7 +433,6 @@ GWM_MPI_MASTER_BEGIN
     }
     delete[] buf;
     vec residual = y - x % betas;
-    double rss = sum(residual % residual);
     aic = GWRBasic::AICc(x, y, betas, shat_all);
 GWM_MPI_MASTER_END
 GWM_MPI_WORKER_BEGIN
@@ -1024,7 +1022,7 @@ double GWRBasic::indepVarsSelectionCriterionCuda(const std::vector<size_t>& inde
 
 mat GWRBasic::fitMpi(const mat& x, const vec& y, mat& betasSE, vec& shat, vec& qDiag, mat& S)
 {
-    
+    return mat();
 }
 
 void GWRBasic::setBandwidthSelectionCriterion(const BandwidthSelectionCriterionType& criterion)
