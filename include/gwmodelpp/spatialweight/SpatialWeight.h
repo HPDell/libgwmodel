@@ -377,7 +377,7 @@ public:
      * @param focus 当前样本的索引值。
      * @return vec 当前样本到其他所有样本的空间权重向量。
      */
-    virtual arma::vec weightVector(arma::uword focus)
+    virtual arma::vec weightVector(arma::uword focus) const
     {
         return mWeight->weight(mDistance->distance(focus));
     }

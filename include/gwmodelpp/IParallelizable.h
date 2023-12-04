@@ -16,7 +16,8 @@ enum ParallelType
 {
     SerialOnly = 1 << 0,    //!< \~english Use no parallel methods. \~chinese 不并行。
     OpenMP = 1 << 1,        //!< \~english Use multithread methods. \~chinese 多线程并行。
-    CUDA = 1 << 2           //!< \~english Use CUDA accelerated methods. \~chinese CUDA加速。
+    CUDA = 1 << 2,          //!< \~english Use CUDA accelerated methods. \~chinese CUDA加速。
+    MPI = 1 << 3
 };
 
 /**
@@ -140,6 +141,19 @@ struct IParallelCudaEnabled
     virtual void setGroupSize(const double size) = 0;
     
 };
+
+struct IParallelMpiEnabled
+{
+    virtual int workerId() = 0;
+    virtual void setWorkerId(int id) = 0;
+    virtual void setWorkerNum(int size) = 0;
+};
+
+#define GWM_MPI_MASTER_BEGIN if (workerId() == 0) {
+#define GWM_MPI_MASTER_END }
+#define GWM_MPI_WORKER_BEGIN if (workerId() != 0) {
+#define GWM_MPI_WORKER_END }
+#define GWM_MPI_MASTER_WORKER_SWITCH } else {
 
 }
 
