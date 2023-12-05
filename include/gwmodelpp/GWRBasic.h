@@ -48,8 +48,9 @@ public:
     
     typedef arma::mat (GWRBasic::*PredictCalculator)(const arma::mat&, const arma::mat&, const arma::vec&);                             //!< \~english Predict function declaration. \~chinese 预测函数声明。
     typedef arma::mat (GWRBasic::*FitCalculator)(const arma::mat&, const arma::vec&, arma::mat&, arma::vec&, arma::vec&, arma::mat&);   //!< \~english Fit function declaration. \~chinese 拟合函数声明。
-    typedef arma::mat (GWRBasic::*FitSHatCalculator)(const arma::mat&, const arma::vec&, const SpatialWeight&, arma::vec&);   //!< \~english Fit function declaration. \~chinese 拟合函数声明。
-    typedef arma::mat (GWRBasic::*FitCVCalculator)(const arma::mat&, const arma::vec&, const SpatialWeight&);   //!< \~english Fit function declaration. \~chinese 拟合函数声明。
+    typedef arma::mat (GWRBasic::*FitCoreCalculator)(const arma::mat&, const arma::vec&, const SpatialWeight&, arma::mat&, arma::vec&, arma::vec&, arma::mat&);   //!< \~english Fit function declaration. \~chinese 拟合函数声明。
+    typedef arma::mat (GWRBasic::*FitCoreSHatCalculator)(const arma::mat&, const arma::vec&, const SpatialWeight&, arma::vec&);   //!< \~english Fit function declaration. \~chinese 拟合函数声明。
+    typedef arma::mat (GWRBasic::*FitCoreCVCalculator)(const arma::mat&, const arma::vec&, const SpatialWeight&);   //!< \~english Fit function declaration. \~chinese 拟合函数声明。
 
     typedef double (GWRBasic::*BandwidthSelectionCriterionCalculator)(BandwidthWeight*);        //!< \~english Declaration of criterion calculator for bandwidth selection. \~chinese 带宽优选指标计算函数声明。
     typedef double (GWRBasic::*IndepVarsSelectCriterionCalculator)(const std::vector<std::size_t>&); //!< \~english Declaration of criterion calculator for variable selection. \~chinese 变量优选指标计算函数声明。
@@ -484,11 +485,16 @@ private:
      * @param S [out] 帽子矩阵 \f$S\f$。
      * @return mat 回归系数估计值
      */
-    arma::mat fitSerial(const arma::mat& x, const arma::vec& y, arma::mat& betasSE, arma::vec& shat, arma::vec& qDiag, arma::mat& S);
+    arma::mat fitBase(const arma::mat& x, const arma::vec& y, arma::mat& betasSE, arma::vec& shat, arma::vec& qDiag, arma::mat& S)
+    {
+        return (this->*mFitCoreFunction)(x, y, mSpatialWeight, betasSE, shat, qDiag, S);
+    }
 
-    arma::mat fitSHatSerial(const arma::mat& x, const arma::vec& y, const SpatialWeight& sw, arma::vec& shat);
+    arma::mat fitCoreDiagnosticSerial(const arma::mat& x, const arma::vec& y, const SpatialWeight& sw, arma::mat& betasSE, arma::vec& shat, arma::vec& qDiag, arma::mat& S);
 
-    arma::mat fitCVSerial(const arma::mat& x, const arma::vec& y, const SpatialWeight& sw);
+    arma::mat fitCoreSHatSerial(const arma::mat& x, const arma::vec& y, const SpatialWeight& sw, arma::vec& shat);
+
+    arma::mat fitCoreCVSerial(const arma::mat& x, const arma::vec& y, const SpatialWeight& sw);
 
 #ifdef ENABLE_OPENMP
 
@@ -757,9 +763,10 @@ protected:
     std::optional<double> mGoldenLowerBounds;
 
     PredictCalculator mPredictFunction = &GWRBasic::predictSerial;  //!< \~english Implementation of predict function. \~chinese 预测的具体实现函数。
-    FitCalculator mFitFunction = &GWRBasic::fitSerial;  //!< \~english Implementation of fit function. \~chinese 拟合的具体实现函数。
-    FitSHatCalculator mFitSHatFunction = &GWRBasic::fitSHatSerial;  //!< \~english Implementation of fit function. \~chinese 拟合的具体实现函数。
-    FitCVCalculator mFitCVFunction = &GWRBasic::fitCVSerial;  //!< \~english Implementation of fit function. \~chinese 拟合的具体实现函数。
+    FitCalculator mFitFunction = &GWRBasic::fitBase;  //!< \~english Implementation of fit function. \~chinese 拟合的具体实现函数。
+    FitCoreCalculator mFitCoreFunction = &GWRBasic::fitCoreDiagnosticSerial;  //!< \~english Implementation of fit function. \~chinese 拟合的具体实现函数。
+    FitCoreSHatCalculator mFitCoreSHatFunction = &GWRBasic::fitCoreSHatSerial;  //!< \~english Implementation of fit function. \~chinese 拟合的具体实现函数。
+    FitCoreCVCalculator mFitCoreCVFunction = &GWRBasic::fitCoreCVSerial;  //!< \~english Implementation of fit function. \~chinese 拟合的具体实现函数。
 
     ParallelType mParallelType = ParallelType::SerialOnly;  //!< \~english Type of parallel method. \~chinese 并行方法类型。
     int mOmpThreadNum = 8;  //!< \~english Number of threads to create. \~chinese 并行计算创建的线程数。

@@ -228,7 +228,7 @@ mat GWRBasic::predictSerial(const mat& locations, const mat& x, const vec& y)
     return betas.t();
 }
 
-mat GWRBasic::fitSerial(const mat& x, const vec& y, mat& betasSE, vec& shat, vec& qDiag, mat& S)
+mat GWRBasic::fitCoreDiagnosticSerial(const mat& x, const vec& y, const SpatialWeight& sw, mat& betasSE, vec& shat, vec& qDiag, mat& S)
 {
     uword nDp = mCoords.n_rows, nVar = x.n_cols;
     mat betas(nVar, nDp, fill::zeros);
@@ -269,7 +269,7 @@ mat GWRBasic::fitSerial(const mat& x, const vec& y, mat& betasSE, vec& shat, vec
     return betas.t();
 }
 
-mat GWRBasic::fitCVSerial(const mat& x, const vec& y, const SpatialWeight& sw)
+mat GWRBasic::fitCoreCVSerial(const mat& x, const vec& y, const SpatialWeight& sw)
 {
     uword nDp = mCoords.n_rows, nVar = x.n_cols;
     vec shat(2, fill::zeros);
@@ -297,7 +297,7 @@ mat GWRBasic::fitCVSerial(const mat& x, const vec& y, const SpatialWeight& sw)
     return betas.t();
 }
 
-mat GWRBasic::fitSHatSerial(const mat& x, const vec& y, const SpatialWeight& sw, vec& shat)
+mat GWRBasic::fitCoreSHatSerial(const mat& x, const vec& y, const SpatialWeight& sw, vec& shat)
 {
     uword nDp = mCoords.n_rows, nVar = x.n_cols;
     mat betas(nVar, nDp, fill::zeros);
@@ -332,7 +332,7 @@ double GWRBasic::bandwidthSizeCriterionCV(BandwidthWeight* bandwidthWeight)
     SpatialWeight sw(bandwidthWeight, mSpatialWeight.distance());
     try
     {
-        mat betas = (this->*mFitCVFunction)(mX, mY, sw);
+        mat betas = (this->*mFitCoreCVFunction)(mX, mY, sw);
         vec res = mY - sum(mX % betas, 1);
         double cv = sum(res % res);
         if (mStatus == Status::Success && isfinite(cv))
@@ -357,7 +357,7 @@ double GWRBasic::bandwidthSizeCriterionAIC(BandwidthWeight* bandwidthWeight)
     try
     {
         vec shat;
-        mat betas = (this->*mFitSHatFunction)(mX, mY, sw, shat);
+        mat betas = (this->*mFitCoreSHatFunction)(mX, mY, sw, shat);
         double value = GWRBase::AICc(mX, mY, betas, shat);
         if (mStatus == Status::Success && isfinite(value))
         {
@@ -381,7 +381,7 @@ double gwm::GWRBasic::indepVarsSelectionCriterion(const vector<size_t>& indepVar
     try
     {
         vec shat(2, arma::fill::zeros);
-        mat betas = (this->*mFitSHatFunction)(x, y, mSpatialWeight, shat);
+        mat betas = (this->*mFitCoreSHatFunction)(x, y, mSpatialWeight, shat);
         GWM_LOG_PROGRESS(++mIndepVarSelectionProgressCurrent, mIndepVarSelectionProgressTotal);
         if (mStatus == Status::Success)
         {
@@ -403,7 +403,7 @@ double GWRBasic::indepVarsSelectionCriterionMpi(const vector<size_t>& indepVars)
     mat y = mY;
     vec shat(2, arma::fill::zeros);
     double aic;
-    mat betas = (this->*mFitSHatFunction)(x, y, mSpatialWeight, shat);
+    mat betas = (this->*mFitCoreSHatFunction)(x, y, mSpatialWeight, shat);
 GWM_MPI_MASTER_BEGIN
     vec shat_all = shat;
     umat received(mWorkerNum, 2, arma::fill::zeros);
@@ -448,7 +448,7 @@ GWM_MPI_WORKER_END
 //     try
 //     {
 //         mat S;
-//         mat betas = (this->*mFitSHatFunction)(x, y, mSpatialWeight, shat, S);
+//         mat betas = (this->*mFitCoreSHatFunction)(x, y, mSpatialWeight, shat, S);
 //         GWM_LOG_PROGRESS(++mIndepVarSelectionProgressCurrent, mIndepVarSelectionProgressTotal);
 //         if (mStatus == Status::Success)
 //         {
@@ -1046,7 +1046,7 @@ void GWRBasic::setParallelType(const ParallelType& type)
         switch (type) {
         case ParallelType::SerialOnly:
             mPredictFunction = &GWRBasic::predictSerial;
-            mFitFunction = &GWRBasic::fitSerial;
+            mFitFunction = &GWRBasic::fitCoreDiagnosticSerial;
             mIndepVarsSelectionCriterionFunction = &GWRBasic::indepVarsSelectionCriterion;
             break;
 #ifdef ENABLE_OPENMP
@@ -1065,7 +1065,7 @@ void GWRBasic::setParallelType(const ParallelType& type)
 #endif // ENABLE_CUDA
         default:
             mPredictFunction = &GWRBasic::predictSerial;
-            mFitFunction = &GWRBasic::fitSerial;
+            mFitFunction = &GWRBasic::fitCoreDiagnosticSerial;
             break;
         }
         setBandwidthSelectionCriterion(mBandwidthSelectionCriterion);
