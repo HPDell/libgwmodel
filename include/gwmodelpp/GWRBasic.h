@@ -47,7 +47,7 @@ public:
     static std::unordered_map<BandwidthSelectionCriterionType, std::string> BandwidthSelectionCriterionTypeNameMapper;
     
     typedef arma::mat (GWRBasic::*PredictCalculator)(const arma::mat&, const arma::mat&, const arma::vec&);                             //!< \~english Predict function declaration. \~chinese 预测函数声明。
-    typedef arma::mat (GWRBasic::*FitCalculator)(const arma::mat&, const arma::vec&, arma::mat&, arma::vec&, arma::vec&, arma::mat&);   //!< \~english Fit function declaration. \~chinese 拟合函数声明。
+    typedef arma::mat (GWRBasic::*FitCalculator)();   //!< \~english Fit function declaration. \~chinese 拟合函数声明。
     typedef arma::mat (GWRBasic::*FitCoreCalculator)(const arma::mat&, const arma::vec&, const SpatialWeight&, arma::mat&, arma::vec&, arma::vec&, arma::mat&);   //!< \~english Fit function declaration. \~chinese 拟合函数声明。
     typedef arma::mat (GWRBasic::*FitCoreSHatCalculator)(const arma::mat&, const arma::vec&, const SpatialWeight&, arma::vec&);   //!< \~english Fit function declaration. \~chinese 拟合函数声明。
     typedef arma::mat (GWRBasic::*FitCoreCVCalculator)(const arma::mat&, const arma::vec&, const SpatialWeight&);   //!< \~english Fit function declaration. \~chinese 拟合函数声明。
@@ -399,8 +399,7 @@ public:     // Implement IVariableSelectable
      * @return double 变量优选的指标值。
      */
     double indepVarsSelectionCriterion(const std::vector<std::size_t>& indepVars);
-    double indepVarsSelectionCriterionMpi(const std::vector<size_t>& indepVars);
-    // double indepVarsSelectionCriterion(const arma::mat& x, const arma::vec& y, arma::vec& shat);
+    double indepVarsSelectionCriterionMpi(const std::vector<std::size_t>& indepVars);
 
 
 public:     // Implement IBandwidthSelectable
@@ -485,12 +484,16 @@ private:
      * @param S [out] 帽子矩阵 \f$S\f$。
      * @return mat 回归系数估计值
      */
-    arma::mat fitBase(const arma::mat& x, const arma::vec& y, arma::mat& betasSE, arma::vec& shat, arma::vec& qDiag, arma::mat& S)
+    arma::mat fitBase()
     {
-        return (this->*mFitCoreFunction)(x, y, mSpatialWeight, betasSE, shat, qDiag, S);
+        return (this->*mFitCoreFunction)(mX, mY, mSpatialWeight, mBetasSE, mSHat, mQDiag, mS);
     }
 
-    arma::mat fitCoreDiagnosticSerial(const arma::mat& x, const arma::vec& y, const SpatialWeight& sw, arma::mat& betasSE, arma::vec& shat, arma::vec& qDiag, arma::mat& S);
+    arma::mat fitMpi();
+
+private:
+
+    arma::mat fitCoreSerial(const arma::mat& x, const arma::vec& y, const SpatialWeight& sw, arma::mat& betasSE, arma::vec& shat, arma::vec& qDiag, arma::mat& S);
 
     arma::mat fitCoreSHatSerial(const arma::mat& x, const arma::vec& y, const SpatialWeight& sw, arma::vec& shat);
 
@@ -764,7 +767,7 @@ protected:
 
     PredictCalculator mPredictFunction = &GWRBasic::predictSerial;  //!< \~english Implementation of predict function. \~chinese 预测的具体实现函数。
     FitCalculator mFitFunction = &GWRBasic::fitBase;  //!< \~english Implementation of fit function. \~chinese 拟合的具体实现函数。
-    FitCoreCalculator mFitCoreFunction = &GWRBasic::fitCoreDiagnosticSerial;  //!< \~english Implementation of fit function. \~chinese 拟合的具体实现函数。
+    FitCoreCalculator mFitCoreFunction = &GWRBasic::fitCoreSerial;  //!< \~english Implementation of fit function. \~chinese 拟合的具体实现函数。
     FitCoreSHatCalculator mFitCoreSHatFunction = &GWRBasic::fitCoreSHatSerial;  //!< \~english Implementation of fit function. \~chinese 拟合的具体实现函数。
     FitCoreCVCalculator mFitCoreCVFunction = &GWRBasic::fitCoreCVSerial;  //!< \~english Implementation of fit function. \~chinese 拟合的具体实现函数。
 
@@ -774,6 +777,7 @@ protected:
     int mGpuId = 0; //!< \~english The ID of selected GPU. \~chinese 选择的 GPU 的 ID。
     int mWorkerId = 0;
     int mWorkerNum = 0;
+    arma::uword mWorkRangeSize = 0;
     std::optional<std::pair<arma::uword, arma::uword>> mWorkRange;
 
     arma::mat mBetasSE;  //!< \~english Standard errors of coefficient estimates. \~chinese 回归系数估计值的标准差。
