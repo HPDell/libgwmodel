@@ -60,6 +60,8 @@ mat GWRBasic::fit()
 {
     GWM_LOG_STAGE("Initializing");
     uword nDp = mCoords.n_rows, nVars = mX.n_cols;
+#ifdef ENABLE_MPI
+    // Sync x, y, coords with other processes
     if (mParallelType & ParallelType::MPI)
     {
         uword aShape[4];
@@ -93,6 +95,7 @@ mat GWRBasic::fit()
         mWorkRange = make_pair(workRangeFrom, min(workRangeFrom + mWorkRangeSize, nDp));
         // cout << mWorkerId << " process work range: [" << mWorkRange.value().first << "," << mWorkRange.value().second << "]\n";
     }
+#endif // ENABLE_MPI
     createDistanceParameter();
 #ifdef ENABLE_CUDA
     if (mParallelType == ParallelType::CUDA)
