@@ -311,6 +311,7 @@ mat GWRBasic::fitCoreSHatSerial(const mat& x, const vec& y, const SpatialWeight&
 {
     uword nDp = mCoords.n_rows, nVar = x.n_cols;
     mat betas(nVar, nDp, fill::zeros);
+    shat = vec(2, arma::fill::zeros);
     std::pair<uword, uword> workRange = mWorkRange.value_or(make_pair(0, nDp));
     for (uword i = workRange.first; i < workRange.second; i++)
     {
@@ -366,7 +367,7 @@ double GWRBasic::bandwidthSizeCriterionAIC(BandwidthWeight* bandwidthWeight)
     SpatialWeight sw(bandwidthWeight, mSpatialWeight.distance());
     try
     {
-        vec shat(2, fill::zeros);
+        vec shat;
         mat betas = (this->*mFitCoreSHatFunction)(mX, mY, sw, shat);
         double value = GWRBase::AICc(mX, mY, betas, shat);
         if (mStatus == Status::Success && isfinite(value))
@@ -387,15 +388,16 @@ double GWRBasic::bandwidthSizeCriterionAIC(BandwidthWeight* bandwidthWeight)
 double gwm::GWRBasic::indepVarsSelectionCriterion(const vector<size_t>& indepVars)
 {
     mat x = mX.cols(VariableForwardSelector::index2uvec(indepVars, mHasIntercept));
-    vec y = mY;
+    SpatialWeight sw = mSpatialWeight;
+    sw.weight<BandwidthWeight>()->setBandwidth(DBL_MAX);
     try
     {
-        vec shat(2, arma::fill::zeros);
-        mat betas = (this->*mFitCoreSHatFunction)(x, y, mSpatialWeight, shat);
+        vec shat;
+        mat betas = (this->*mFitCoreSHatFunction)(x, mY, sw, shat);
         GWM_LOG_PROGRESS(++mIndepVarSelectionProgressCurrent, mIndepVarSelectionProgressTotal);
         if (mStatus == Status::Success)
         {
-            double aic = GWRBase::AICc(x, y, betas, shat);
+            double aic = GWRBase::AICc(x, mY, betas, shat);
             GWM_LOG_INFO(IVarialbeSelectable::infoVariableCriterion(indepVars, aic));
             return aic;
         }
