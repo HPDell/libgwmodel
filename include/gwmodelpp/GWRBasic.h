@@ -399,7 +399,6 @@ public:     // Implement IVariableSelectable
      * @return double 变量优选的指标值。
      */
     double indepVarsSelectionCriterion(const std::vector<std::size_t>& indepVars);
-    double indepVarsSelectionCriterionMpi(const std::vector<std::size_t>& indepVars);
 
 
 public:     // Implement IBandwidthSelectable
@@ -486,7 +485,6 @@ private:
      */
     arma::mat fitBase();
 
-    arma::mat fitMpi();
 
 private:
 
@@ -682,7 +680,12 @@ private:
 
 #endif
 
-    arma::mat fitMpi(const arma::mat& x, const arma::vec& y, arma::mat& betasSE, arma::vec& shat, arma::vec& qDiag, arma::mat& S);
+#ifdef ENABLE_MPI
+    double indepVarsSelectionCriterionMpi(const std::vector<std::size_t>& indepVars);
+    double bandwidthSizeCriterionCVMpi(BandwidthWeight* bandwidthWeight);
+    double bandwidthSizeCriterionAICMpi(BandwidthWeight* bandwidthWeight);
+    arma::mat fitMpi();
+#endif // ENABLE_MPI
 
 public:     // Implement IParallelizable
     int parallelAbility() const override
