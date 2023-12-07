@@ -1009,7 +1009,7 @@ GWM_MPI_WORKER_END
 
 double GWRBasic::bandwidthSizeCriterionCVMpi(BandwidthWeight* bandwidthWeight)
 {
-    uword nDp = mX.n_rows;
+    uword nDp = mX.n_rows, nVar = mX.n_cols;
     SpatialWeight sw(bandwidthWeight, mSpatialWeight.distance());
     double cv;
     mat betas = (this->*mFitCoreCVFunction)(mX, mY, sw).t();
@@ -1022,15 +1022,12 @@ GWM_MPI_MASTER_BEGIN
         MPI_Status status;
         MPI_Recv(buf.get(), betas.n_elem, MPI_DOUBLE, MPI_ANY_SOURCE, int(GWRBasicCVMpiTags::Betas), MPI_COMM_WORLD, &status);
         received(status.MPI_SOURCE) = 1;
-        uword rangeFrom = status.MPI_SOURCE * mWorkRangeSize, rangeTo = min(rangeFrom + mWorkRangeSize, nDp), rangeSize = rangeTo - rangeFrom;
-        betas.cols(rangeFrom, rangeTo - 1) = mat(buf.get(), betas.n_rows, rangeSize);
+        betas += mat(buf.get(), nVar, nDp);
     }
-    vec residual = mY - mX % betas.t();
+    vec residual = mY - sum(mX % betas.t(), 1);
     cv = sum(residual % residual);
 GWM_MPI_MASTER_END
 GWM_MPI_WORKER_BEGIN
-    std::pair<uword, uword> workRange = mWorkRange.value_or(make_pair(0, nDp));
-    betas = betas.cols(workRange.first, workRange.second - 1);
     MPI_Send(betas.memptr(), betas.n_elem, MPI_DOUBLE, 0, int(GWRBasicCVMpiTags::Betas), MPI_COMM_WORLD);
 GWM_MPI_WORKER_END
     MPI_Bcast(&cv, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
@@ -1039,11 +1036,10 @@ GWM_MPI_WORKER_END
 
 double GWRBasic::bandwidthSizeCriterionAICMpi(BandwidthWeight* bandwidthWeight)
 {
-    uword nDp = mX.n_rows;
     SpatialWeight sw(bandwidthWeight, mSpatialWeight.distance());
     double aic;
     vec shat(2, fill::zeros);
-    mat betas = (this->*mFitCoreSHatFunction)(mX, mY, sw, shat).t();
+    mat betas = (this->*mFitCoreSHatFunction)(mX, mY, sw, shat);
 GWM_MPI_MASTER_BEGIN
     umat received(mWorkerNum, 2, arma::fill::zeros);
     received.row(0).fill(1);
@@ -1051,17 +1047,16 @@ GWM_MPI_MASTER_BEGIN
     while (!all(all(received)))
     {
         MPI_Status status;
-        MPI_Recv(buf.get(), betas.n_elem, MPI_DOUBLE, MPI_ANY_SOURCE, int(GWRBasicCVMpiTags::Betas), MPI_COMM_WORLD, &status);
-        received(status.MPI_SOURCE) = 1;
-        uword rangeFrom = status.MPI_SOURCE * mWorkRangeSize, rangeTo = min(rangeFrom + mWorkRangeSize, nDp), rangeSize = rangeTo - rangeFrom;
+        MPI_Recv(buf.get(), betas.n_elem, MPI_DOUBLE, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+        // printf("0 process received message with %d from %d\n", status.MPI_TAG, status.MPI_SOURCE);
+        received(status.MPI_SOURCE, status.MPI_TAG - int(GWRBasicAICMpiTags::SHat)) = 1;
         switch (GWRBasicAICMpiTags(status.MPI_TAG))
         {
         case GWRBasicAICMpiTags::SHat:
-            shat(0) += buf[0];
-            shat(1) += buf[1];
+            shat += vec(buf.get(), 2);
             break;
         case GWRBasicAICMpiTags::Betas:
-            betas.cols(rangeFrom, rangeTo - 1) = mat(buf.get(), betas.n_rows, rangeSize);
+            betas += mat(buf.get(), betas.n_rows, betas.n_cols);
             break;
         default:
             break;
@@ -1070,9 +1065,8 @@ GWM_MPI_MASTER_BEGIN
     aic = GWRBasic::AICc(mX, mY, betas, shat);
 GWM_MPI_MASTER_END
 GWM_MPI_WORKER_BEGIN
-    std::pair<uword, uword> workRange = mWorkRange.value_or(make_pair(0, nDp));
-    betas = betas.cols(workRange.first, workRange.second - 1);
-    MPI_Send(betas.memptr(), betas.n_elem, MPI_DOUBLE, 0, int(GWRBasicCVMpiTags::Betas), MPI_COMM_WORLD);
+    MPI_Send(shat.memptr(), shat.n_elem, MPI_DOUBLE, 0, int(GWRBasicAICMpiTags::SHat), MPI_COMM_WORLD);
+    MPI_Send(betas.memptr(), betas.n_elem, MPI_DOUBLE, 0, int(GWRBasicAICMpiTags::Betas), MPI_COMM_WORLD);
 GWM_MPI_WORKER_END
     MPI_Bcast(&aic, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
     return aic;
@@ -1100,7 +1094,7 @@ arma::mat gwm::GWRBasic::fitMpi()
     {
         MPI_Status status;
         MPI_Recv(buf.get(), bufSize, MPI_DOUBLE, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-        printf("0 process received message with %d from %d\n", status.MPI_TAG, status.MPI_SOURCE);
+        // printf("0 process received message with %d from %d\n", status.MPI_TAG, status.MPI_SOURCE);
         received(status.MPI_SOURCE, status.MPI_TAG - int(GWRBasicFitMpiTags::Betas)) = 1;
         uword rangeFrom = status.MPI_SOURCE * mWorkRangeSize, rangeTo = min(rangeFrom + mWorkRangeSize, nDp), rangeSize = rangeTo - rangeFrom;
         switch (GWRBasicFitMpiTags(status.MPI_TAG))

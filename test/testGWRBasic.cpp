@@ -102,8 +102,9 @@ TEST_CASE("BasicGWR: LondonHP")
         REQUIRE_THAT(diagnostic.RSquareAdjust, Catch::Matchers::WithinAbs(0.673691594464, 1e-8));
     }
 
-    SECTION("adaptive bandwidth | CV bandwidth optimization | no variable optimization") {
+    SECTION("adaptive bandwidth | bandwidth optimization | no variable optimization") {
         auto parallel = GENERATE_REF(values(parallel_list));
+        auto criterion = GENERATE(GWRBasic::BandwidthSelectionCriterionType::CV, GWRBasic::BandwidthSelectionCriterionType::AIC);
         INFO("Parallel:" << ParallelTypeDict.at(parallel));
         
         CRSDistance distance(false);
@@ -116,7 +117,7 @@ TEST_CASE("BasicGWR: LondonHP")
         algorithm.setIndependentVariables(x);
         algorithm.setSpatialWeight(spatial);
         algorithm.setIsAutoselectBandwidth(true);
-        algorithm.setBandwidthSelectionCriterion(GWRBasic::BandwidthSelectionCriterionType::CV);
+        algorithm.setBandwidthSelectionCriterion(criterion);
         algorithm.setParallelType(parallel);
 #ifdef ENABLE_OPENMP
         if (parallel == ParallelType::OpenMP)
@@ -133,7 +134,16 @@ TEST_CASE("BasicGWR: LondonHP")
 #endif // ENABLE_CUDA
         REQUIRE_NOTHROW(algorithm.fit());
         size_t bw = (size_t)algorithm.spatialWeight().weight<BandwidthWeight>()->bandwidth();
-        REQUIRE(bw == 67);
+        size_t bw0 = 67;
+        switch (criterion)
+        {
+        case GWRBasic::BandwidthSelectionCriterionType::AIC:
+            bw0 = 31;
+            break;
+        default:
+            break;
+        }
+        REQUIRE(bw == bw0);
     }
     
     SECTION("adaptive bandwidth | no bandwidth optimization | AIC variable optimization") {
