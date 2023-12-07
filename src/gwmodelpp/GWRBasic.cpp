@@ -223,10 +223,10 @@ mat GWRBasic::predictSerial(const mat& locations, const mat& x, const vec& y)
 
 arma::mat gwm::GWRBasic::fitBase()
 {
-    uword nDp = mCoords.n_rows, nVar = mX.n_cols;
     mBetas = (this->*mFitCoreFunction)(mX, mY, mSpatialWeight, mBetasSE, mSHat, mQDiag, mS);
     mDiagnostic = CalcDiagnostic(mX, mY, mBetas, mSHat);
     double trS = mSHat(0), trStS = mSHat(1);
+    double nDp = double(mCoords.n_rows);
     double sigmaHat = mDiagnostic.RSS / (nDp - 2 * trS + trStS);
     mBetasSE = sqrt(sigmaHat * mBetasSE);
     return mBetas;
