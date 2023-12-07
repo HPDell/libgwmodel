@@ -17,7 +17,10 @@ enum ParallelType
     SerialOnly = 1 << 0,    //!< \~english Use no parallel methods. \~chinese 不并行。
     OpenMP = 1 << 1,        //!< \~english Use multithread methods. \~chinese 多线程并行。
     CUDA = 1 << 2,          //!< \~english Use CUDA accelerated methods. \~chinese CUDA加速。
-    MPI = 1 << 3
+    MPI = (1 << 3),
+    MPI_Serial = (1 << 3) | (1 << 0),
+    MPI_MP = (1 << 3) | (1 << 1),
+    MPI_CUDA = (1 << 3) | (1 << 2)
 };
 
 /**

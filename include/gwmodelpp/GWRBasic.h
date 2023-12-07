@@ -484,10 +484,7 @@ private:
      * @param S [out] 帽子矩阵 \f$S\f$。
      * @return mat 回归系数估计值
      */
-    arma::mat fitBase()
-    {
-        return (this->*mFitCoreFunction)(mX, mY, mSpatialWeight, mBetasSE, mSHat, mQDiag, mS);
-    }
+    arma::mat fitBase();
 
     arma::mat fitMpi();
 
@@ -776,7 +773,7 @@ protected:
     size_t mGroupLength = 64;   //!< \~english Size of a group computing together. \~chinese 同时计算的一组的大小。
     int mGpuId = 0; //!< \~english The ID of selected GPU. \~chinese 选择的 GPU 的 ID。
     int mWorkerId = 0;
-    int mWorkerNum = 0;
+    int mWorkerNum = 1;
     arma::uword mWorkRangeSize = 0;
     std::optional<std::pair<arma::uword, arma::uword>> mWorkRange;
 

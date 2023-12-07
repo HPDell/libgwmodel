@@ -56,5 +56,9 @@ private:
 const std::map<ParallelType, std::string> ParallelTypeDict = {
     std::make_pair(ParallelType::SerialOnly, "SerialOnly"),
     std::make_pair(ParallelType::OpenMP, "OpenMP"),
-    std::make_pair(ParallelType::CUDA, "CUDA")
+    std::make_pair(ParallelType::CUDA, "CUDA"),
+    std::make_pair(ParallelType::MPI, "MPI"),
+    std::make_pair(ParallelType::MPI_Serial, "MPI_Serial"),
+    std::make_pair(ParallelType::MPI_MP, "MPI_MP"),
+    std::make_pair(ParallelType::MPI_CUDA, "MPI_CUDA")
 };

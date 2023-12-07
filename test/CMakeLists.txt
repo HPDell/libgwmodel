@@ -29,9 +29,9 @@ set(SAMPLE_DATA_DIR ${CMAKE_CURRENT_SOURCE_DIR}/data)
 add_definitions(-DSAMPLE_DATA_DIR="${SAMPLE_DATA_DIR}")
 
 set(ADDON_SOURCES
-    data/londonhp100.cpp
-    TerminateCheckTelegram.cpp
-    FileTelegram.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/data/londonhp100.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/TerminateCheckTelegram.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/FileTelegram.cpp
 )
 
 add_definitions(-DSAMPLE_DATA_DIR="${SAMPLE_DATA_DIR}")
@@ -128,4 +128,8 @@ add_test(
     NAME testCuMat
     COMMAND $<TARGET_FILE:testCuMat> --success --skip-benchmarks
 )
+endif()
+
+if (ENABLE_MPI)
+add_subdirectory("./mpi")
 endif()
