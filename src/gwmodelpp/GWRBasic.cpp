@@ -970,34 +970,34 @@ double GWRBasic::indepVarsSelectionCriterionMpi(const vector<size_t>& indepVars)
 {
     mat x = mX.cols(VariableForwardSelector::index2uvec(indepVars, mHasIntercept));
     mat y = mY;
-    vec shat(2, arma::fill::zeros);
+    SpatialWeight sw = mSpatialWeight;
+    sw.weight<BandwidthWeight>()->setBandwidth(DBL_MAX);
+    vec shat;
     double aic;
-    mat betas = (this->*mFitCoreSHatFunction)(x, y, mSpatialWeight, shat);
+    mat betas = (this->*mFitCoreSHatFunction)(x, y, sw, shat);
 GWM_MPI_MASTER_BEGIN
-    vec shat_all = shat;
     umat received(mWorkerNum, 2, arma::fill::zeros);
     received.row(0).fill(1);
-    double *buf = new double[x.n_elem];
+    unique_ptr<double[], default_delete<double[]>> buf(new double[betas.n_elem]);
     while (!all(all(received == 1)))
     {
         MPI_Status status;
-        MPI_Recv(&buf, x.n_elem, MPI_DOUBLE, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-        received(status.MPI_SOURCE, status.MPI_TAG) = 1;
+        MPI_Recv(buf.get(), betas.n_elem, MPI_DOUBLE, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+        // printf("0 process received message with %d from %d\n", status.MPI_TAG, status.MPI_SOURCE);
+        received(status.MPI_SOURCE, status.MPI_TAG - int(GWRBasicAICMpiTags::SHat)) = 1;
         switch (GWRBasicAICMpiTags(status.MPI_TAG))
         {
         case GWRBasicAICMpiTags::SHat:
-            shat_all(0) += buf[0];
-            shat_all(1) += buf[1];
+            shat += vec(buf.get(), 2);
             break;
         case GWRBasicAICMpiTags::Betas:
-            betas += mat(buf, betas.n_rows, betas.n_cols);
+            betas += mat(buf.get(), betas.n_rows, betas.n_cols);
             break;
         default:
             break;
         }
     }
-    delete[] buf;
-    aic = GWRBasic::AICc(x, y, betas, shat_all);
+    aic = GWRBasic::AICc(x, y, betas, shat);
 GWM_MPI_MASTER_END
 GWM_MPI_WORKER_BEGIN
     MPI_Send(shat.memptr(), 2, MPI_DOUBLE, 0, int(GWRBasicAICMpiTags::SHat), MPI_COMM_WORLD);
@@ -1099,9 +1099,9 @@ arma::mat gwm::GWRBasic::fitMpi()
     while (!all(all(received)))
     {
         MPI_Status status;
-        // printf("0 process received message with %d from %d\n", status.MPI_TAG, status.MPI_SOURCE);
         MPI_Recv(buf.get(), bufSize, MPI_DOUBLE, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-        received(status.MPI_SOURCE, status.MPI_TAG) = 1;
+        printf("0 process received message with %d from %d\n", status.MPI_TAG, status.MPI_SOURCE);
+        received(status.MPI_SOURCE, status.MPI_TAG - int(GWRBasicFitMpiTags::Betas)) = 1;
         uword rangeFrom = status.MPI_SOURCE * mWorkRangeSize, rangeTo = min(rangeFrom + mWorkRangeSize, nDp), rangeSize = rangeTo - rangeFrom;
         switch (GWRBasicFitMpiTags(status.MPI_TAG))
         {
@@ -1190,14 +1190,29 @@ arma::mat gwm::GWRBasic::fitMpi()
 
 void GWRBasic::setBandwidthSelectionCriterion(const BandwidthSelectionCriterionType& criterion)
 {
-    switch (criterion)
+    if (mParallelType & ParallelType::MPI)
     {
-    case BandwidthSelectionCriterionType::CV:
-        mBandwidthSelectionCriterionFunction = &GWRBasic::bandwidthSizeCriterionCV;
-        break;
-    default:
-        mBandwidthSelectionCriterionFunction = &GWRBasic::bandwidthSizeCriterionAIC;
-        break;
+        switch (criterion)
+        {
+        case BandwidthSelectionCriterionType::CV:
+            mBandwidthSelectionCriterionFunction = &GWRBasic::bandwidthSizeCriterionCVMpi;
+            break;
+        default:
+            mBandwidthSelectionCriterionFunction = &GWRBasic::bandwidthSizeCriterionAICMpi;
+            break;
+        }
+    }
+    else
+    {
+        switch (criterion)
+        {
+        case BandwidthSelectionCriterionType::CV:
+            mBandwidthSelectionCriterionFunction = &GWRBasic::bandwidthSizeCriterionCV;
+            break;
+        default:
+            mBandwidthSelectionCriterionFunction = &GWRBasic::bandwidthSizeCriterionAIC;
+            break;
+        }
     }
     mBandwidthSelectionCriterion = criterion;
 }

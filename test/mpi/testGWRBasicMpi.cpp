@@ -173,6 +173,8 @@ TEST_CASE("BasicGWR: LondonHP")
         algorithm.setIsAutoselectIndepVars(true);
         algorithm.setIndepVarSelectionThreshold(3.0);
         algorithm.setParallelType(parallel);
+        algorithm.setWorkerNum(nProcess);
+        algorithm.setWorkerId(iProcess);
 #ifdef ENABLE_OPENMP
         if (parallel == ParallelType::OpenMP)
         {
