@@ -591,7 +591,7 @@ private:
      * @param y 因变量。
      * @return mat 回归系数预测值。
      */
-    arma::mat fitCuda(const arma::mat& x, const arma::vec& y, arma::mat& betasSE, arma::vec& shat, arma::vec& qDiag, arma::mat& S);
+    arma::mat fitCoreCuda(const arma::mat& x, const arma::vec& y, const SpatialWeight& sw, arma::mat& betasSE, arma::vec& shat, arma::vec& qDiag, arma::mat& S);
 
     /**
      * \~english
@@ -631,22 +631,7 @@ private:
      * @param bandwidthWeight 指定的带宽。
      * @return double 带宽优选的指标值。
      */
-    double bandwidthSizeCriterionCVCuda(BandwidthWeight* bandwidthWeight);
-
-    /**
-     * \~english
-     * @brief Get AIC value with given bandwidth for bandwidth optimization (CUDA implementation).
-     * 
-     * @param bandwidthWeight Given bandwidth
-     * @return double Criterion value
-     * 
-     * \~chinese
-     * @brief 根据指定的带宽计算带宽优选的AIC值（CUDA实现）。
-     * 
-     * @param bandwidthWeight 指定的带宽。
-     * @return double 带宽优选的指标值。
-     */
-    double bandwidthSizeCriterionAICCuda(BandwidthWeight* bandwidthWeight);
+    arma::mat fitCoreCVCuda(const arma::mat& x, const arma::vec& y, const SpatialWeight& sw);
 
     /**
      * \~english
@@ -661,7 +646,7 @@ private:
      * @param indepVars 指定的变量。
      * @return double 变量优选的指标值。
      */
-    double indepVarsSelectionCriterionCuda(const std::vector<size_t>& indepVars);
+    arma::mat fitCoreSHatCuda(const arma::mat& x, const arma::vec& y, const SpatialWeight& sw, arma::vec& shat);
 
 #endif
 

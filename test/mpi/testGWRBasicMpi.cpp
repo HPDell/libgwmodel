@@ -67,10 +67,10 @@ TEST_CASE("BasicGWR: LondonHP")
         algorithm.setWorkerNum(nProcess);
         algorithm.setWorkerId(iProcess);
 #ifdef ENABLE_CUDA
-        if (parallel == ParallelType::CUDA)
+        if (parallel == ParallelType::MPI_CUDA)
         {
             algorithm.setGPUId(0);
-            algorithm.setGroupSize(64);
+            algorithm.setGroupSize(16);
         }
 #endif // ENABLE_CUDA
         REQUIRE_NOTHROW(algorithm.fit());
@@ -105,16 +105,16 @@ TEST_CASE("BasicGWR: LondonHP")
         algorithm.setWorkerId(iProcess);
         algorithm.setWorkerNum(nProcess);
 #ifdef ENABLE_OPENMP
-        if (parallel == ParallelType::OpenMP)
+        if (parallel == ParallelType::MPI_MP)
         {
             algorithm.setOmpThreadNum(2);
         }
 #endif // ENABLE_OPENMP
 #ifdef ENABLE_CUDA
-        if (parallel == ParallelType::CUDA)
+        if (parallel == ParallelType::MPI_CUDA)
         {
             algorithm.setGPUId(0);
-            algorithm.setGroupSize(64);
+            algorithm.setGroupSize(16);
         }
 #endif // ENABLE_CUDA
         REQUIRE_NOTHROW(algorithm.fit());
@@ -151,16 +151,16 @@ TEST_CASE("BasicGWR: LondonHP")
         algorithm.setWorkerId(iProcess);
         algorithm.setWorkerNum(nProcess);
 #ifdef ENABLE_OPENMP
-        if (parallel == ParallelType::OpenMP)
+        if (parallel == ParallelType::MPI_MP)
         {
             algorithm.setOmpThreadNum(2);
         }
 #endif // ENABLE_OPENMP
 #ifdef ENABLE_CUDA
-        if (parallel == ParallelType::CUDA)
+        if (parallel == ParallelType::MPI_CUDA)
         {
             algorithm.setGPUId(0);
-            algorithm.setGroupSize(64);
+            algorithm.setGroupSize(16);
         }
 #endif // ENABLE_CUDA
         REQUIRE_NOTHROW(algorithm.fit());
@@ -202,16 +202,16 @@ TEST_CASE("BasicGWR: LondonHP")
         algorithm.setWorkerNum(nProcess);
         algorithm.setWorkerId(iProcess);
 #ifdef ENABLE_OPENMP
-        if (parallel == ParallelType::OpenMP)
+        if (parallel == ParallelType::MPI_MP)
         {
             algorithm.setOmpThreadNum(2);
         }
 #endif // ENABLE_OPENMP
 #ifdef ENABLE_CUDA
-        if (parallel == ParallelType::CUDA)
+        if (parallel == ParallelType::MPI_CUDA)
         {
             algorithm.setGPUId(0);
-            algorithm.setGroupSize(64);
+            algorithm.setGroupSize(16);
         }
 #endif // ENABLE_CUDA
         REQUIRE_NOTHROW(algorithm.fit());
@@ -259,16 +259,16 @@ TEST_CASE("BasicGWR: LondonHP")
         algorithm.setWorkerId(iProcess);
         algorithm.setWorkerNum(nProcess);
 #ifdef ENABLE_OPENMP
-        if (parallel == ParallelType::OpenMP)
+        if (parallel == ParallelType::MPI_MP)
         {
             algorithm.setOmpThreadNum(2);
         }
 #endif // ENABLE_OPENMP
 #ifdef ENABLE_CUDA
-        if (parallel == ParallelType::CUDA)
+        if (parallel == ParallelType::MPI_CUDA)
         {
             algorithm.setGPUId(0);
-            algorithm.setGroupSize(64);
+            algorithm.setGroupSize(16);
         }
 #endif // ENABLE_CUDA
         REQUIRE_NOTHROW(algorithm.fit());

@@ -56,6 +56,14 @@ __global__ void gw_weight_boxcar_kernel(const double *d_dists, double bw, double
 }
 
 
+__global__ void gw_weight_ones(const double *d_dists, double bw, double* d_weights, int n)
+{
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index >= n) return;
+    d_weights[index] = 1;
+}
+
+
 typedef void(*WEIGHT_KERNEL_CUDA)(const double*, double, double*, int);
 
 
@@ -72,11 +80,17 @@ cudaError_t gw_weight_cuda(double bw, int kernel, bool adaptive, double *d_dists
 {
     cudaError_t error;
     const WEIGHT_KERNEL_CUDA *kerf = GWRKernelCuda + kernel;
+    dim3 blockSize(threads), gridSize((ndp + blockSize.x - 1) / blockSize.x);
+    if (bw == DBL_MAX)
+    {
+        gw_weight_ones<< <gridSize, blockSize >> > (d_dists, bw, d_weight, ndp);
+        error = cudaGetLastError();
+        return error;
+    }
     switch (adaptive)
     {
         case true:
         {
-            dim3 blockSize(threads), gridSize((ndp + blockSize.x - 1) / blockSize.x);
             // Backup d_dists, used for sort
             double *d_dists_bak;
             cudaMalloc((void **)&d_dists_bak, sizeof(double) * ndp);
@@ -95,7 +109,6 @@ cudaError_t gw_weight_cuda(double bw, int kernel, bool adaptive, double *d_dists
         }
         default:
         {
-            dim3 blockSize(threads), gridSize((ndp + blockSize.x - 1) / blockSize.x);
             (*kerf) << <gridSize, blockSize >> > (d_dists, bw, d_weight, ndp);
             error = cudaGetLastError();
             break;

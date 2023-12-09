@@ -63,7 +63,7 @@ vec BandwidthWeight::weight(vec dist)
 #ifdef ENABLE_CUDA
 cudaError_t BandwidthWeight::weight(double* d_dists, double* d_weights, size_t elems)
 {
-    if (!mCudaPrepared) throw std::logic_error("Cuda has not been prepared.");
+    if (!mCudaPrepared) throw std::logic_error("[BandwidthWeight] Cuda has not been prepared.");
     return gw_weight_cuda(mBandwidth, (int)mKernel, mAdaptive, d_dists, d_weights, elems, mCudaThreads);
 }
 #endif // ENABLE_CUDA

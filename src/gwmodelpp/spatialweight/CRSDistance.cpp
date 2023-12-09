@@ -90,7 +90,7 @@ CRSDistance::CRSDistance(const CRSDistance &distance) : Distance(distance)
         mParameter = make_unique<Parameter>(fp, dp);
 #ifdef ENABLE_CUDA
         mUseCuda = distance.mUseCuda;
-        if (distance.mCudaPrepared)
+        if (distance.mUseCuda)
         {
             prepareCuda(distance.mGpuID);
         }
@@ -170,7 +170,7 @@ cudaError_t CRSDistance::prepareCuda(size_t gpuId)
 cudaError_t CRSDistance::distance(uword focus, double *d_dists, size_t *elems)
 {
     if (mParameter == nullptr) throw std::runtime_error("Parameter is nullptr.");
-    if (!mCudaPrepared) throw std::logic_error("Cuda has not been prepared.");
+    if (!mCudaPrepared) throw std::logic_error("[CRSDistance] Cuda has not been prepared.");
     if (mCudaDp == 0 || mCudaFp == 0 || mCudaThreads == 0) throw std::logic_error("Cuda has not been correctly prepared.");
     if (focus < mParameter->total)
     {
