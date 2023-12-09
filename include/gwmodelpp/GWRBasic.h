@@ -538,7 +538,7 @@ private:
      * @param S [out] 帽子矩阵 \f$S\f$。
      * @return mat 回归系数估计值
      */
-    arma::mat fitOmp(const arma::mat& x, const arma::vec& y, arma::mat& betasSE, arma::vec& shat, arma::vec& qDiag, arma::mat& S);
+    arma::mat fitCoreOmp(const arma::mat& x, const arma::vec& y, const SpatialWeight& sw, arma::mat& betasSE, arma::vec& shat, arma::vec& qDiag, arma::mat& S);
 
     /**
      * \~english
@@ -553,22 +553,7 @@ private:
      * @param bandwidthWeight 指定的带宽。
      * @return double 带宽优选的指标值。
      */
-    double bandwidthSizeCriterionCVOmp(BandwidthWeight* bandwidthWeight);
-    
-    /**
-     * \~english
-     * @brief Get AIC value with given bandwidth for bandwidth optimization (OpenMP implementation).
-     * 
-     * @param bandwidthWeight Given bandwidth
-     * @return double Criterion value
-     * 
-     * \~chinese
-     * @brief 根据指定的带宽计算带宽优选的AIC值（OpenMP 实现）。
-     * 
-     * @param bandwidthWeight 指定的带宽。
-     * @return double 带宽优选的指标值。
-     */
-    double bandwidthSizeCriterionAICOmp(BandwidthWeight* bandwidthWeight);
+    arma::mat fitCoreCVOmp(const arma::mat& x, const arma::vec& y, const SpatialWeight& sw);
 
     /**
      * \~english
@@ -583,7 +568,7 @@ private:
      * @param indepVars 指定的变量。
      * @return double 变量优选的指标值。
      */
-    double indepVarsSelectionCriterionOmp(const std::vector<size_t>& indepVars);
+    arma::mat fitCoreSHatOmp(const arma::mat& x, const arma::vec& y, const SpatialWeight& sw, arma::vec& shat);
 
 #endif
 
@@ -697,6 +682,14 @@ public:     // Implement IParallelizable
 #ifdef ENABLE_CUDA
             | ParallelType::CUDA
 #endif // ENABLE_CUDA
+#ifdef ENABLE_MPI
+#ifdef ENABLE_OPENMP
+            | ParallelType::OpenMP
+#endif // ENABLE_OPENMP
+#ifdef ENABLE_CUDA
+            | ParallelType::CUDA
+#endif // ENABLE_CUDA
+#endif // ENABLE_MPI
         ;
     }
 

@@ -285,7 +285,6 @@ mat GWRBasic::fitCoreSerial(const mat &x, const vec &y, const SpatialWeight &sw,
 mat GWRBasic::fitCoreCVSerial(const mat& x, const vec& y, const SpatialWeight& sw)
 {
     uword nDp = mCoords.n_rows, nVar = x.n_cols;
-    vec shat(2, fill::zeros);
     mat betas(nVar, nDp, fill::zeros);
     std::pair<uword, uword> workRange = mWorkRange.value_or(make_pair(0, nDp));
     for (uword i = workRange.first; i < workRange.second; i++)
@@ -450,7 +449,7 @@ mat GWRBasic::predictOmp(const mat& locations, const mat& x, const vec& y)
     return betas.t();
 }
 
-mat GWRBasic::fitOmp(const mat& x, const vec& y, mat& betasSE, vec& shat, vec& qDiag, mat& S)
+mat GWRBasic::fitCoreOmp(const mat& x, const vec& y, const SpatialWeight& sw, mat& betasSE, vec& shat, vec& qDiag, mat& S)
 {
     uword nDp = mCoords.n_rows, nVar = x.n_cols;
     mat betas(nVar, nDp, fill::zeros);
@@ -504,11 +503,10 @@ mat GWRBasic::fitOmp(const mat& x, const vec& y, mat& betasSE, vec& shat, vec& q
     return betas.t();
 }
 
-double GWRBasic::bandwidthSizeCriterionCVOmp(BandwidthWeight* bandwidthWeight)
+arma::mat GWRBasic::fitCoreCVOmp(const arma::mat& x, const arma::vec& y, const SpatialWeight& sw)
 {
-    uword nDp = mCoords.n_rows;
-    vec shat(2, fill::zeros);
-    vec cv_all(mOmpThreadNum, fill::zeros);
+    uword nDp = mCoords.n_rows, nVar = x.n_cols;
+    mat betas(nVar, nDp, fill::zeros);
     bool flag = true;
 #pragma omp parallel for num_threads(mOmpThreadNum)
     for (int i = 0; (uword)i < nDp; i++)
@@ -517,8 +515,7 @@ double GWRBasic::bandwidthSizeCriterionCVOmp(BandwidthWeight* bandwidthWeight)
         if (flag)
         {
             int thread = omp_get_thread_num();
-            vec d = mSpatialWeight.distance()->distance(i);
-            vec w = bandwidthWeight->weight(d);
+            vec w = sw.weightVector(i);
             w(i) = 0.0;
             mat xtw = trans(mX.each_col() % w);
             mat xtwx = xtw * mX;
@@ -526,57 +523,7 @@ double GWRBasic::bandwidthSizeCriterionCVOmp(BandwidthWeight* bandwidthWeight)
             try
             {
                 mat xtwx_inv = inv_sympd(xtwx);
-                vec beta = xtwx_inv * xtwy;
-                double res = mY(i) - det(mX.row(i) * beta);
-                if (isfinite(res))
-                    cv_all(thread) += res * res;
-                else
-                    flag = false;
-            }
-            catch (const exception& e)
-            {
-                GWM_LOG_ERROR(e.what());
-                flag = false;
-            }
-        }
-    }
-    if (mStatus == Status::Success && flag)
-    {
-        double cv = sum(cv_all);
-        GWM_LOG_INFO(IBandwidthSelectable::infoBandwidthCriterion(bandwidthWeight, cv));
-        GWM_LOG_PROGRESS_PERCENT(exp(- abs(mBandwidthLastCriterion - cv)));
-        mBandwidthLastCriterion = cv;
-        return cv;
-    }
-    else return DBL_MAX;
-}
-
-double GWRBasic::bandwidthSizeCriterionAICOmp(BandwidthWeight* bandwidthWeight)
-{
-    uword nDp = mCoords.n_rows, nVar = mX.n_cols;
-    mat betas(nVar, nDp, fill::zeros);
-    mat shat_all(2, mOmpThreadNum, fill::zeros);
-    bool flag = true;
-#pragma omp parallel for num_threads(mOmpThreadNum)
-    for (int i = 0; (uword)i < nDp; i++)
-    {
-        GWM_LOG_STOP_CONTINUE(mStatus);
-        if (flag)
-        {
-            int thread = omp_get_thread_num();
-            vec d = mSpatialWeight.distance()->distance(i);
-            vec w = bandwidthWeight->weight(d);
-            mat xtw = trans(mX.each_col() % w);
-            mat xtwx = xtw * mX;
-            mat xtwy = xtw * mY;
-            try
-            {
-                mat xtwx_inv = inv_sympd(xtwx);
                 betas.col(i) = xtwx_inv * xtwy;
-                mat ci = xtwx_inv * xtw;
-                mat si = mX.row(i) * ci;
-                shat_all(0, thread) += si(0, i);
-                shat_all(1, thread) += det(si * si.t());
             }
             catch (const exception& e)
             {
@@ -585,29 +532,14 @@ double GWRBasic::bandwidthSizeCriterionAICOmp(BandwidthWeight* bandwidthWeight)
             }
         }
     }
-    if (mStatus == Status::Success && flag)
-    {
-        vec shat = sum(shat_all, 1);
-        double value = GWRBase::AICc(mX, mY, betas.t(), shat);
-        if (isfinite(value))
-        {
-            GWM_LOG_INFO(IBandwidthSelectable::infoBandwidthCriterion(bandwidthWeight, value));
-            GWM_LOG_PROGRESS_PERCENT(exp(- abs(mBandwidthLastCriterion - value)));
-            mBandwidthLastCriterion = value;
-            return value;
-        }
-        else return DBL_MAX;
-    }
-    else return DBL_MAX;
+    return betas.t();
 }
 
-double GWRBasic::indepVarsSelectionCriterionOmp(const vector<size_t>& indepVars)
+arma::mat GWRBasic::fitCoreSHatOmp(const arma::mat& x, const arma::vec& y, const SpatialWeight& sw, arma::vec& shat)
 {
-    mat x = mX.cols(VariableForwardSelector::index2uvec(indepVars, mHasIntercept));
-    vec y = mY;
     uword nDp = mCoords.n_rows, nVar = x.n_cols;
     mat betas(nVar, nDp, fill::zeros);
-    mat shat(2, mOmpThreadNum, fill::zeros);
+    mat shat_all(2, mOmpThreadNum, fill::zeros);
     int flag = true;
 #pragma omp parallel for num_threads(mOmpThreadNum)
     for (int i = 0; (uword)i < nDp; i++)
@@ -626,8 +558,8 @@ double GWRBasic::indepVarsSelectionCriterionOmp(const vector<size_t>& indepVars)
                 betas.col(i) = xtwx_inv * xtwy;
                 mat ci = xtwx_inv * xtw;
                 mat si = x.row(i) * ci;
-                shat(0, thread) += si(0, i);
-                shat(1, thread) += det(si * si.t());
+                shat_all(0, thread) += si(0, i);
+                shat_all(1, thread) += det(si * si.t());
             }
             catch (const exception& e)
             {
@@ -636,14 +568,8 @@ double GWRBasic::indepVarsSelectionCriterionOmp(const vector<size_t>& indepVars)
             }
         }
     }
-    GWM_LOG_PROGRESS(++mIndepVarSelectionProgressCurrent, mIndepVarSelectionProgressTotal);
-    if (mStatus == Status::Success && flag)
-    {
-        double value = GWRBase::AICc(x, y, betas.t(), sum(shat, 1));
-        GWM_LOG_INFO(IVarialbeSelectable::infoVariableCriterion(indepVars, value));
-        return value;
-    }
-    else return DBL_MAX;
+    shat = sum(shat_all, 1);
+    return betas.t();
 }
 #endif
 
@@ -1219,20 +1145,20 @@ void GWRBasic::setParallelType(const ParallelType& type)
     if (type & parallelAbility())
     {
         mParallelType = type;
-        switch (type) {
+        switch (ParallelType(type ^ ParallelType::MPI)) {
         case ParallelType::SerialOnly:
             mPredictFunction = &GWRBasic::predictSerial;
-            mFitFunction = &GWRBasic::fitBase;
             mFitCoreFunction = &GWRBasic::fitCoreSerial;
             mFitCoreCVFunction = &GWRBasic::fitCoreCVSerial;
             mFitCoreSHatFunction = &GWRBasic::fitCoreSHatSerial;
-            mIndepVarsSelectionCriterionFunction = &GWRBasic::indepVarsSelectionCriterion;
             break;
 #ifdef ENABLE_OPENMP
         case ParallelType::OpenMP:
             mPredictFunction = &GWRBasic::predictOmp;
             mFitFunction = &GWRBasic::fitBase;
-            mIndepVarsSelectionCriterionFunction = &GWRBasic::indepVarsSelectionCriterionOmp;
+            mFitCoreFunction = &GWRBasic::fitCoreSerial;
+            mFitCoreCVFunction = &GWRBasic::fitCoreCVSerial;
+            mFitCoreSHatFunction = &GWRBasic::fitCoreSHatSerial;
             break;
 #endif // ENABLE_OPENMP
 #ifdef ENABLE_CUDA
@@ -1252,6 +1178,11 @@ void GWRBasic::setParallelType(const ParallelType& type)
         {
             mFitFunction = &GWRBasic::fitMpi;
             mIndepVarsSelectionCriterionFunction = &GWRBasic::indepVarsSelectionCriterionMpi;
+        }
+        else
+        {
+            mFitFunction = &GWRBasic::fitBase;
+            mIndepVarsSelectionCriterionFunction = &GWRBasic::indepVarsSelectionCriterion;
         }
 #endif
         setBandwidthSelectionCriterion(mBandwidthSelectionCriterion);

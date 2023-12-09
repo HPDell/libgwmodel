@@ -40,7 +40,7 @@ TEST_CASE("BasicGWR: LondonHP")
     const initializer_list<ParallelType> parallel_list = {
         ParallelType::MPI_Serial
 #ifdef ENABLE_OPENMP
-        // , ParallelType::MPI_MP
+        , ParallelType::MPI_MP
 #endif // ENABLE_OPENMP
 #ifdef ENABLE_CUDA
         , ParallelType::MPI_CUDA
@@ -107,7 +107,7 @@ TEST_CASE("BasicGWR: LondonHP")
 #ifdef ENABLE_OPENMP
         if (parallel == ParallelType::OpenMP)
         {
-            algorithm.setOmpThreadNum(6);
+            algorithm.setOmpThreadNum(2);
         }
 #endif // ENABLE_OPENMP
 #ifdef ENABLE_CUDA
@@ -153,7 +153,7 @@ TEST_CASE("BasicGWR: LondonHP")
 #ifdef ENABLE_OPENMP
         if (parallel == ParallelType::OpenMP)
         {
-            algorithm.setOmpThreadNum(6);
+            algorithm.setOmpThreadNum(2);
         }
 #endif // ENABLE_OPENMP
 #ifdef ENABLE_CUDA
@@ -204,7 +204,7 @@ TEST_CASE("BasicGWR: LondonHP")
 #ifdef ENABLE_OPENMP
         if (parallel == ParallelType::OpenMP)
         {
-            algorithm.setOmpThreadNum(6);
+            algorithm.setOmpThreadNum(2);
         }
 #endif // ENABLE_OPENMP
 #ifdef ENABLE_CUDA
@@ -261,7 +261,7 @@ TEST_CASE("BasicGWR: LondonHP")
 #ifdef ENABLE_OPENMP
         if (parallel == ParallelType::OpenMP)
         {
-            algorithm.setOmpThreadNum(6);
+            algorithm.setOmpThreadNum(2);
         }
 #endif // ENABLE_OPENMP
 #ifdef ENABLE_CUDA
