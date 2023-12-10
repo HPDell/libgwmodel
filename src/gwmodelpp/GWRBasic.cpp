@@ -998,12 +998,15 @@ arma::mat gwm::GWRBasic::fitMpi()
     // cout << mWorkerId << " process work range: [" << workRange.first << "," << workRange.second << "]\n";
     mat betas = mBetas.cols(workRange.first, workRange.second - 1);
     mat betasSE = mBetasSE.cols(workRange.first, workRange.second - 1);
-    mat S = mS.cols(workRange.first, workRange.second - 1);
     MPI_Send(betas.memptr(), betas.n_elem, MPI_DOUBLE, 0, int(GWRBasicFitMpiTags::Betas), MPI_COMM_WORLD);
     MPI_Send(betasSE.memptr(), betasSE.n_elem, MPI_DOUBLE, 0, int(GWRBasicFitMpiTags::BetasSE), MPI_COMM_WORLD);
     MPI_Send(mSHat.memptr(), mSHat.n_elem, MPI_DOUBLE, 0, int(GWRBasicFitMpiTags::SHat), MPI_COMM_WORLD);
     MPI_Send(mQDiag.memptr(), mQDiag.n_elem, MPI_DOUBLE, 0, int(GWRBasicFitMpiTags::QDiag), MPI_COMM_WORLD);
-    if (isStoreS()) MPI_Send(S.memptr(), S.n_elem, MPI_DOUBLE, 0, int(GWRBasicFitMpiTags::SMat), MPI_COMM_WORLD);
+    if (isStoreS())
+    {
+        mat S = mS.cols(workRange.first, workRange.second - 1);
+        MPI_Send(S.memptr(), S.n_elem, MPI_DOUBLE, 0, int(GWRBasicFitMpiTags::SMat), MPI_COMM_WORLD);
+    }
     GWM_MPI_WORKER_END
     
     // check cancel status
