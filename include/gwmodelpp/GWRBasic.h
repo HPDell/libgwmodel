@@ -48,7 +48,7 @@ public:
     
     typedef arma::mat (GWRBasic::*PredictCalculator)(const arma::mat&, const arma::mat&, const arma::vec&);                             //!< \~english Predict function declaration. \~chinese 预测函数声明。
     typedef arma::mat (GWRBasic::*FitCalculator)();   //!< \~english Fit function declaration. \~chinese 拟合函数声明。
-    typedef arma::mat (GWRBasic::*FitCoreCalculator)(const arma::mat&, const arma::vec&, const SpatialWeight&, arma::mat&, arma::vec&, arma::vec&, arma::mat&);   //!< \~english Fit function declaration. \~chinese 拟合函数声明。
+    typedef arma::mat (GWRBasic::*FitCoreCalculator)(const arma::mat&, const arma::vec&, const SpatialWeight&);   //!< \~english Fit function declaration. \~chinese 拟合函数声明。
     typedef arma::mat (GWRBasic::*FitCoreSHatCalculator)(const arma::mat&, const arma::vec&, const SpatialWeight&, arma::vec&);   //!< \~english Fit function declaration. \~chinese 拟合函数声明。
     typedef arma::mat (GWRBasic::*FitCoreCVCalculator)(const arma::mat&, const arma::vec&, const SpatialWeight&);   //!< \~english Fit function declaration. \~chinese 拟合函数声明。
 
@@ -364,6 +364,29 @@ public:
      */
     const arma::mat& s() { return mS; }
 
+    const arma::cube& c() { return mC; }
+
+    /**
+     * \~english
+     * @brief Whether to store hat-matrix \f$S\f$.
+     * 
+     * @return true if store hat-matrix.
+     * @return false if not to store hat-matrix.
+     * 
+     * \~chinese
+     * @brief 是否保存帽子矩阵 \f$S\f$.
+     * 
+     * @return true 如果保存帽子矩阵。
+     * @return false 如果不保存帽子矩阵。
+     * 
+     */
+    bool isStoreS() { return mStoreS ? true : (mHasHatMatrix && (mCoords.n_rows < 8192)); }
+
+    bool isStoreC() { return mStoreC; }
+
+    void setStoreS(bool flag) { mStoreS = flag; }
+
+    void setStoreC(bool flag) { mStoreC = flag; }
 
 public:     // Implement Algorithm
     bool isValid() override;
@@ -488,7 +511,7 @@ private:
 
 private:
 
-    arma::mat fitCoreSerial(const arma::mat& x, const arma::vec& y, const SpatialWeight& sw, arma::mat& betasSE, arma::vec& shat, arma::vec& qDiag, arma::mat& S);
+    arma::mat fitCoreSerial(const arma::mat& x, const arma::vec& y, const SpatialWeight& sw);
 
     arma::mat fitCoreSHatSerial(const arma::mat& x, const arma::vec& y, const SpatialWeight& sw, arma::vec& shat);
 
@@ -694,22 +717,6 @@ protected:
 
     /**
      * \~english
-     * @brief Whether to store hat-matrix \f$S\f$.
-     * 
-     * @return true if store hat-matrix.
-     * @return false if not to store hat-matrix.
-     * 
-     * \~chinese
-     * @brief 是否保存帽子矩阵 \f$S\f$.
-     * 
-     * @return true 如果保存帽子矩阵。
-     * @return false 如果不保存帽子矩阵。
-     * 
-     */
-    bool isStoreS() { return mHasHatMatrix && (mCoords.n_rows < 8192); }
-
-    /**
-     * \~english
      * @brief Create distance parameters for prediction.
      * 
      * @param locations Distance parameters for prediction.
@@ -762,6 +769,9 @@ protected:
     arma::vec mSHat;  //!< \~english A vector of \f$tr(S)\f$ and \f$tr(SS^T)\f$. \~chinese 由 \f$tr(S)\f$ 和 \f$tr(SS^T)\f$ 组成的向量。
     arma::vec mQDiag;  //!< \~english The diagonal elements of matrix \f$Q\f$. \~chinese 矩阵 \f$Q\f$ 的对角线元素。
     arma::mat mS;  //!< \~english The hat-matrix \f$S\f$. \~chinese 帽子矩阵 \f$S\f$。
+    arma::cube mC;//!< \~english All \f$S\f$ matrices. \~chinese 所有 \f$C\f$ 矩阵。
+    bool mStoreS = false; //!< \~english Whether to save S \~chinese 是否保存 S 矩阵
+    bool mStoreC = false; //!< \~english Whether to save C \~chinese 是否保存 C 矩阵
 };
 
 }

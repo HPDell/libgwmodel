@@ -662,7 +662,7 @@ protected:
      * @param y 因变量 \f$y\f$。
      * @return arma::mat 回归系数估计值 \f$\beta\f$。
      */
-    arma::mat backfitting(const arma::mat &x, const arma::vec &y);
+    arma::mat backfitting(const arma::mat &x, const arma::vec &y, const arma::mat& betas0);
 
     /**
      * \~english

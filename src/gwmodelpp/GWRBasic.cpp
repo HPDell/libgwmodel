@@ -231,7 +231,7 @@ mat GWRBasic::predictSerial(const mat& locations, const mat& x, const vec& y)
 
 arma::mat gwm::GWRBasic::fitBase()
 {
-    mBetas = (this->*mFitCoreFunction)(mX, mY, mSpatialWeight, mBetasSE, mSHat, mQDiag, mS);
+    mBetas = (this->*mFitCoreFunction)(mX, mY, mSpatialWeight);
     mDiagnostic = CalcDiagnostic(mX, mY, mBetas, mSHat);
     double trS = mSHat(0), trStS = mSHat(1);
     double nDp = double(mCoords.n_rows);
@@ -240,14 +240,15 @@ arma::mat gwm::GWRBasic::fitBase()
     return mBetas;
 }
 
-mat GWRBasic::fitCoreSerial(const mat &x, const vec &y, const SpatialWeight &sw, mat &betasSE, vec &shat, vec &qDiag, mat &S)
+mat GWRBasic::fitCoreSerial(const mat &x, const vec &y, const SpatialWeight &sw)
 {
     uword nDp = mCoords.n_rows, nVar = x.n_cols;
     mat betas(nVar, nDp, fill::zeros);
-    betasSE = mat(nVar, nDp, fill::zeros);
-    shat = vec(2, fill::zeros);
-    qDiag = vec(nDp, fill::zeros);
-    S = mat(isStoreS() ? nDp : 1, nDp, fill::zeros);
+    mBetasSE = mat(nVar, nDp, fill::zeros);
+    mSHat = vec(2, fill::zeros);
+    mQDiag = vec(nDp, fill::zeros);
+    mS = mat(isStoreS() ? nDp : 1, nDp, fill::zeros);
+    mC = cube(nVar, nDp, isStoreC() ? nDp : 1, fill::zeros);
     std::pair<uword, uword> workRange = mWorkRange.value_or(make_pair(0, nDp));
     // cout << mWorkerId << " process work range: [" << workRange.first << "," << workRange.second << "]\n";
     for (uword i = workRange.first; i < workRange.second; i++)
@@ -262,14 +263,15 @@ mat GWRBasic::fitCoreSerial(const mat &x, const vec &y, const SpatialWeight &sw,
             mat xtwx_inv = inv_sympd(xtwx);
             betas.col(i) = xtwx_inv * xtwy;
             mat ci = xtwx_inv * xtw;
-            betasSE.col(i) = sum(ci % ci, 1);
+            mBetasSE.col(i) = sum(ci % ci, 1);
             mat si = x.row(i) * ci;
-            shat(0) += si(0, i);
-            shat(1) += det(si * si.t());
+            mSHat(0) += si(0, i);
+            mSHat(1) += det(si * si.t());
             vec p = - si.t();
             p(i) += 1.0;
-            qDiag += p % p;
-            S.row(isStoreS() ? i : 0) = si;
+            mQDiag += p % p;
+            mS.row(isStoreS() ? i : 0) = si;
+            mC.slice(isStoreC() ? i : 0) = ci;
         }
         catch (const exception& e)
         {
@@ -278,7 +280,7 @@ mat GWRBasic::fitCoreSerial(const mat &x, const vec &y, const SpatialWeight &sw,
         }
         GWM_LOG_PROGRESS(i + 1, nDp);
     }
-    betasSE = betasSE.t();
+    mBetasSE = mBetasSE.t();
     return betas.t();
 }
 
@@ -927,7 +929,7 @@ arma::mat gwm::GWRBasic::fitMpi()
 {
     // fit GWR on each process
     uword nDp = mCoords.n_rows, nVar = mX.n_cols;
-    mBetas = (this->*mFitCoreFunction)(mX, mY, mSpatialWeight, mBetasSE, mSHat, mQDiag, mS).t();
+    mBetas = (this->*mFitCoreFunction)(mX, mY, mSpatialWeight).t();
     mBetasSE = mBetasSE.t();
     mS = mS.t();
     // gather results to master process

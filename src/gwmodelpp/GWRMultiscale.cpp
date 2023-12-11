@@ -9,6 +9,7 @@
 #include "BandwidthSelector.h"
 #include "VariableForwardSelector.h"
 #include "Logger.h"
+#include "GWRBasic.h"
 
 #ifdef ENABLE_CUDA
 #include <cuda_runtime.h>
@@ -137,18 +138,42 @@ mat GWRMultiscale::fit()
     // *****************************************************
     // Calculate the initial beta0 from the above bandwidths
     // *****************************************************
-    BandwidthWeight* bw0 = bandwidth(0);
-    bool adaptive = bw0->adaptive();
-    mBandwidthSizeCriterion = bandwidthSizeCriterionAll(mBandwidthSelectionApproach[0]);
-    
     GWM_LOG_STAGE("Calculating initial bandwidth");
-    BandwidthSelector initBwSelector;
-    initBwSelector.setBandwidth(bw0);
-    double maxDist = mSpatialWeights[0].distance()->maxDistance();
-    initBwSelector.setLower(mGoldenLowerBounds.value_or(adaptive ? mAdaptiveLower : maxDist / 5000.0));
-    initBwSelector.setUpper(mGoldenUpperBounds.value_or(adaptive ? mCoords.n_rows : maxDist));
-    GWM_LOG_INFO(IBandwidthSelectable::infoBandwidthCriterion(bw0));
-    BandwidthWeight* initBw = initBwSelector.optimize(this);
+    GWRBasic gwr;
+    gwr.setCoords(mCoords);
+    gwr.setDependentVariable(mY);
+    gwr.setIndependentVariables(mX);
+    gwr.setSpatialWeight(mSpatialWeights[0]);
+    gwr.setIsAutoselectBandwidth(true);
+    switch (mBandwidthSelectionApproach[0])
+    {
+    case GWRMultiscale::BandwidthSelectionCriterionType::CV:
+        gwr.setBandwidthSelectionCriterion(GWRBasic::BandwidthSelectionCriterionType::CV);
+        break;
+    case GWRMultiscale::BandwidthSelectionCriterionType::AIC:
+        gwr.setBandwidthSelectionCriterion(GWRBasic::BandwidthSelectionCriterionType::AIC);
+    default:
+        break;
+    }
+    gwr.setParallelType(mParallelType);
+    switch (mParallelType)
+    {
+    case ParallelType::OpenMP:
+    case ParallelType::MPI_MP:
+        gwr.setOmpThreadNum(mOmpThreadNum);
+        break;
+    case ParallelType::CUDA:
+    case ParallelType::MPI_CUDA:
+        gwr.setGroupSize(mGroupLength);
+        gwr.setGPUId(mGpuId);
+    default:
+        break;
+    }
+    gwr.setStoreS(mHasHatMatrix);
+    gwr.setStoreC(mHasHatMatrix);
+    mat betas = gwr.fit();
+    mBetasSE = gwr.betasSE();
+    BandwidthWeight* initBw = gwr.spatialWeight().weight<BandwidthWeight>();
     if (!initBw)
     {
         throw std::runtime_error("Cannot select initial bandwidth.");
@@ -162,13 +187,13 @@ mat GWRMultiscale::fit()
     // 初始化诊断信息矩阵
     if (mHasHatMatrix)
     {
-        mS0 = mat(nDp, nDp, fill::zeros);
+        mS0 = gwr.s();
         mSArray = cube(nDp, nDp, nVar, fill::zeros);
-        mC = cube(nVar, nDp, nDp, fill::zeros);
+        mC = gwr.c();
     }
 
     GWM_LOG_STAGE("Model fitting");
-    mBetas = backfitting(mX, mY);
+    mBetas = backfitting(mX, mY, betas);
     GWM_LOG_STOP_RETURN(mStatus, mat(nDp, nVar, arma::fill::zeros));
 
     // Diagnostic
@@ -205,11 +230,11 @@ void GWRMultiscale::createInitialDistanceParameter()
     }
 }
 
-mat GWRMultiscale::backfitting(const mat &x, const vec &y)
+mat GWRMultiscale::backfitting(const mat &x, const vec &y, const mat& betas0)
 {
     GWM_LOG_MGWR_BACKFITTING("Model fitting with inital bandwidth");
     uword nDp = mCoords.n_rows, nVar = mX.n_cols;
-    mat betas = (this->*mFitAll)(x, y);
+    mat betas = betas0;
     GWM_LOG_STOP_RETURN(mStatus, mat(nDp, nVar, arma::fill::zeros));
 
     mat idm = eye(nVar, nVar);
