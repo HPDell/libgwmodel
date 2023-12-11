@@ -193,7 +193,7 @@ mat GWRMultiscale::fit()
     }
 
     GWM_LOG_STAGE("Model fitting");
-    mBetas = backfitting(mX, mY, betas);
+    mBetas = backfitting(betas);
     GWM_LOG_STOP_RETURN(mStatus, mat(nDp, nVar, arma::fill::zeros));
 
     // Diagnostic
@@ -230,7 +230,7 @@ void GWRMultiscale::createInitialDistanceParameter()
     }
 }
 
-mat GWRMultiscale::backfitting(const mat &x, const vec &y, const mat& betas0)
+mat GWRMultiscale::backfitting(const mat& betas0)
 {
     GWM_LOG_MGWR_BACKFITTING("Model fitting with inital bandwidth");
     uword nDp = mCoords.n_rows, nVar = mX.n_cols;
@@ -244,7 +244,7 @@ mat GWRMultiscale::backfitting(const mat &x, const vec &y, const mat& betas0)
         {
             for (uword j = 0; j < nDp ; ++j)
             {
-                mSArray.slice(i).row(j) = x(j, i) * (idm.row(i) * mC.slice(j));
+                mSArray.slice(i).row(j) = mX(j, i) * (idm.row(i) * mC.slice(j));
             }
         }
     }
@@ -254,7 +254,7 @@ mat GWRMultiscale::backfitting(const mat &x, const vec &y, const mat& betas0)
     // ***********************************************************
     GWM_LOG_MGWR_BACKFITTING("Selecting the optimum bandwidths for each independent variable");
     uvec bwChangeNo(nVar, fill::zeros);
-    vec resid = y - Fitted(x, betas);
+    vec resid = mY - Fitted(mX, betas);
     double RSS0 = sum(resid % resid), RSS1 = DBL_MAX;
     double criterion = DBL_MAX;
     for (size_t iteration = 1; iteration <= mMaxIteration && criterion > mCriterionThreshold; iteration++)
@@ -264,15 +264,14 @@ mat GWRMultiscale::backfitting(const mat &x, const vec &y, const mat& betas0)
         for (uword i = 0; i < nVar  ; i++)
         {
             GWM_LOG_STOP_BREAK(mStatus);
-            vec fi = betas.col(i) % x.col(i);
-            vec yi = resid + fi;
+            mXi = mX.col(i);
+            vec fi = betas.col(i) % mX.col(i);
+            mYi = resid + fi;
             if (mBandwidthInitilize[i] != BandwidthInitilizeType::Specified)
             {
                 GWM_LOG_MGWR_BACKFITTING("#variable-bandwidth-selection " + to_string(i));
                 mBandwidthSizeCriterion = bandwidthSizeCriterionVar(mBandwidthSelectionApproach[i]);
                 mBandwidthSelectionCurrentIndex = i;
-                mYi = yi;
-                mXi = mX.col(i);
                 BandwidthWeight* bwi0 = bandwidth(i);
                 bool adaptive = bwi0->adaptive();
                 BandwidthSelector selector;
@@ -316,17 +315,10 @@ mat GWRMultiscale::backfitting(const mat &x, const vec &y, const mat& betas0)
             }
             GWM_LOG_STOP_BREAK(mStatus);
 
-            mat S;
-            betas.col(i) = (this->*mFitVar)(x.col(i), yi, i, S);
-            if (mHasHatMatrix)
-            {
-                mat SArrayi = mSArray.slice(i) - mS0;
-                mSArray.slice(i) = S * SArrayi + S;
-                mS0 = mSArray.slice(i) - SArrayi;
-            }
-            resid = y - Fitted(x, betas);
+            betas.col(i) = (this->*mFitVar)(i);
+            resid = mY - Fitted(mX, betas);
         }
-        RSS1 = RSS(x, y, betas);
+        RSS1 = RSS(mX, mY, betas);
         criterion = (mCriterionType == BackFittingCriterionType::CVR) ?
                     abs(RSS1 - RSS0) :
                     sqrt(abs(RSS1 - RSS0) / RSS1);
@@ -339,6 +331,65 @@ mat GWRMultiscale::backfitting(const mat &x, const vec &y, const mat& betas0)
     GWM_LOG_MGWR_BACKFITTING("Finished");
     mRSS0 = RSS0;
     return betas;
+}
+
+arma::vec gwm::GWRMultiscale::fitVarBase(const size_t var)
+{
+    mat S;
+    vec beta = (this->*mFitVarCore)(mXi, mYi, mSpatialWeights[var], S);
+    if (mHasHatMatrix)
+    {
+        mat SArrayi = mSArray.slice(var) - mS0;
+        mSArray.slice(var) = S * SArrayi + S;
+        mS0 = mSArray.slice(var) - SArrayi;
+    }
+    return beta;
+}
+
+double gwm::GWRMultiscale::bandwidthSizeCriterionVarCVBase(BandwidthWeight* bandwidthWeight)
+{
+    SpatialWeight sw(bandwidthWeight, mSpatialWeights[mBandwidthSelectionCurrentIndex].distance());
+    try
+    {
+        vec betas = (this->*mFitVarCoreCV)(mXi, mYi, sw);
+        vec res = mYi - mXi % betas;
+        double cv = sum(res % res);
+        if (mStatus == Status::Success && isfinite(cv))
+        {
+            GWM_LOG_INFO(IBandwidthSelectable::infoBandwidthCriterion(bandwidthWeight, cv));
+            GWM_LOG_PROGRESS_PERCENT(exp(- abs(mBandwidthLastCriterion - cv)));
+            mBandwidthLastCriterion = cv;
+            return cv;
+        }
+        else return DBL_MAX;
+    }
+    catch(const std::exception& e)
+    {
+        return DBL_MAX;
+    }
+}
+
+double gwm::GWRMultiscale::bandwidthSizeCriterionVarAICBase(BandwidthWeight* bandwidthWeight)
+{
+    SpatialWeight sw(bandwidthWeight, mSpatialWeights[mBandwidthSelectionCurrentIndex].distance());
+    try
+    {
+        vec shat;
+        mat betas = (this->*mFitVarCoreSHat)(mXi, mYi, sw, shat);
+        double value = GWRBase::AICc(mXi, mYi, betas, shat);
+        if (mStatus == Status::Success && isfinite(value))
+        {
+            GWM_LOG_INFO(IBandwidthSelectable::infoBandwidthCriterion(bandwidthWeight, value));
+            GWM_LOG_PROGRESS_PERCENT(exp(- abs(mBandwidthLastCriterion - value)));
+            mBandwidthLastCriterion = value;
+            return value;
+        }
+        else return DBL_MAX;
+    }
+    catch(const std::exception& e)
+    {
+        return DBL_MAX;
+    }
 }
 
 bool GWRMultiscale::isValid()
@@ -384,65 +435,7 @@ bool GWRMultiscale::isValid()
     return true;
 }
 
-mat GWRMultiscale::fitAllSerial(const mat& x, const vec& y)
-{
-    uword nDp = mCoords.n_rows, nVar = x.n_cols;
-    mat betas(nVar, nDp, fill::zeros);
-    if (mHasHatMatrix )
-    {
-        mat betasSE(nVar, nDp, fill::zeros);
-        for (uword i = 0; i < nDp ; i++)
-        {
-            GWM_LOG_STOP_BREAK(mStatus);
-            vec w = mInitSpatialWeight.weightVector(i);
-            mat xtw = trans(x.each_col() % w);
-            mat xtwx = xtw * x;
-            mat xtwy = xtw * y;
-            try
-            {
-                mat xtwx_inv = inv_sympd(xtwx);
-                betas.col(i) = xtwx_inv * xtwy;
-                mat ci = xtwx_inv * xtw;
-                betasSE.col(i) = sum(ci % ci, 1);
-                mat si = x.row(i) * ci;
-                mS0.row(i) = si;
-                mC.slice(i) = ci;
-            }
-            catch (const exception& e)
-            {
-                GWM_LOG_ERROR(e.what());
-                throw e;
-            }
-            GWM_LOG_PROGRESS(i + 1, nDp);
-        }
-        mBetasSE = betasSE.t();
-    }
-    else
-    {
-        for (int i = 0; (uword)i < nDp ; i++)
-        {
-            GWM_LOG_STOP_BREAK(mStatus);
-            vec w = mInitSpatialWeight.weightVector(i);
-            mat xtw = trans(x.each_col() % w);
-            mat xtwx = xtw * x;
-            mat xtwy = xtw * y;
-            try
-            {
-                mat xtwx_inv = inv_sympd(xtwx);
-                betas.col(i) = xtwx_inv * xtwy;
-            }
-            catch (const exception& e)
-            {
-                GWM_LOG_ERROR(e.what());
-                throw e;
-            }
-            GWM_LOG_PROGRESS(i + 1, nDp);
-        }
-    }
-    return betas.t();
-}
-
-vec GWRMultiscale::fitVarSerial(const vec &x, const vec &y, const uword var, mat &S)
+vec GWRMultiscale::fitVarCoreSerial(const vec &x, const vec &y, const SpatialWeight& sw, mat &S)
 {
     uword nDp = mCoords.n_rows;
     mat betas(1, nDp, fill::zeros);
@@ -455,7 +448,7 @@ vec GWRMultiscale::fitVarSerial(const vec &x, const vec &y, const uword var, mat
         for (uword i = 0; i < nDp  ; i++)
         {
             GWM_LOG_STOP_BREAK(mStatus);
-            vec w = mSpatialWeights[var].weightVector(i);
+            vec w = sw.weightVector(i);
             mat xtw = trans(x % w);
             mat xtwx = xtw * x;
             mat xtwy = xtw * y;
@@ -481,7 +474,7 @@ vec GWRMultiscale::fitVarSerial(const vec &x, const vec &y, const uword var, mat
         for (int i = 0; (uword)i < nDp  ; i++)
         {
             GWM_LOG_STOP_BREAK(mStatus);
-            vec w = mSpatialWeights[var].weightVector(i);
+            vec w = sw.weightVector(i);
             mat xtw = trans(x % w);
             mat xtwx = xtw * x;
             mat xtwy = xtw * y;
@@ -506,158 +499,60 @@ vec GWRMultiscale::fitVarSerial(const vec &x, const vec &y, const uword var, mat
     return betas.t();
 }
 
-double GWRMultiscale::bandwidthSizeCriterionAllCVSerial(BandwidthWeight *bandwidthWeight)
+vec GWRMultiscale::fitVarCoreCVSerial(const vec &x, const vec &y, const SpatialWeight& sw)
 {
-    uword nDp = mCoords.n_rows;
-    vec shat(2, fill::zeros);
-    double cv = 0.0;
+    uword nDp = x.n_rows;
+    vec beta(nDp, fill::zeros);
     for (uword i = 0; i < nDp; i++)
     {
         GWM_LOG_STOP_BREAK(mStatus);
-        vec d = mInitSpatialWeight.distance()->distance(i);
-        vec w = bandwidthWeight->weight(d);
+        vec w = sw.weightVector(i);
         w(i) = 0.0;
-        mat xtw = trans(mX.each_col() % w);
-        mat xtwx = xtw * mX;
-        mat xtwy = xtw * mY;
+        mat xtw = trans(x % w);
+        mat xtwx = xtw * x;
+        mat xtwy = xtw * y;
         try
         {
             mat xtwx_inv = inv_sympd(xtwx);
-            vec beta = xtwx_inv * xtwy;
-            double res = mY(i) - det(mX.row(i) * beta);
-            cv += res * res;
+            beta(i) = as_scalar(xtwx_inv * xtwy);
         }
         catch (const exception& e)
         {
             GWM_LOG_ERROR(e.what());
-            return DBL_MAX;
+            throw e;
         }
     }
-    if (mStatus == Status::Success && isfinite(cv))
-    {
-        GWM_LOG_INFO(IBandwidthSelectable::infoBandwidthCriterion(bandwidthWeight, cv));
-        GWM_LOG_PROGRESS_PERCENT(exp(- abs(mBandwidthLastCriterion - cv)));
-        mBandwidthLastCriterion = cv;
-        return cv;
-    }
-    else return DBL_MAX;
+    return beta;
 }
 
-double GWRMultiscale::bandwidthSizeCriterionAllAICSerial(BandwidthWeight *bandwidthWeight)
+vec GWRMultiscale::fitVarCoreSHatSerial(const vec &x, const vec &y, const SpatialWeight& sw, vec& shat)
 {
-    uword nDp = mCoords.n_rows, nVar = mX.n_cols;
-    mat betas(nVar, nDp, fill::zeros);
-    vec shat(2, fill::zeros);
+    uword nDp = x.n_rows;
+    vec betas(nDp, fill::zeros);
+    shat = vec(2, fill::zeros);
     for (uword i = 0; i < nDp ; i++)
     {
         GWM_LOG_STOP_BREAK(mStatus);
-        vec d = mInitSpatialWeight.distance()->distance(i);
-        vec w = bandwidthWeight->weight(d);
-        mat xtw = trans(mX.each_col() % w);
-        mat xtwx = xtw * mX;
-        mat xtwy = xtw * mY;
+        vec w = sw.weightVector(i);
+        mat xtw = trans(x % w);
+        mat xtwx = xtw * x;
+        mat xtwy = xtw * y;
         try
         {
             mat xtwx_inv = inv_sympd(xtwx);
-            betas.col(i) = xtwx_inv * xtwy;
+            betas(i) = as_scalar(xtwx_inv * xtwy);
             mat ci = xtwx_inv * xtw;
-            mat si = mX.row(i) * ci;
+            mat si = x(i) * ci;
             shat(0) += si(0, i);
-            shat(1) += det(si * si.t());
+            shat(1) += as_scalar(si * si.t());
         }
         catch (const exception& e)
         {
             GWM_LOG_ERROR(e.what());
-            return DBL_MAX;
+            throw e;
         }
     }
-    double value = GWRMultiscale::AICc(mX, mY, betas.t(), shat);
-    if (mStatus == Status::Success && isfinite(value))
-    {
-        GWM_LOG_INFO(IBandwidthSelectable::infoBandwidthCriterion(bandwidthWeight, value));
-        GWM_LOG_PROGRESS_PERCENT(exp(- abs(mBandwidthLastCriterion - value)));
-        mBandwidthLastCriterion = value;
-        return value;
-    }
-    else return DBL_MAX;
-}
-
-double GWRMultiscale::bandwidthSizeCriterionVarCVSerial(BandwidthWeight *bandwidthWeight)
-{
-    size_t var = mBandwidthSelectionCurrentIndex;
-    uword nDp = mCoords.n_rows;
-    vec shat(2, fill::zeros);
-    double cv = 0.0;
-    for (uword i = 0; i < nDp; i++)
-    {
-        GWM_LOG_STOP_BREAK(mStatus);
-        vec d = mSpatialWeights[var].distance()->distance(i);
-        vec w = bandwidthWeight->weight(d);
-        w(i) = 0.0;
-        mat xtw = trans(mXi % w);
-        mat xtwx = xtw * mXi;
-        mat xtwy = xtw * mYi;
-        try
-        {
-            mat xtwx_inv = inv_sympd(xtwx);
-            vec beta = xtwx_inv * xtwy;
-            double res = mYi(i) - det(mXi(i) * beta);
-            cv += res * res;
-        }
-        catch (const exception& e)
-        {
-            GWM_LOG_ERROR(e.what());
-            return DBL_MAX;
-        }
-    }
-    if (mStatus == Status::Success && isfinite(cv))
-    {
-        GWM_LOG_INFO(IBandwidthSelectable::infoBandwidthCriterion(bandwidthWeight, cv));
-        GWM_LOG_PROGRESS_PERCENT(exp(- abs(mBandwidthLastCriterion - cv)));
-        mBandwidthLastCriterion = cv;
-        return cv;
-    }
-    else return DBL_MAX;
-}
-
-double GWRMultiscale::bandwidthSizeCriterionVarAICSerial(BandwidthWeight *bandwidthWeight)
-{
-    size_t var = mBandwidthSelectionCurrentIndex;
-    uword nDp = mCoords.n_rows;
-    mat betas(1, nDp, fill::zeros);
-    vec shat(2, fill::zeros);
-    for (uword i = 0; i < nDp ; i++)
-    {
-        GWM_LOG_STOP_BREAK(mStatus);
-        vec d = mSpatialWeights[var].distance()->distance(i);
-        vec w = bandwidthWeight->weight(d);
-        mat xtw = trans(mXi % w);
-        mat xtwx = xtw * mXi;
-        mat xtwy = xtw * mYi;
-        try
-        {
-            mat xtwx_inv = inv_sympd(xtwx);
-            betas.col(i) = xtwx_inv * xtwy;
-            mat ci = xtwx_inv * xtw;
-            mat si = mXi(i) * ci;
-            shat(0) += si(0, i);
-            shat(1) += det(si * si.t());
-        }
-        catch (const exception& e)
-        {
-            GWM_LOG_ERROR(e.what());
-            return DBL_MAX;
-        }
-    }
-    double value = GWRMultiscale::AICc(mXi, mYi, betas.t(), shat);
-    if (mStatus == Status::Success && isfinite(value))
-    {
-        GWM_LOG_INFO(IBandwidthSelectable::infoBandwidthCriterion(bandwidthWeight, value));
-        GWM_LOG_PROGRESS_PERCENT(exp(- abs(mBandwidthLastCriterion - value)));
-        mBandwidthLastCriterion = value;
-        return value;
-    }
-    return isfinite(value) ? value : DBL_MAX;
+    return betas;
 }
 
 
@@ -1418,31 +1313,6 @@ double GWRMultiscale::bandwidthSizeCriterionVarAICCuda(BandwidthWeight* bandwidt
 
 #endif // ENABLE_CUDA
 
-GWRMultiscale::BandwidthSizeCriterionFunction GWRMultiscale::bandwidthSizeCriterionAll(GWRMultiscale::BandwidthSelectionCriterionType type)
-{
-    unordered_map<BandwidthSelectionCriterionType, unordered_map<ParallelType, BandwidthSizeCriterionFunction> > mapper = {
-        std::make_pair<BandwidthSelectionCriterionType, unordered_map<ParallelType, BandwidthSizeCriterionFunction> >(BandwidthSelectionCriterionType::CV, {
-        #ifdef ENABLE_OPENMP
-            std::make_pair(ParallelType::OpenMP, &GWRMultiscale::bandwidthSizeCriterionAllCVOmp),
-        #endif
-        #ifdef ENABLE_CUDA
-            std::make_pair(ParallelType::CUDA, &GWRMultiscale::bandwidthSizeCriterionAllCVCuda),
-        #endif
-            std::make_pair(ParallelType::SerialOnly, &GWRMultiscale::bandwidthSizeCriterionAllCVSerial)
-        }),
-        std::make_pair<BandwidthSelectionCriterionType, unordered_map<ParallelType, BandwidthSizeCriterionFunction> >(BandwidthSelectionCriterionType::AIC, {
-        #ifdef ENABLE_OPENMP
-            std::make_pair(ParallelType::OpenMP, &GWRMultiscale::bandwidthSizeCriterionAllAICOmp),
-        #endif
-        #ifdef ENABLE_CUDA
-            std::make_pair(ParallelType::CUDA, &GWRMultiscale::bandwidthSizeCriterionAllAICCuda),
-        #endif
-            std::make_pair(ParallelType::SerialOnly, &GWRMultiscale::bandwidthSizeCriterionAllAICSerial)
-        })
-    };
-    return mapper[type][mParallelType];
-}
-
 GWRMultiscale::BandwidthSizeCriterionFunction GWRMultiscale::bandwidthSizeCriterionVar(GWRMultiscale::BandwidthSelectionCriterionType type)
 {
     unordered_map<BandwidthSelectionCriterionType, unordered_map<ParallelType, BandwidthSizeCriterionFunction> > mapper = {
@@ -1453,7 +1323,7 @@ GWRMultiscale::BandwidthSizeCriterionFunction GWRMultiscale::bandwidthSizeCriter
         #ifdef ENABLE_CUDA
             std::make_pair(ParallelType::CUDA, &GWRMultiscale::bandwidthSizeCriterionVarCVCuda),
         #endif
-            std::make_pair(ParallelType::SerialOnly, &GWRMultiscale::bandwidthSizeCriterionVarCVSerial)
+            std::make_pair(ParallelType::SerialOnly, &GWRMultiscale::bandwidthSizeCriterionVarCVBase)
         }),
         std::make_pair<BandwidthSelectionCriterionType, unordered_map<ParallelType, BandwidthSizeCriterionFunction> >(BandwidthSelectionCriterionType::AIC, {
         #ifdef ENABLE_OPENMP
@@ -1462,7 +1332,7 @@ GWRMultiscale::BandwidthSizeCriterionFunction GWRMultiscale::bandwidthSizeCriter
         #ifdef ENABLE_CUDA
             std::make_pair(ParallelType::CUDA, &GWRMultiscale::bandwidthSizeCriterionVarAICCuda),
         #endif
-            std::make_pair(ParallelType::SerialOnly, &GWRMultiscale::bandwidthSizeCriterionVarAICSerial)
+            std::make_pair(ParallelType::SerialOnly, &GWRMultiscale::bandwidthSizeCriterionVarAICBase)
         })
     };
     return mapper[type][mParallelType];
@@ -1474,25 +1344,20 @@ void GWRMultiscale::setParallelType(const ParallelType &type)
     {
         mParallelType = type;
         switch (type) {
-        case ParallelType::SerialOnly:
-            mFitAll = &GWRMultiscale::fitAllSerial;
-            mFitVar = &GWRMultiscale::fitVarSerial;
-            break;
 #ifdef ENABLE_OPENMP
         case ParallelType::OpenMP:
-            mFitAll = &GWRMultiscale::fitAllOmp;
-            mFitVar = &GWRMultiscale::fitVarOmp;
+            mFitVarCore = &GWRMultiscale::fitVarOmp;
             break;
 #endif
 #ifdef ENABLE_CUDA
         case ParallelType::CUDA:
-            mFitAll = &GWRMultiscale::fitAllCuda;
-            mFitVar = &GWRMultiscale::fitVarCuda;
+            mFitVarCore = &GWRMultiscale::fitVarCuda;
             break;
 #endif
         default:
-            mFitAll = &GWRMultiscale::fitAllSerial;
-            mFitVar = &GWRMultiscale::fitVarSerial;
+            mFitVarCore = &GWRMultiscale::fitVarCoreSerial;
+            mFitVarCoreCV = &GWRMultiscale::fitVarCoreCVSerial;
+            mFitVarCoreSHat = &GWRMultiscale::fitVarCoreSHatSerial;
             break;
         }
     }

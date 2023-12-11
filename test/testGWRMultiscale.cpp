@@ -87,7 +87,7 @@ TEST_CASE("MGWR: basic flow")
         REQUIRE(algorithm.hasIntercept() == true);
     }
 
-    SECTION("optim bw cv | null init bw | adaptive | bisquare kernel | with hatmatrix")
+    SECTION("optim bw AIC | null init bw | adaptive | bisquare kernel | with hatmatrix")
     {
         auto parallel = GENERATE_REF(values(parallelTypes));
         INFO("Parallel type: " << ParallelTypeDict.at(parallel));

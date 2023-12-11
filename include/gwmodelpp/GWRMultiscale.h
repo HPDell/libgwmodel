@@ -32,7 +32,13 @@ namespace gwm
  * \~chinese
  * @brief 多尺度GWR算法
  */
-class GWRMultiscale : public SpatialMultiscaleAlgorithm, public IBandwidthSelectable, public IRegressionAnalysis, public IParallelizable, public IParallelOpenmpEnabled, public IParallelCudaEnabled
+class GWRMultiscale : public SpatialMultiscaleAlgorithm,
+    public IBandwidthSelectable,
+    public IRegressionAnalysis,
+    public IParallelizable,
+    public IParallelOpenmpEnabled,
+    public IParallelCudaEnabled,
+    public IParallelMpiEnabled
 {
 public:
 
@@ -83,10 +89,14 @@ public:
     static std::unordered_map<BackFittingCriterionType,std::string> BackFittingCriterionTypeNameMapper; //!< \~english A mapper from backfitting convergence criterion types to their names.  \~chinese 后向迭代算法收敛指标类型到其名称的映射表。
 
     typedef double (GWRMultiscale::*BandwidthSizeCriterionFunction)(BandwidthWeight*);  //!< \~english Function to calculate the criterion for given bandwidth size. \~chinese 根据指定带宽大小计算对应指标值的函数。
-    
-    typedef arma::mat (GWRMultiscale::*FitAllFunction)(const arma::mat&, const arma::vec&); //!< \~english Function to fit a model for all variables. \~chinese 根据所有变量拟合模型的函数。
-    
-    typedef arma::vec (GWRMultiscale::*FitVarFunction)(const arma::vec&, const arma::vec&, const arma::uword, arma::mat&);  //!< \~english Function to fit a model for the given variable. \~chinese 根据给定变量拟合模型的函数。
+        
+    typedef arma::vec (GWRMultiscale::*FitVarFunction)(const size_t);  //!< \~english Function to fit a model for the given variable. \~chinese 根据给定变量拟合模型的函数。
+        
+    typedef arma::vec (GWRMultiscale::*FitVarCoreFunction)(const arma::vec&, const arma::vec&, const SpatialWeight&, arma::mat&);  //!< \~english Function to fit a model for the given variable. \~chinese 根据给定变量拟合模型的函数。
+        
+    typedef arma::vec (GWRMultiscale::*FitVarCoreCVFunction)(const arma::vec&, const arma::vec&, const SpatialWeight&);  //!< \~english Function to fit a model for the given variable. \~chinese 根据给定变量拟合模型的函数。
+        
+    typedef arma::vec (GWRMultiscale::*FitVarCoreSHatFunction)(const arma::vec&, const arma::vec&, const SpatialWeight&, arma::vec&);  //!< \~english Function to fit a model for the given variable. \~chinese 根据给定变量拟合模型的函数。
     
 private:
 
@@ -539,21 +549,6 @@ public:
      * @return arma::mat 回归系数估计值 \f$\beta\f$。
      */
     const arma::mat& betas() const { return mBetas; }
-
-    /**
-     * \~english
-     * @brief Get criterion calculator function for optimize bandwidth size for all variables.
-     * 
-     * @param type The criterion type for optimize bandwidth size for all variables.
-     * @return BandwidthSizeCriterionFunction The criterion calculator for optimize bandwidth size for all variables.
-     * 
-     * \~chinese
-     * @brief 获取所有变量带宽优选的指标值计算函数。
-     * 
-     * @param type 所有变量带宽优选的指标值类型。
-     * @return BandwidthSizeCriterionFunction 所有变量带宽优选的指标值计算函数。
-     */
-    BandwidthSizeCriterionFunction bandwidthSizeCriterionAll(BandwidthSelectionCriterionType type);
     
     /**
      * \~english
@@ -626,6 +621,9 @@ public:     // IOpenmpParallelable interface
 public:     // IParallelCudaEnabled interface
     void setGPUId(const int gpuId) override { mGpuId = gpuId; }
     void setGroupSize(const double size) override { mGroupLength = size; }
+    int workerId() override { return mWorkerId; }
+    void setWorkerId(int id) override { mWorkerId = id; };
+    void setWorkerNum(int size) override { mWorkerNum = size; };
 
 protected:
 
@@ -662,24 +660,39 @@ protected:
      * @param y 因变量 \f$y\f$。
      * @return arma::mat 回归系数估计值 \f$\beta\f$。
      */
-    arma::mat backfitting(const arma::mat &x, const arma::vec &y, const arma::mat& betas0);
+    arma::mat backfitting(const arma::mat& betas0);
 
+    arma::vec fitVarBase(const size_t var);
+    
     /**
      * \~english
-     * @brief The serial implementation of fit function for all variables.
+     * @brief The serial implementation of CV criterion calculator for given bandwidth size and one variable.
      * 
-     * @param x Independent variables \f$X\f$.
-     * @param y Dependent variable \f$y\f$.
-     * @return arma::mat Coefficient estimates \f$\beta\f$.
+     * @param bandwidthWeight Badwidth weight.
+     * @return double CV criterion value.
      * 
      * \~chinese
-     * @brief 拟合所有变量的非并行实现。
+     * @brief 为指定带宽值和某个变量计算CV指标值函数的非并行实现。
      * 
-     * @param x 自变量矩阵 \f$X\f$。
-     * @param y 因变量 \f$y\f$。
-     * @return arma::mat 回归系数估计值 \f$\beta\f$。
+     * @param bandwidthWeight 带宽值。
+     * @return double CV指标值。
      */
-    arma::mat fitAllSerial(const arma::mat& x, const arma::vec& y);
+    double bandwidthSizeCriterionVarCVBase(BandwidthWeight* bandwidthWeight);
+    
+    /**
+     * \~english
+     * @brief The serial implementation of AIC criterion calculator for given bandwidth size and one variable.
+     * 
+     * @param bandwidthWeight Badwidth weight.
+     * @return double AIC criterion value.
+     * 
+     * \~chinese
+     * @brief 为指定带宽值和某个变量计算AIC指标值函数的非并行实现。
+     * 
+     * @param bandwidthWeight 带宽值。
+     * @return double AIC指标值。
+     */
+    double bandwidthSizeCriterionVarAICBase(BandwidthWeight* bandwidthWeight);
 
     /**
      * \~english
@@ -700,67 +713,11 @@ protected:
      * @param S 帽子矩阵 \f$S\f$
      * @return arma::vec 该变量对应的回归系数估计值。
      */
-    arma::vec fitVarSerial(const arma::vec& x, const arma::vec& y, const arma::uword var, arma::mat& S);
+    arma::vec fitVarCoreSerial(const arma::vec& x, const arma::vec& y, const SpatialWeight& sw, arma::mat& S);
 
-    /**
-     * \~english
-     * @brief The serial implementation of CV criterion calculator for given bandwidth size and all variables.
-     * 
-     * @param bandwidthWeight Badwidth weight.
-     * @return double CV criterion value.
-     * 
-     * \~chinese
-     * @brief 为指定带宽值和所有变量计算CV指标值函数的非并行实现。
-     * 
-     * @param bandwidthWeight 带宽值。
-     * @return double CV指标值。
-     */
-    double bandwidthSizeCriterionAllCVSerial(BandwidthWeight* bandwidthWeight);
+    arma::vec fitVarCoreCVSerial(const arma::vec& x, const arma::vec& y, const SpatialWeight& sw);
 
-    /**
-     * \~english
-     * @brief The serial implementation of AIC criterion calculator for given bandwidth size and all variables.
-     * 
-     * @param bandwidthWeight Badwidth weight.
-     * @return double AIC criterion value.
-     * 
-     * \~chinese
-     * @brief 为指定带宽值和所有变量计算AIC指标值函数的非并行实现。
-     * 
-     * @param bandwidthWeight 带宽值。
-     * @return double AIC指标值。
-     */
-    double bandwidthSizeCriterionAllAICSerial(BandwidthWeight* bandwidthWeight);
-
-    /**
-     * \~english
-     * @brief The serial implementation of CV criterion calculator for given bandwidth size and one variable.
-     * 
-     * @param bandwidthWeight Badwidth weight.
-     * @return double CV criterion value.
-     * 
-     * \~chinese
-     * @brief 为指定带宽值和某个变量计算CV指标值函数的非并行实现。
-     * 
-     * @param bandwidthWeight 带宽值。
-     * @return double CV指标值。
-     */
-    double bandwidthSizeCriterionVarCVSerial(BandwidthWeight* bandwidthWeight);
-
-    /**
-     * \~english
-     * @brief The serial implementation of AIC criterion calculator for given bandwidth size and one variable.
-     * 
-     * @param bandwidthWeight Badwidth weight.
-     * @return double AIC criterion value.
-     * 
-     * \~chinese
-     * @brief 为指定带宽值和某个变量计算AIC指标值函数的非并行实现。
-     * 
-     * @param bandwidthWeight 带宽值。
-     * @return double AIC指标值。
-     */
-    double bandwidthSizeCriterionVarAICSerial(BandwidthWeight* bandwidthWeight);
+    arma::vec fitVarCoreSHatSerial(const arma::vec& x, const arma::vec& y, const SpatialWeight& sw, arma::vec& shat);
 
 #ifdef ENABLE_OPENMP
     /**
@@ -974,11 +931,13 @@ protected:
     void createInitialDistanceParameter();
 
 private:
-    FitAllFunction mFitAll = &GWRMultiscale::fitAllSerial;  //!< \~english Calculator to fit a model for all variables. \~chinese 为所有变量拟合模型的函数。
-    FitVarFunction mFitVar = &GWRMultiscale::fitVarSerial;  //!< \~english Calculator to fit a model for one variable. \~chinese 为单一变量拟合模型的函数。
+    FitVarFunction mFitVar = &GWRMultiscale::fitVarBase;  //!< \~english Calculator to fit a model for one variable. \~chinese 为单一变量拟合模型的函数。
+    FitVarCoreFunction mFitVarCore = &GWRMultiscale::fitVarCoreSerial;  //!< \~english Calculator to fit a model for one variable. \~chinese 为单一变量拟合模型的函数。
+    FitVarCoreCVFunction mFitVarCoreCV = &GWRMultiscale::fitVarCoreCVSerial;  //!< \~english Calculator to fit a model for one variable. \~chinese 为单一变量拟合模型的函数。
+    FitVarCoreSHatFunction mFitVarCoreSHat = &GWRMultiscale::fitVarCoreSHatSerial;  //!< \~english Calculator to fit a model for one variable. \~chinese 为单一变量拟合模型的函数。
 
     SpatialWeight mInitSpatialWeight;   //!< \~english Spatial weighting sheme for initializing bandwidth. \~chinese 计算初始带宽值时所用的空间权重配置。
-    BandwidthSizeCriterionFunction mBandwidthSizeCriterion = &GWRMultiscale::bandwidthSizeCriterionAllCVSerial; //!< \~english The criterion calculator for given bandwidth size. \~chinese 根据指定带宽值计算指标值的函数。
+    BandwidthSizeCriterionFunction mBandwidthSizeCriterion = &GWRMultiscale::bandwidthSizeCriterionVarCVBase; //!< \~english The criterion calculator for given bandwidth size. \~chinese 根据指定带宽值计算指标值的函数。
     size_t mBandwidthSelectionCurrentIndex = 0; //!< \~english The index of variable which currently the algorithm select bandwidth for. \~chinese 当前正在选带宽的变量索引值。
     double mBandwidthLastCriterion = DBL_MAX;   //!< \~english Last criterion for bandwidth selection. \~chinese 上一次带宽优选的有效指标值。
     std::optional<double> mGoldenUpperBounds;
@@ -1020,6 +979,10 @@ private:
     int mOmpThreadNum = 8;  //!< \~english Number of threads. \~chinese 并行线程数。
     size_t mGroupLength = 64;   //!< \~english Size of a group computing together. \~chinese 同时计算的一组的大小。
     int mGpuId = 0; //!< \~english The ID of selected GPU. \~chinese 选择的 GPU 的 ID。
+    int mWorkerId = 0;
+    int mWorkerNum = 1;
+    // arma::uword mWorkRangeSize = 0;
+    std::optional<std::pair<arma::uword, arma::uword>> mWorkRange;
 
 public:
     static int treeChildCount;  //!< \~english  \~chinese
