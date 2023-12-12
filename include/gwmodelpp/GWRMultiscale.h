@@ -720,123 +720,14 @@ protected:
     arma::vec fitVarCoreSHatSerial(const arma::vec& x, const arma::vec& y, const SpatialWeight& sw, arma::vec& shat);
 
 #ifdef ENABLE_OPENMP
-    /**
-     * \~english
-     * @brief The openmp parallel implementation of fit function for all variables.
-     * 
-     * @param x Independent variables \f$X\f$.
-     * @param y Dependent variable \f$y\f$.
-     * @return arma::mat Coefficient estimates \f$\beta\f$.
-     * 
-     * \~chinese
-     * @brief 拟合所有变量的多线程实现。
-     * 
-     * @param x 自变量矩阵 \f$X\f$。
-     * @param y 因变量 \f$y\f$。
-     * @return arma::mat 回归系数估计值 \f$\beta\f$。
-     */
-    arma::mat fitAllOmp(const arma::mat& x, const arma::vec& y);
-    
-    /**
-     * \~english
-     * @brief The openmp parallel implementation of fit function for one variable.
-     * 
-     * @param x Independent variables \f$X\f$.
-     * @param y Dependent variable \f$y\f$.
-     * @param var The index of this variable.
-     * @param S The hat matrix \f$S\f$.
-     * @return arma::vec The coefficient estimates corresponding to this variable.
-     * 
-     * \~chinese
-     * @brief 拟合单个变量的多线程实现。
-     * 
-     * @param x 自变量矩阵 \f$X\f$。
-     * @param y 因变量 \f$y\f$。
-     * @param var 当前变量的索引值。
-     * @param S 帽子矩阵 \f$S\f$
-     * @return arma::vec 该变量对应的回归系数估计值。
-     */
-    arma::vec fitVarOmp(const arma::vec& x, const arma::vec& y, const arma::uword var, arma::mat& S);
-    
-    /**
-     * \~english
-     * @brief The openmp parallel implementation of CV criterion calculator for given bandwidth size and all variables.
-     * 
-     * @param bandwidthWeight Badwidth weight.
-     * @return double CV criterion value.
-     * 
-     * \~chinese
-     * @brief 为指定带宽值和所有变量计算CV指标值函数的多线程实现。
-     * 
-     * @param bandwidthWeight 带宽值。
-     * @return double CV指标值。
-     */
-    double bandwidthSizeCriterionAllCVOmp(BandwidthWeight* bandwidthWeight);
+    arma::vec fitVarCoreOmp(const arma::vec& x, const arma::vec& y, const SpatialWeight& sw, arma::mat& S);
 
-    /**
-     * \~english
-     * @brief The openmp parallel implementation of AIC criterion calculator for given bandwidth size and all variables.
-     * 
-     * @param bandwidthWeight Badwidth weight.
-     * @return double AIC criterion value.
-     * 
-     * \~chinese
-     * @brief 为指定带宽值和所有变量计算AIC指标值函数的多线程实现。
-     * 
-     * @param bandwidthWeight 带宽值。
-     * @return double AIC指标值。
-     */
-    double bandwidthSizeCriterionAllAICOmp(BandwidthWeight* bandwidthWeight);
+    arma::vec fitVarCoreCVOmp(const arma::vec& x, const arma::vec& y, const SpatialWeight& sw);
 
-    /**
-     * \~english
-     * @brief The openmp parallel implementation of CV criterion calculator for given bandwidth size and one variable.
-     * 
-     * @param bandwidthWeight Badwidth weight.
-     * @return double CV criterion value.
-     * 
-     * \~chinese
-     * @brief 为指定带宽值和某个变量计算CV指标值函数的多线程实现。
-     * 
-     * @param bandwidthWeight 带宽值。
-     * @return double CV指标值。
-     */
-    double bandwidthSizeCriterionVarCVOmp(BandwidthWeight* bandwidthWeight);
-
-    /**
-     * \~english
-     * @brief The openmp parallel implementation of AIC criterion calculator for given bandwidth size and one variable.
-     * 
-     * @param bandwidthWeight Badwidth weight.
-     * @return double AIC criterion value.
-     * 
-     * \~chinese
-     * @brief 为指定带宽值和某个变量计算AIC指标值函数的多线程实现。
-     * 
-     * @param bandwidthWeight 带宽值。
-     * @return double AIC指标值。
-     */
-    double bandwidthSizeCriterionVarAICOmp(BandwidthWeight* bandwidthWeight);
+    arma::vec fitVarCoreSHatOmp(const arma::vec& x, const arma::vec& y, const SpatialWeight& sw, arma::vec& shat);
 #endif
 
 #ifdef ENABLE_CUDA
-    
-    /**
-     * \~english
-     * @brief The CUDA implementation of fit function for all variables.
-     * 
-     * @param x Independent variables \f$X\f$.
-     * @param y Dependent variable \f$y\f$.
-     * @return arma::mat Coefficient estimates \f$\beta\f$.
-     * 
-     * \~chinese
-     * @brief 拟合所有变量的CUDA实现。
-     * 
-     * @param x 自变量矩阵 \f$X\f$。
-     * @param y 因变量 \f$y\f$。
-     * @return arma::mat 回归系数估计值 \f$\beta\f$。
-     */
-    arma::mat fitAllCuda(const arma::mat& x, const arma::vec& y);
     
     /**
      * \~english
@@ -857,67 +748,11 @@ protected:
      * @param S 帽子矩阵 \f$S\f$
      * @return arma::vec 该变量对应的回归系数估计值。
      */
-    arma::vec fitVarCuda(const arma::vec& x, const arma::vec& y, const arma::uword var, arma::mat& S);
+    arma::vec fitVarCoreCuda(const arma::vec& x, const arma::vec& y, const SpatialWeight& sw, arma::mat& S);
     
-    /**
-     * \~english
-     * @brief The CUDA implementation of CV criterion calculator for given bandwidth size and all variables.
-     * 
-     * @param bandwidthWeight Badwidth weight.
-     * @return double CV criterion value.
-     * 
-     * \~chinese
-     * @brief 为指定带宽值和所有变量计算CV指标值函数的CUDA实现。
-     * 
-     * @param bandwidthWeight 带宽值。
-     * @return double CV指标值。
-     */
-    double bandwidthSizeCriterionAllCVCuda(BandwidthWeight* bandwidthWeight);
+    arma::vec fitVarCoreCVCuda(const arma::vec& x, const arma::vec& y, const SpatialWeight& sw);
     
-    /**
-     * \~english
-     * @brief The CUDA implementation of AIC criterion calculator for given bandwidth size and all variables.
-     * 
-     * @param bandwidthWeight Badwidth weight.
-     * @return double AIC criterion value.
-     * 
-     * \~chinese
-     * @brief 为指定带宽值和所有变量计算AIC指标值函数的CUDA实现。
-     * 
-     * @param bandwidthWeight 带宽值。
-     * @return double AIC指标值。
-     */
-    double bandwidthSizeCriterionAllAICCuda(BandwidthWeight* bandwidthWeight);
-    
-    /**
-     * \~english
-     * @brief The CUDA implementation of CV criterion calculator for given bandwidth size and one variable.
-     * 
-     * @param bandwidthWeight Badwidth weight.
-     * @return double CV criterion value.
-     * 
-     * \~chinese
-     * @brief 为指定带宽值和某个变量计算CV指标值函数的CUDA实现。
-     * 
-     * @param bandwidthWeight 带宽值。
-     * @return double CV指标值。
-     */
-    double bandwidthSizeCriterionVarCVCuda(BandwidthWeight* bandwidthWeight);
-    
-    /**
-     * \~english
-     * @brief The CUDA implementation of AIC criterion calculator for given bandwidth size and one variable.
-     * 
-     * @param bandwidthWeight Badwidth weight.
-     * @return double AIC criterion value.
-     * 
-     * \~chinese
-     * @brief 为指定带宽值和某个变量计算AIC指标值函数的CUDA实现。
-     * 
-     * @param bandwidthWeight 带宽值。
-     * @return double AIC指标值。
-     */
-    double bandwidthSizeCriterionVarAICCuda(BandwidthWeight* bandwidthWeight);
+    arma::vec fitVarCoreSHatCuda(const arma::vec& x, const arma::vec& y, const SpatialWeight& sw, arma::vec& shat);
 
 #endif // ENABLE_CUDA
 

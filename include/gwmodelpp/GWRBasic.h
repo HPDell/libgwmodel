@@ -561,7 +561,7 @@ private:
      * @param S [out] 帽子矩阵 \f$S\f$。
      * @return mat 回归系数估计值
      */
-    arma::mat fitCoreOmp(const arma::mat& x, const arma::vec& y, const SpatialWeight& sw, arma::mat& betasSE, arma::vec& shat, arma::vec& qDiag, arma::mat& S);
+    arma::mat fitCoreOmp(const arma::mat& x, const arma::vec& y, const SpatialWeight& sw);
 
     /**
      * \~english
@@ -614,7 +614,7 @@ private:
      * @param y 因变量。
      * @return mat 回归系数预测值。
      */
-    arma::mat fitCoreCuda(const arma::mat& x, const arma::vec& y, const SpatialWeight& sw, arma::mat& betasSE, arma::vec& shat, arma::vec& qDiag, arma::mat& S);
+    arma::mat fitCoreCuda(const arma::mat& x, const arma::vec& y, const SpatialWeight& sw);
 
     /**
      * \~english

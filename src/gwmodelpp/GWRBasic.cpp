@@ -451,12 +451,13 @@ mat GWRBasic::predictOmp(const mat& locations, const mat& x, const vec& y)
     return betas.t();
 }
 
-mat GWRBasic::fitCoreOmp(const mat& x, const vec& y, const SpatialWeight& sw, mat& betasSE, vec& shat, vec& qDiag, mat& S)
+mat GWRBasic::fitCoreOmp(const mat& x, const vec& y, const SpatialWeight& sw)
 {
     uword nDp = mCoords.n_rows, nVar = x.n_cols;
     mat betas(nVar, nDp, fill::zeros);
-    betasSE = mat(nVar, nDp, fill::zeros);
-    S = mat(isStoreS() ? nDp : 1, nDp, fill::zeros);
+    mBetasSE = mat(nVar, nDp, fill::zeros);
+    mS = mat(isStoreS() ? nDp : 1, nDp, fill::zeros);
+    mC = cube(nVar, nDp, isStoreC() ? nDp : 1, fill::zeros);
     mat shat_all(2, mOmpThreadNum, fill::zeros);
     mat qDiag_all(nDp, mOmpThreadNum, fill::zeros);
     bool success = true;
@@ -478,14 +479,15 @@ mat GWRBasic::fitCoreOmp(const mat& x, const vec& y, const SpatialWeight& sw, ma
                 mat xtwx_inv = inv_sympd(xtwx);
                 betas.col(i) = xtwx_inv * xtwy;
                 mat ci = xtwx_inv * xtw;
-                betasSE.col(i) = sum(ci % ci, 1);
+                mBetasSE.col(i) = sum(ci % ci, 1);
                 mat si = x.row(i) * ci;
                 shat_all(0, thread) += si(0, i);
                 shat_all(1, thread) += det(si * si.t());
                 vec p = - si.t();
                 p(i) += 1.0;
                 qDiag_all.col(thread) += p % p;
-                S.row(isStoreS() ? i : 0) = si;
+                mS.row(isStoreS() ? i : 0) = si;
+                mC.slice(isStoreC() ? i : 0) = ci;
             }
             catch (const exception& e)
             {
@@ -500,9 +502,9 @@ mat GWRBasic::fitCoreOmp(const mat& x, const vec& y, const SpatialWeight& sw, ma
     {
         throw except;
     }
-    shat = sum(shat_all, 1);
-    qDiag = sum(qDiag_all, 1);
-    betasSE = betasSE.t();
+    mSHat = sum(shat_all, 1);
+    mQDiag = sum(qDiag_all, 1);
+    mBetasSE = mBetasSE.t();
     return betas.t();
 }
 
@@ -580,15 +582,17 @@ arma::mat GWRBasic::fitCoreSHatOmp(const arma::mat& x, const arma::vec& y, const
 
 #ifdef ENABLE_CUDA
 
-mat GWRBasic::fitCoreCuda(const mat& x, const vec& y, const SpatialWeight& sw, mat& betasSE, vec& shat, vec& qDiag, mat& S)
+mat GWRBasic::fitCoreCuda(const mat& x, const vec& y, const SpatialWeight& sw)
 {
     uword nDp = x.n_rows, nVar = x.n_cols;
     mat xt = trans(x);
     mat betas = mat(nVar, nDp, arma::fill::zeros);
-    betasSE = mat(nVar, nDp, arma::fill::zeros);
-    shat = vec(2, arma::fill::zeros);
-    qDiag = vec(nDp, arma::fill::zeros);
-    S = mat(isStoreS() ? nDp : 1, nDp, arma::fill::zeros);
+    mat ci(nVar, nDp, arma::fill::zeros);
+    mBetasSE = mat(nVar, nDp, arma::fill::zeros);
+    mSHat = vec(2, arma::fill::zeros);
+    mQDiag = vec(nDp, arma::fill::zeros);
+    mS = mat(isStoreS() ? nDp : 1, nDp, arma::fill::zeros);
+    mC = cube(nVar, nDp, isStoreC() ? nDp : 1, arma::fill::zeros);
     std::pair<uword, uword> workRange = mWorkRange.value_or(make_pair(0, nDp));
     uword rangeSize = workRange.second - workRange.first;
     size_t groups = rangeSize / mGroupLength + (rangeSize % mGroupLength == 0 ? 0 : 1);
@@ -638,26 +642,28 @@ mat GWRBasic::fitCoreCuda(const mat& x, const vec& y, const SpatialWeight& sw, m
         // si = t(xti) * ci [1*k,k*n]
         u_s = u_xt.as_stride().strides(begin, begin + length).t() * u_c;
         u_s.get(sg.memptr());
-        shat(0) += trace(sg.submat(begin, 0, arma::SizeMat(length, length)));
+        mSHat(0) += trace(sg.submat(begin, 0, arma::SizeMat(length, length)));
         // cct = ci * cit [k*n,t(k*n)]
         u_cct = u_c * u_c.t();
         u_sst = u_s * u_s.t();
         u_cct.get(cct.memptr());
         u_sst.get(sst.memptr());
-        shat(1) += sum(sst.head(length));
+        mSHat(1) += sum(sst.head(length));
         // Transfer to cpu Perform further diagnostic
         for (size_t j = 0, e = begin + j; j < length; j++, e++)
         {
-            betasSE.col(e) = diagvec(cct.slice(j));
+            mBetasSE.col(e) = diagvec(cct.slice(j));
             vec p = -sg.col(j);
             p(e) += 1.0;
-            qDiag += p % p;
-            S.row(isStoreS() ? e : 0) = sg.col(j).t();
+            mQDiag += p % p;
+            mS.row(isStoreS() ? e : 0) = sg.col(j).t();
+            u_c.strides(e).get(ci.memptr());
+            mC.slice(isStoreC() ? e : 0) = ci;
         }
         GWM_LOG_PROGRESS(begin + length, nDp);
     }
     u_betas.get(betas.memptr());
-    betasSE = betasSE.t();
+    mBetasSE = mBetasSE.t();
     cudaFree(d_info);
     return betas.t();
 }
