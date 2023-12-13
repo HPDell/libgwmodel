@@ -14,7 +14,7 @@ TEST_CASE("mat mul mpi")
     MPI_Comm_size(MPI_COMM_WORLD, &np);
     MPI_Comm_rank(MPI_COMM_WORLD, &ip);
 
-    uword n = 4;
+    uword n = 100;
     uword size = n / np + (n % np == 0 ? 0 : 1);
     uword from = ip * size, to = min(from + size, n);
 
