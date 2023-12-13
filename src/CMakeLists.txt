@@ -146,6 +146,17 @@ if(ENABLE_CUDA)
     list(PREPEND SOURCES_ALL ${SOURCES_CUDA})
 endif(ENABLE_CUDA)
 
+if(ENABLE_MPI)
+    set(HEADERS_MPI
+        ../include/gwmodelpp/utils/armampi.h
+    )
+    set(SOURCES_MPI
+        gwmodelpp/utils/armampi.cpp
+    )
+    list(PREPEND HEADERS_ALL ${HEADERS_MPI})
+    list(PREPEND SOURCES_ALL ${SOURCES_MPI})
+endif(ENABLE_MPI)
+
 add_library(gwmodel STATIC ${HEADERS_ALL} ${SOURCES_ALL})
 set_property(TARGET gwmodel PROPERTY POSITION_INDEPENDENT_CODE ON)
 

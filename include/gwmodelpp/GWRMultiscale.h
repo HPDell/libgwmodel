@@ -756,14 +756,11 @@ protected:
 
 #endif // ENABLE_CUDA
 
-    /**
-     * \~english
-     * @brief Create a Initial Distance Parameter object
-     * 
-     * \~chinese
-     * @brief 创建初始距离参数对象。
-     */
-    void createInitialDistanceParameter();
+#ifdef ENABLE_MPI
+    arma::vec fitVarMpi(const size_t var);
+    double bandwidthSizeCriterionVarCVMpi(BandwidthWeight* bandwidthWeight);
+    double bandwidthSizeCriterionVarAICMpi(BandwidthWeight* bandwidthWeight);
+#endif // ENABLE_MPI
 
 private:
     FitVarFunction mFitVar = &GWRMultiscale::fitVarBase;  //!< \~english Calculator to fit a model for one variable. \~chinese 为单一变量拟合模型的函数。
@@ -817,7 +814,7 @@ private:
     int mGpuId = 0; //!< \~english The ID of selected GPU. \~chinese 选择的 GPU 的 ID。
     int mWorkerId = 0;
     int mWorkerNum = 1;
-    // arma::uword mWorkRangeSize = 0;
+    arma::uword mWorkRangeSize = 0;
     std::optional<std::pair<arma::uword, arma::uword>> mWorkRange;
 
 public:

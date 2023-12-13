@@ -17,11 +17,21 @@
 #include "CudaUtils.h"
 #endif // ENABLE_CUDA
 
+#ifdef ENABLE_MPI
+#include <mpi.h>
+#endif
+
 using namespace std;
 using namespace arma;
 using namespace gwm;
 
 int GWRMultiscale::treeChildCount = 0;
+
+enum class GWRMultiscaleFitMPITags
+{
+    Betas = 1 << 0,
+    SMat
+};
 
 unordered_map<GWRMultiscale::BandwidthInitilizeType,string> GWRMultiscale::BandwidthInitilizeTypeNameMapper = {
     make_pair(GWRMultiscale::BandwidthInitilizeType::Null, ("Not initilized, not specified")),
@@ -127,6 +137,37 @@ mat GWRMultiscale::fit()
     createDistanceParameter(nVar);
     mMaxDistances.resize(nVar);
     mMinDistances.resize(nVar);
+#ifdef ENABLE_MPI
+    if (mParallelType & ParallelType::MPI)
+    {
+        uword aShape[4];
+        if (mWorkerId == 0) // master process
+        {
+            // sync matrix dimensions
+            uword nDim = mCoords.n_cols;
+            mWorkRangeSize = nDp / uword(mWorkerNum) + ((nDp % uword(mWorkerNum) == 0) ? 0 : 1);
+            aShape[0] = nDp;
+            aShape[1] = nVar;
+            aShape[2] = nDim;
+            aShape[3] = mWorkRangeSize;
+        }
+        MPI_Bcast(aShape, 4, MPI_UNSIGNED_LONG_LONG, 0, MPI_COMM_WORLD);
+        if (mWorkerId > 0)                // slave process
+        {
+            nDp = aShape[0];
+            nVar = aShape[1];
+            mX.resize(nDp, nVar);
+            mY.resize(nDp);
+            mCoords.resize(aShape[0], aShape[2]);
+            mWorkRangeSize = aShape[3];
+        }
+        MPI_Bcast(mX.memptr(), mX.n_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+        MPI_Bcast(mY.memptr(), mY.n_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+        MPI_Bcast(mCoords.memptr(), mCoords.n_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+        uword workRangeFrom = uword(mWorkerId) * mWorkRangeSize;
+        mWorkRange = make_pair(workRangeFrom, min(workRangeFrom + mWorkRangeSize, nDp));
+    }
+#endif // ENABLE_MPI
 #ifdef ENABLE_CUDA
     if (mParallelType & ParallelType::CUDA)
     {
@@ -211,15 +252,6 @@ mat GWRMultiscale::fit()
 #endif // ENABLE_CUDA
 
     return mBetas;
-}
-
-void GWRMultiscale::createInitialDistanceParameter()
-{//回归距离计算
-    if (mInitSpatialWeight.distance()->type() == Distance::DistanceType::CRSDistance || 
-        mInitSpatialWeight.distance()->type() == Distance::DistanceType::MinkwoskiDistance)
-    {
-        mInitSpatialWeight.distance()->makeParameter({ mCoords, mCoords });
-    }
 }
 
 mat GWRMultiscale::backfitting(const mat& betas0)
@@ -869,6 +901,45 @@ vec GWRMultiscale::fitVarCoreSHatCuda(const vec &x, const vec &y, const SpatialW
     delete[] p_info;
     u_betas.get(betas.memptr());
     return betas.t();
+}
+
+vec GWRMultiscale::fitVarMpi(const size_t var)
+{
+    uword nDp = mX.n_rows;
+    mat S;
+    vec beta = (this->*mFitVarCore)(mXi, mYi, mSpatialWeights[var], S).t();
+    GWM_MPI_MASTER_BEGIN
+    umat received(mWorkerNum, 1, fill::zeros);
+    received.row(0).fill(1);
+    int bufSize = nDp;
+    unique_ptr<double[], std::default_delete<double[]>> buf(new double[bufSize]);
+    while (!all(all(received)))
+    {
+        MPI_Status status;
+        MPI_Recv(buf.get(), bufSize, MPI_DOUBLE, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+        received(status.MPI_SOURCE, status.MPI_TAG - int(GWRMultiscaleFitMPITags::Betas)) = 1;
+        uword rangeFrom = status.MPI_SOURCE * mWorkRangeSize, rangeTo = min(rangeFrom + mWorkRangeSize, nDp), rangeSize = rangeTo - rangeFrom;
+        switch (GWRMultiscaleFitMPITags(status.MPI_TAG))
+        {
+        case GWRMultiscaleFitMPITags::Betas:
+            beta.rows(rangeFrom, rangeTo - 1) = vec(buf.get(), nDp).rows(rangeFrom, rangeTo - 1);
+            break;
+        default:
+            break;
+        }
+    }
+    GWM_MPI_MASTER_END
+    GWM_MPI_WORKER_BEGIN
+    MPI_Send(beta.memptr(), nDp, MPI_DOUBLE, 0, int(GWRMultiscaleFitMPITags::Betas), MPI_COMM_WORLD);
+    GWM_MPI_WORKER_END
+    MPI_Bcast(beta.memptr(), nDp, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    if (mHasHatMatrix)
+    {
+        mat SArrayi = mSArray.slice(var) - mS0;
+        mSArray.slice(var) = S * SArrayi + S;
+        mS0 = mSArray.slice(var) - SArrayi;
+    }
+    return beta;
 }
 
 #endif // ENABLE_CUDA

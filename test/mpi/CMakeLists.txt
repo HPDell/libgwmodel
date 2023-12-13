@@ -14,3 +14,10 @@ add_test(
     NAME testGWRBasicMpi 
     COMMAND ${MPIEXEC_EXECUTABLE} -np 4 $<TARGET_FILE:testGWRBasicMpi> --success --skip-benchmarks
 )
+
+add_executable(testMpiMatMul testMpiMatMul.cpp)
+target_link_libraries(testMpiMatMul PRIVATE gwmodel ${ARMADILLO_LIBRARIES} Catch2::Catch2WithMain)
+add_test(
+    NAME testMpiMatMul
+    COMMAND ${MPIEXEC_EXECUTABLE} -np 4 $<TARGET_FILE:testMpiMatMul> --success --skip-benchmarks
+)
