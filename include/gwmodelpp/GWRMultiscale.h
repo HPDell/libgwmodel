@@ -778,6 +778,7 @@ private:
     std::optional<double> mGoldenUpperBounds;
     std::optional<double> mGoldenLowerBounds;
     std::vector<double> mMaxDistances;
+    std::vector<double> mMinDistances;
 
     std::vector<BandwidthInitilizeType> mBandwidthInitilize;    //!< \~english Type of bandwidth initilization values. \~chinese 带宽初始值类型。
     std::vector<BandwidthSelectionCriterionType> mBandwidthSelectionApproach;   //!< \~english Type of bandwidth selection approach. \~chinese 带宽选择方法类型。

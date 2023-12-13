@@ -73,6 +73,7 @@ mat GWRMultiscale::fit()
     createDistanceParameter(nVar);
     createInitialDistanceParameter();
     mMaxDistances.resize(nVar);
+    mMinDistances.resize(nVar);
 #ifdef ENABLE_CUDA
     if (mParallelType & ParallelType::CUDA)
     {
@@ -116,11 +117,12 @@ mat GWRMultiscale::fit()
             BandwidthWeight* bw0 = bandwidth(i);
             bool adaptive = bw0->adaptive();
             mMaxDistances[i] = mSpatialWeights[i].distance()->maxDistance();
+            mMinDistances[i] = mSpatialWeights[i].distance()->minDistance();
 
             GWM_LOG_INFO(string(GWM_LOG_TAG_MGWR_INITIAL_BW) + to_string(i));
             BandwidthSelector selector;
             selector.setBandwidth(bw0);
-            selector.setLower(mGoldenLowerBounds.value_or(adaptive ? mAdaptiveLower : mMaxDistances[i] / 5000.0));
+            selector.setLower(mGoldenLowerBounds.value_or(adaptive ? mAdaptiveLower : mMinDistances[i]));
             selector.setUpper(mGoldenUpperBounds.value_or(adaptive ? mCoords.n_rows : mMaxDistances[i]));
             BandwidthWeight* bw = selector.optimize(this);
             if (bw)
@@ -140,11 +142,12 @@ mat GWRMultiscale::fit()
     // Calculate the initial beta0 from the above bandwidths
     // *****************************************************
     GWM_LOG_STAGE("Calculating initial bandwidth");
+    mInitSpatialWeight.setWeight(mSpatialWeights[0].weight());
     GWRBasic gwr;
     gwr.setCoords(mCoords);
     gwr.setDependentVariable(mY);
     gwr.setIndependentVariables(mX);
-    gwr.setSpatialWeight(mSpatialWeights[0]);
+    gwr.setSpatialWeight(mInitSpatialWeight);
     gwr.setIsAutoselectBandwidth(true);
     switch (mBandwidthSelectionApproach[0])
     {
@@ -174,15 +177,6 @@ mat GWRMultiscale::fit()
     gwr.setStoreC(mHasHatMatrix);
     mat betas = gwr.fit();
     mBetasSE = gwr.betasSE();
-    BandwidthWeight* initBw = gwr.spatialWeight().weight<BandwidthWeight>();
-    if (!initBw)
-    {
-        throw std::runtime_error("Cannot select initial bandwidth.");
-    }
-    mInitSpatialWeight.setWeight(initBw);
-#ifdef ENABLE_CUDA
-    mInitSpatialWeight.prepareCuda(mGpuId);
-#endif // ENABLE_CUDA
     GWM_LOG_STOP_RETURN(mStatus, mat(nDp, nVar, arma::fill::zeros));
 
     // 初始化诊断信息矩阵
@@ -192,6 +186,13 @@ mat GWRMultiscale::fit()
         mSArray = cube(nDp, nDp, nVar, fill::zeros);
         mC = gwr.c();
     }
+
+#ifdef ENABLE_CUDA
+    if (mParallelType & ParallelType::CUDA)
+    {
+        cublasCreate(&cubase::handle);
+    }
+#endif // ENABLE_CUDA
 
     GWM_LOG_STAGE("Model fitting");
     mBetas = backfitting(betas);
