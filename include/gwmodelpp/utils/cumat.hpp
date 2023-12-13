@@ -47,6 +47,21 @@ class cubase
 {
 public:
     static cublasHandle_t handle;   //!< Save handle for cublas
+    static auto create_handle()
+    {
+        if (handle == nullptr) return cublasCreate(&handle);
+        else return CUBLAS_STATUS_SUCCESS;
+    }
+    static auto destory_handle()
+    {
+        if (handle != nullptr)
+        {
+            auto error = cublasDestroy(handle);
+            handle = nullptr;
+            return error;
+        }
+        else return CUBLAS_STATUS_SUCCESS;
+    }
     constexpr static const double alpha1 = 1.0;
     constexpr static const double beta0 = 0.0;
     constexpr static const double beta1 = 1.0;

@@ -77,7 +77,7 @@ mat GWRMultiscale::fit()
 #ifdef ENABLE_CUDA
     if (mParallelType & ParallelType::CUDA)
     {
-        cublasCreate(&cubase::handle);
+        cubase::create_handle();
         mInitSpatialWeight.prepareCuda(mGpuId);
         for (size_t i = 0; i < nVar; i++)
         {
@@ -190,7 +190,7 @@ mat GWRMultiscale::fit()
 #ifdef ENABLE_CUDA
     if (mParallelType & ParallelType::CUDA)
     {
-        cublasCreate(&cubase::handle);
+        cubase::create_handle();
     }
 #endif // ENABLE_CUDA
 
@@ -216,7 +216,7 @@ mat GWRMultiscale::fit()
 #ifdef ENABLE_CUDA
     if (mParallelType & ParallelType::CUDA)
     {
-        cublasDestroy(cubase::handle);
+        cubase::destory_handle();
     }
 #endif // ENABLE_CUDA
 

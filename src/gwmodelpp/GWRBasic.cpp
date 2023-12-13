@@ -100,7 +100,7 @@ mat GWRBasic::fit()
 #ifdef ENABLE_CUDA
     if (mParallelType & ParallelType::CUDA)
     {
-        cublasCreate(&cubase::handle);
+        cubase::create_handle();
         mSpatialWeight.prepareCuda(mGpuId);
     }
 #endif // ENABLE_CUDA
@@ -159,7 +159,7 @@ mat GWRBasic::fit()
 #ifdef ENABLE_CUDA
     if (mParallelType & ParallelType::CUDA)
     {
-        cublasDestroy(cubase::handle);
+        cubase::destory_handle();
     }
 #endif // ENABLE_CUDA
 
@@ -174,7 +174,7 @@ mat GWRBasic::predict(const mat& locations)
 #ifdef ENABLE_CUDA
     if (mParallelType & ParallelType::CUDA)
     {
-        cublasCreate(&cubase::handle);
+        cubase::create_handle();
         mSpatialWeight.prepareCuda(mGpuId);
     }
 #endif // ENABLE_CUDA
@@ -187,7 +187,7 @@ mat GWRBasic::predict(const mat& locations)
 #ifdef ENABLE_CUDA
     if (mParallelType & ParallelType::CUDA)
     {
-        cublasDestroy(cubase::handle);
+        cubase::destory_handle();
     }
 #endif // ENABLE_CUDA
 
