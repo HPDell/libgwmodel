@@ -657,7 +657,7 @@ mat GWRBasic::fitCoreCuda(const mat& x, const vec& y, const SpatialWeight& sw)
             p(e) += 1.0;
             mQDiag += p % p;
             mS.row(isStoreS() ? e : 0) = sg.col(j).t();
-            u_c.strides(e).get(ci.memptr());
+            u_c.strides(j).get(ci.memptr());
             mC.slice(isStoreC() ? e : 0) = ci;
         }
         GWM_LOG_PROGRESS(begin + length, nDp);

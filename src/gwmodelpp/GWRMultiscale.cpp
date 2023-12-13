@@ -278,8 +278,8 @@ mat GWRMultiscale::backfitting(const mat& betas0)
                 bool adaptive = bwi0->adaptive();
                 BandwidthSelector selector;
                 selector.setBandwidth(bwi0);
-                double maxDist = mMaxDistances[i];
-                selector.setLower(mGoldenLowerBounds.value_or(adaptive ? mAdaptiveLower : maxDist / 5000.0));
+                double maxDist = mMaxDistances[i], minDist = mMinDistances[i];
+                selector.setLower(mGoldenLowerBounds.value_or(adaptive ? mAdaptiveLower : minDist));
                 selector.setUpper(mGoldenUpperBounds.value_or(adaptive ? mCoords.n_rows : maxDist));
                 BandwidthWeight* bwi = selector.optimize(this);
                 double bwi0s = bwi0->bandwidth(), bwi1s = bwi->bandwidth();
