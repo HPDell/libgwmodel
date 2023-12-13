@@ -161,11 +161,8 @@ cudaError_t CRSDistance::prepareCuda(size_t gpuId)
     checkCudaErrors(Distance::prepareCuda(gpuId));
     if (!mCudaPrepared)
     {
-        checkCudaErrors(cudaMalloc(&mCudaDp, sizeof(double) * mParameter->dataPoints.n_elem));
-        checkCudaErrors(cudaMalloc(&mCudaFp, sizeof(double) * mParameter->focusPoints.n_elem));
-        mat dpt = mParameter->dataPoints.t(), fpt = mParameter->focusPoints.t();
-        checkCudaErrors(cudaMemcpy(mCudaDp, dpt.mem, sizeof(double) * dpt.n_elem, cudaMemcpyHostToDevice));
-        checkCudaErrors(cudaMemcpy(mCudaFp, fpt.mem, sizeof(double) * fpt.n_elem, cudaMemcpyHostToDevice));
+        mCudaDp = std::move(cumat(mParameter->dataPoints.t()));
+        mCudaFp = std::move(cumat(mParameter->focusPoints.t()));
         mCudaPrepared = true;
     }
     return cudaSuccess;
@@ -175,12 +172,12 @@ cudaError_t CRSDistance::distance(uword focus, double *d_dists, size_t *elems)
 {
     if (mParameter == nullptr) throw std::runtime_error("Parameter is nullptr.");
     if (!mCudaPrepared) throw std::logic_error("[CRSDistance] Cuda has not been prepared.");
-    if (mCudaDp == nullptr || mCudaFp == nullptr || mCudaThreads == 0) throw std::logic_error("Cuda has not been correctly prepared.");
+    if (mCudaDp.dmem() == nullptr || mCudaFp.dmem() == nullptr || mCudaThreads == 0) throw std::logic_error("Cuda has not been correctly prepared.");
     if (focus < mParameter->total)
     {
         size_t fbias = focus * mParameter->focusPoints.n_cols;
         *elems = mParameter->total;
-        return mCalculatorCuda(mCudaDp, mCudaFp + fbias, mParameter->total, mCudaThreads, d_dists);
+        return mCalculatorCuda(mCudaDp.dmem(), mCudaFp.dmem() + fbias, mParameter->total, mCudaThreads, d_dists);
     }
     else throw std::runtime_error("Target is out of bounds of data points.");
 }

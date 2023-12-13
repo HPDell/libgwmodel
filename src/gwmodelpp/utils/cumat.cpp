@@ -77,3 +77,10 @@ cumat &cumat::operator=(cuop_diagmul &&op)
     op.eval(*this);
     return *this;
 }
+
+void print(cumat &mat)
+{
+    arma::mat am(mat.nrows(), mat.ncols());
+    mat.get(am.memptr());
+    am.brief_print();
+}

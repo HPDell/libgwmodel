@@ -4,6 +4,7 @@
 #include "Distance.h"
 
 #ifdef ENABLE_CUDA
+#include "gwmodelpp/utils/cumat.hpp"
 #include "gwmodelpp/spatialweight/cuda/CRSDistanceKernel.h"
 #include "gwmodelpp/spatialweight/cuda/ISpatialCudaEnabled.h"
 #endif // ENABLE_CUDA
@@ -146,13 +147,6 @@ public:
 
     virtual ~CRSDistance()
     {
-#ifdef ENABLE_CUDA
-        if (mCudaPrepared)
-        {
-            cudaFree(mCudaDp);
-            cudaFree(mCudaFp);
-        }
-#endif
     }
 
     virtual Distance * clone() const override
@@ -222,8 +216,8 @@ private:
     CalculatorType mCalculator = &EuclideanDistance;  //!< \~english Calculator \~chinese 距离计算方法
 
 #ifdef ENABLE_CUDA
-    double* mCudaDp = 0;    //!< \~english Device pointer to data points \~chinese 指向数据点的设备指针
-    double* mCudaFp = 0;    //!< \~english Device pointer to focus points \~chinese 指向关注点的设备指针
+    cumat mCudaDp;    //!< \~english Device pointer to data points \~chinese 指向数据点的设备指针
+    cumat mCudaFp;    //!< \~english Device pointer to focus points \~chinese 指向关注点的设备指针
     CalculatorCudaType mCalculatorCuda = &eu_dist_cuda;  //!< \~english CUDA based Calculator \~chinese 基于 CUDA 的距离计算方法
 #endif
 
