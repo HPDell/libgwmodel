@@ -14,24 +14,26 @@ TEST_CASE("mat mul mpi")
     MPI_Comm_size(MPI_COMM_WORLD, &np);
     MPI_Comm_rank(MPI_COMM_WORLD, &ip);
 
-    uword n = 100;
+    uword n = 4;
     uword size = n / np + (n % np == 0 ? 0 : 1);
     uword from = ip * size, to = min(from + size, n);
 
+    // printf("range from %llu to %llu\n", from, to);
+
     mat A_all, B_all, C_all;
+    A_all = mat(n, n, arma::fill::randn);
+    B_all = mat(n, n, arma::fill::randn);
     if (ip == 0)
     {
-        A_all = mat(n, n, arma::fill::randn);
-        B_all = mat(n, n, arma::fill::randn);
         C_all = A_all * B_all;
     }
 
     mat A, B, C;
     A = A_all.rows(from, to - 1);
     B = B_all.rows(from, to - 1);
-    printf("begin mat mul\n");
-    mat_mul_mpi(A, B, C, ip, np, size);
-    printf("end mat mul\n");
+    // printf("process %d begin mat mul\n", ip);
+    REQUIRE_NOTHROW(mat_mul_mpi(A, B, C, ip, np, size));
+    // printf("process %d end mat mul\n", ip);
 
     if (ip == 0)
     {
