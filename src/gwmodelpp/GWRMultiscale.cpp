@@ -68,25 +68,7 @@ RegressionDiagnostic GWRMultiscale::CalcDiagnostic(const mat &x, const vec &y, c
 
 mat GWRMultiscale::fit()
 {
-    GWM_LOG_STAGE("Initializing");
     uword nDp = mX.n_rows, nVar = mX.n_cols;
-    createDistanceParameter(nVar);
-    createInitialDistanceParameter();
-    mMaxDistances.resize(nVar);
-    mMinDistances.resize(nVar);
-#ifdef ENABLE_CUDA
-    if (mParallelType & ParallelType::CUDA)
-    {
-        cubase::create_handle();
-        mInitSpatialWeight.prepareCuda(mGpuId);
-        for (size_t i = 0; i < nVar; i++)
-        {
-            mSpatialWeights[i].prepareCuda(mGpuId);
-        }
-    }
-#endif // ENABLE_CUDA
-    GWM_LOG_STOP_RETURN(mStatus, mat(nDp, nVar, arma::fill::zeros));
-
     // ********************************
     // Centering and scaling predictors
     // ********************************
@@ -99,6 +81,62 @@ mat GWRMultiscale::fit()
             mX.col(i) = mX.col(i) - mean(mX.col(i));
         }
     }
+    GWM_LOG_STOP_RETURN(mStatus, mat(nDp, nVar, arma::fill::zeros));
+
+    // *****************************************************
+    // Calculate the initial beta0 from the above bandwidths
+    // *****************************************************
+    GWM_LOG_STAGE("Calculating initial betas");
+    GWRBasic gwr;
+    gwr.setCoords(mCoords);
+    gwr.setDependentVariable(mY);
+    gwr.setIndependentVariables(mX);
+    gwr.setSpatialWeight(mInitSpatialWeight);
+    gwr.setIsAutoselectBandwidth(true);
+    switch (mBandwidthSelectionApproach[0])
+    {
+    case GWRMultiscale::BandwidthSelectionCriterionType::CV:
+        gwr.setBandwidthSelectionCriterion(GWRBasic::BandwidthSelectionCriterionType::CV);
+        break;
+    case GWRMultiscale::BandwidthSelectionCriterionType::AIC:
+        gwr.setBandwidthSelectionCriterion(GWRBasic::BandwidthSelectionCriterionType::AIC);
+    default:
+        break;
+    }
+    gwr.setParallelType(mParallelType);
+    switch (mParallelType)
+    {
+    case ParallelType::OpenMP:
+    case ParallelType::MPI_MP:
+        gwr.setOmpThreadNum(mOmpThreadNum);
+        break;
+    case ParallelType::CUDA:
+    case ParallelType::MPI_CUDA:
+        gwr.setGroupSize(mGroupLength);
+        gwr.setGPUId(mGpuId);
+    default:
+        break;
+    }
+    gwr.setStoreS(mHasHatMatrix);
+    gwr.setStoreC(mHasHatMatrix);
+    mat betas = gwr.fit();
+    mBetasSE = gwr.betasSE();
+    GWM_LOG_STOP_RETURN(mStatus, mat(nDp, nVar, arma::fill::zeros));
+
+    GWM_LOG_STAGE("Initializing");
+    createDistanceParameter(nVar);
+    mMaxDistances.resize(nVar);
+    mMinDistances.resize(nVar);
+#ifdef ENABLE_CUDA
+    if (mParallelType & ParallelType::CUDA)
+    {
+        cubase::create_handle();
+        for (size_t i = 0; i < nVar; i++)
+        {
+            mSpatialWeights[i].prepareCuda(mGpuId);
+        }
+    }
+#endif // ENABLE_CUDA
     GWM_LOG_STOP_RETURN(mStatus, mat(nDp, nVar, arma::fill::zeros));
 
     // ***********************
@@ -138,47 +176,6 @@ mat GWRMultiscale::fit()
         GWM_LOG_STOP_RETURN(mStatus, mat(nDp, nVar, arma::fill::zeros));
     }
 
-    // *****************************************************
-    // Calculate the initial beta0 from the above bandwidths
-    // *****************************************************
-    GWM_LOG_STAGE("Calculating initial bandwidth");
-    mInitSpatialWeight.setWeight(mSpatialWeights[0].weight());
-    GWRBasic gwr;
-    gwr.setCoords(mCoords);
-    gwr.setDependentVariable(mY);
-    gwr.setIndependentVariables(mX);
-    gwr.setSpatialWeight(mInitSpatialWeight);
-    gwr.setIsAutoselectBandwidth(true);
-    switch (mBandwidthSelectionApproach[0])
-    {
-    case GWRMultiscale::BandwidthSelectionCriterionType::CV:
-        gwr.setBandwidthSelectionCriterion(GWRBasic::BandwidthSelectionCriterionType::CV);
-        break;
-    case GWRMultiscale::BandwidthSelectionCriterionType::AIC:
-        gwr.setBandwidthSelectionCriterion(GWRBasic::BandwidthSelectionCriterionType::AIC);
-    default:
-        break;
-    }
-    gwr.setParallelType(mParallelType);
-    switch (mParallelType)
-    {
-    case ParallelType::OpenMP:
-    case ParallelType::MPI_MP:
-        gwr.setOmpThreadNum(mOmpThreadNum);
-        break;
-    case ParallelType::CUDA:
-    case ParallelType::MPI_CUDA:
-        gwr.setGroupSize(mGroupLength);
-        gwr.setGPUId(mGpuId);
-    default:
-        break;
-    }
-    gwr.setStoreS(mHasHatMatrix);
-    gwr.setStoreC(mHasHatMatrix);
-    mat betas = gwr.fit();
-    mBetasSE = gwr.betasSE();
-    GWM_LOG_STOP_RETURN(mStatus, mat(nDp, nVar, arma::fill::zeros));
-
     // 初始化诊断信息矩阵
     if (mHasHatMatrix)
     {
@@ -186,13 +183,6 @@ mat GWRMultiscale::fit()
         mSArray = cube(nDp, nDp, nVar, fill::zeros);
         mC = gwr.c();
     }
-
-#ifdef ENABLE_CUDA
-    if (mParallelType & ParallelType::CUDA)
-    {
-        cubase::create_handle();
-    }
-#endif // ENABLE_CUDA
 
     GWM_LOG_STAGE("Model fitting");
     mBetas = backfitting(betas);
