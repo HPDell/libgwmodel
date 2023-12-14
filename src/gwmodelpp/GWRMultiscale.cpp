@@ -550,8 +550,8 @@ vec GWRMultiscale::fitVarCoreCVSerial(const vec &x, const vec &y, const SpatialW
 {
     uword nDp = x.n_rows;
     vec beta(nDp, fill::zeros);
-    // std::pair<uword, uword> workRange = mWorkRange.value_or(make_pair(0, nDp));
-    for (uword i = 0; i < nDp; i++)
+    std::pair<uword, uword> workRange = mWorkRange.value_or(make_pair(0, nDp));
+    for (uword i = workRange.first; i < workRange.second; i++)
     {
         GWM_LOG_STOP_BREAK(mStatus);
         vec w = sw.weightVector(i);
@@ -931,34 +931,11 @@ vec GWRMultiscale::fitVarCoreSHatCuda(const vec &x, const vec &y, const SpatialW
 
 vec GWRMultiscale::fitVarMpi(const size_t var)
 {
-    uword nDp = mX.n_rows;
+    uword nDp = mXi.n_rows;
     mat S;
-    vec beta = (this->*mFitVarCore)(mXi, mYi, mSpatialWeights[var], S);
-    GWM_MPI_MASTER_BEGIN
-    umat received(mWorkerNum, 1, fill::zeros);
-    received.row(0).fill(1);
-    int bufSize = nDp;
-    unique_ptr<double[], std::default_delete<double[]>> buf(new double[bufSize]);
-    while (!all(all(received == 1)))
-    {
-        MPI_Status status;
-        MPI_Recv(buf.get(), bufSize, MPI_DOUBLE, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-        received(status.MPI_SOURCE, status.MPI_TAG - int(GWRMultiscaleFitMPITags::Betas)) = 1;
-        uword rangeFrom = status.MPI_SOURCE * mWorkRangeSize, rangeTo = min(rangeFrom + mWorkRangeSize, nDp);
-        switch (GWRMultiscaleFitMPITags(status.MPI_TAG))
-        {
-        case GWRMultiscaleFitMPITags::Betas:
-            beta.rows(rangeFrom, rangeTo - 1) += vec(buf.get(), nDp).rows(rangeFrom, rangeTo - 1);
-            break;
-        default:
-            break;
-        }
-    }
-    GWM_MPI_MASTER_END
-    GWM_MPI_WORKER_BEGIN
-    MPI_Send(beta.memptr(), beta.n_elem, MPI_DOUBLE, 0, int(GWRMultiscaleFitMPITags::Betas), MPI_COMM_WORLD);
-    GWM_MPI_WORKER_END
-    MPI_Bcast(beta.memptr(), beta.n_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    vec beta_p = (this->*mFitVarCore)(mXi, mYi, mSpatialWeights[var], S);
+    vec beta(nDp);
+    MPI_Allreduce(beta_p.memptr(), beta.memptr(), nDp, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
     if (mHasHatMatrix)
     {
         mat SArrayi = mSArray.slice(var) - mS0;
@@ -969,28 +946,106 @@ vec GWRMultiscale::fitVarMpi(const size_t var)
     return beta;
 }
 
+double GWRMultiscale::bandwidthSizeCriterionVarCVMpi(BandwidthWeight* bandwidthWeight)
+{
+    SpatialWeight sw(bandwidthWeight, mSpatialWeights[mBandwidthSelectionCurrentIndex].distance());
+    uword status = 1;
+    uvec status_all(mWorkerNum);
+    vec betas;
+    try
+    {
+        betas = (this->*mFitVarCoreCV)(mXi, mYi, sw);
+    }
+    catch(const std::exception& e)
+    {
+        status = 0;
+    }
+    MPI_Allgather(&status, 1, MPI_UNSIGNED_LONG_LONG, status_all.memptr(), 1, MPI_UNSIGNED_LONG_LONG, MPI_COMM_WORLD);
+    if (!all(status_all))
+        return DBL_MAX;
+    
+    // If all right, calculate cv;
+    double cv;
+    vec betas_all;
+    GWM_MPI_MASTER_BEGIN
+    betas_all = vec(size(betas));
+    GWM_MPI_MASTER_END
+    MPI_Reduce(betas.memptr(), betas_all.memptr(), betas.n_elem, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+    GWM_MPI_MASTER_BEGIN
+    vec residual = mYi - mXi % betas_all;
+    cv = sum(residual % residual);
+    GWM_MPI_MASTER_END
+    MPI_Bcast(&cv, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    if (mStatus == Status::Success && isfinite(cv))
+    {
+        GWM_LOG_INFO(IBandwidthSelectable::infoBandwidthCriterion(bandwidthWeight, cv));
+        GWM_LOG_PROGRESS_PERCENT(exp(- abs(mBandwidthLastCriterion - cv)));
+        mBandwidthLastCriterion = cv;
+        return cv;
+    }
+    else return DBL_MAX;
+}
+
+double GWRMultiscale::bandwidthSizeCriterionVarAICMpi(BandwidthWeight* bandwidthWeight)
+{
+    SpatialWeight sw(bandwidthWeight, mSpatialWeights[mBandwidthSelectionCurrentIndex].distance());
+    uword status = 1;
+    uvec status_all(mWorkerNum);
+    vec betas, shat;
+    try
+    {
+        betas = (this->*mFitVarCoreSHat)(mXi, mYi, sw, shat);
+    }
+    catch(const std::exception& e)
+    {
+        status = 0;
+    }
+    MPI_Allgather(&status, 1, MPI_UNSIGNED_LONG_LONG, status_all.memptr(), 1, MPI_UNSIGNED_LONG_LONG, MPI_COMM_WORLD);
+    if (!all(status_all))
+        return DBL_MAX;
+    
+    // If all right, calculate cv;
+    double aic;
+    vec betas_all, shat_all;
+    GWM_MPI_MASTER_BEGIN
+    betas_all = vec(size(betas));
+    shat_all = vec(size(shat));
+    GWM_MPI_MASTER_END
+    MPI_Reduce(betas.memptr(), betas_all.memptr(), betas.n_elem, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+    MPI_Reduce(shat.memptr(), shat_all.memptr(), shat.n_elem, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+    GWM_MPI_MASTER_BEGIN
+    aic = GWRBasic::AICc(mXi, mYi, betas_all, shat_all);
+    GWM_MPI_MASTER_END
+    MPI_Bcast(&aic, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    if (mStatus == Status::Success && isfinite(aic))
+    {
+        GWM_LOG_INFO(IBandwidthSelectable::infoBandwidthCriterion(bandwidthWeight, aic));
+        GWM_LOG_PROGRESS_PERCENT(exp(- abs(mBandwidthLastCriterion - aic)));
+        mBandwidthLastCriterion = aic;
+        return aic;
+    }
+    else return DBL_MAX;
+}
+
 GWRMultiscale::BandwidthSizeCriterionFunction GWRMultiscale::bandwidthSizeCriterionVar(GWRMultiscale::BandwidthSelectionCriterionType type)
 {
-    // if (mParallelType & ParallelType::MPI)
-    // {
+    if (mParallelType & ParallelType::MPI)
+    {
         switch (type)
         {
         case BandwidthSelectionCriterionType::AIC:
-            return &GWRMultiscale::bandwidthSizeCriterionVarAICBase;
+            return &GWRMultiscale::bandwidthSizeCriterionVarAICMpi;
         default:
-            return &GWRMultiscale::bandwidthSizeCriterionVarCVBase;
+            return &GWRMultiscale::bandwidthSizeCriterionVarCVMpi;
         }
-    // }
-    // else
-    // {
-    //     switch (type)
-    //     {
-    //     case BandwidthSelectionCriterionType::AIC:
-    //         return &GWRMultiscale::bandwidthSizeCriterionVarAICMpi;
-    //     default:
-    //         return &GWRMultiscale::bandwidthSizeCriterionVarCVMpi;
-    //     }
-    // }
+    }
+    switch (type)
+    {
+    case BandwidthSelectionCriterionType::AIC:
+        return &GWRMultiscale::bandwidthSizeCriterionVarAICBase;
+    default:
+        return &GWRMultiscale::bandwidthSizeCriterionVarCVBase;
+    }
 }
 
 void GWRMultiscale::setParallelType(const ParallelType &type)
