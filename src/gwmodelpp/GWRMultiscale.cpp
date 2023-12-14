@@ -19,6 +19,7 @@
 
 #ifdef ENABLE_MPI
 #include <mpi.h>
+#include "gwmodelpp/utils/armampi.h"
 #endif
 
 using namespace std;
@@ -82,6 +83,7 @@ mat GWRMultiscale::fit()
     // ********************************
     // Centering and scaling predictors
     // ********************************
+    GWM_LOG_STAGE("Centering and scaling predictors");
     mX0 = mX;
     mY0 = mY;
     for (uword i = (mHasIntercept ? 1 : 0); i < nVar ; i++)
@@ -126,6 +128,11 @@ mat GWRMultiscale::fit()
         gwr.setGPUId(mGpuId);
     default:
         break;
+    }
+    if (mParallelType & ParallelType::MPI)
+    {
+        gwr.setWorkerId(mWorkerId);
+        gwr.setWorkerNum(mWorkerNum);
     }
     gwr.setStoreS(mHasHatMatrix);
     gwr.setStoreC(mHasHatMatrix);
@@ -217,12 +224,23 @@ mat GWRMultiscale::fit()
         GWM_LOG_STOP_RETURN(mStatus, mat(nDp, nVar, arma::fill::zeros));
     }
 
-    // 初始化诊断信息矩阵
+    std::pair<uword, uword> workRange = mWorkRange.value_or(make_pair(0, nDp));
+
+    GWM_LOG_STAGE("Initializing diagnostic matrices");
+    mat idm = eye(nVar, nVar);
     if (mHasHatMatrix)
     {
         mS0 = gwr.s();
-        mSArray = cube(nDp, nDp, nVar, fill::zeros);
+        mSArray = cube(mS0.n_rows, mS0.n_cols, nVar, fill::zeros);
         mC = gwr.c();
+        for (uword i = 0; i < nVar; ++i)
+        {
+            for (uword j = workRange.first; j < workRange.second ; ++j)
+            {
+                uword e = j - workRange.first;
+                mSArray.slice(i).row(e) = mX(j, i) * (idm.row(i) * mC.slice(e));
+            }
+        }
     }
 
     GWM_LOG_STAGE("Model fitting");
@@ -231,15 +249,27 @@ mat GWRMultiscale::fit()
 
     // Diagnostic
     GWM_LOG_STAGE("Model Diagnostic");
-    vec shat = { 
-        mHasHatMatrix ? trace(mS0) : 0,
-        mHasHatMatrix ? trace(mS0.t() * mS0) : 0
-    };
-    mDiagnostic = CalcDiagnostic(mX, mY, shat, mRSS0);
+    vec shat(2, arma::fill::zeros);
     if (mHasHatMatrix)
     {
+        if (mParallelType & ParallelType::MPI)
+        {
+            vec shati(2);
+            shati(0) = trace(mS0.cols(workRange.first, workRange.second - 1));
+            shati(1) = trace(mS0 * mS0.t());
+            MPI_Reduce(shati.memptr(), shat.memptr(), 2, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+            MPI_Bcast(shat.memptr(), 2, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+        }
+        else
+        {
+            shat = {
+                mHasHatMatrix ? trace(mS0) : 0,
+                mHasHatMatrix ? trace(mS0 * mS0.t()) : 0
+            };
+        }
         mBetasTV = mBetas / mBetasSE;
     }
+    mDiagnostic = CalcDiagnostic(mX, mY, shat, mRSS0);
     vec yhat = Fitted(mX, mBetas);
     vec residual = mY - yhat;
 
@@ -256,22 +286,10 @@ mat GWRMultiscale::fit()
 
 mat GWRMultiscale::backfitting(const mat& betas0)
 {
-    GWM_LOG_MGWR_BACKFITTING("Model fitting with inital bandwidth");
     uword nDp = mCoords.n_rows, nVar = mX.n_cols;
     mat betas = betas0;
+    // cout << "[backfitting] Process " << mWorkerId << " betas\n";
     GWM_LOG_STOP_RETURN(mStatus, mat(nDp, nVar, arma::fill::zeros));
-
-    mat idm = eye(nVar, nVar);
-    if (mHasHatMatrix)
-    {
-        for (uword i = 0; i < nVar; ++i)
-        {
-            for (uword j = 0; j < nDp ; ++j)
-            {
-                mSArray.slice(i).row(j) = mX(j, i) * (idm.row(i) * mC.slice(j));
-            }
-        }
-    }
 
     // ***********************************************************
     // Select the optimum bandwidths for each independent variable
@@ -339,7 +357,10 @@ mat GWRMultiscale::backfitting(const mat& betas0)
             }
             GWM_LOG_STOP_BREAK(mStatus);
 
-            betas.col(i) = (this->*mFitVar)(i);
+            vec betai = (this->*mFitVar)(i);
+            // betas.brief_print("betas");
+            // betai.brief_print("betai");
+            betas.col(i) = betai;
             resid = mY - Fitted(mX, betas);
         }
         RSS1 = RSS(mX, mY, betas);
@@ -468,8 +489,10 @@ vec GWRMultiscale::fitVarCoreSerial(const vec &x, const vec &y, const SpatialWei
     if (mHasHatMatrix)
     {
         mat ci, si;
-        S = mat(mHasHatMatrix ? nDp : 1, nDp, fill::zeros);
-        for (uword i = 0; i < nDp  ; i++)
+        std::pair<uword, uword> workRange = mWorkRange.value_or(make_pair(0, nDp));
+        uword rangeSize = workRange.second - workRange.first;
+        S = mat(rangeSize, nDp, fill::zeros);
+        for (uword i = workRange.first; i < workRange.second; i++)
         {
             GWM_LOG_STOP_BREAK(mStatus);
             vec w = sw.weightVector(i);
@@ -482,7 +505,7 @@ vec GWRMultiscale::fitVarCoreSerial(const vec &x, const vec &y, const SpatialWei
                 betas.col(i) = xtwx_inv * xtwy;
                 ci = xtwx_inv * xtw;
                 si = x(i) * ci;
-                S.row(mHasHatMatrix ? i : 0) = si;
+                S.row(i - workRange.first) = si;
             }
             catch (const exception& e)
             {
@@ -527,6 +550,7 @@ vec GWRMultiscale::fitVarCoreCVSerial(const vec &x, const vec &y, const SpatialW
 {
     uword nDp = x.n_rows;
     vec beta(nDp, fill::zeros);
+    // std::pair<uword, uword> workRange = mWorkRange.value_or(make_pair(0, nDp));
     for (uword i = 0; i < nDp; i++)
     {
         GWM_LOG_STOP_BREAK(mStatus);
@@ -554,7 +578,8 @@ vec GWRMultiscale::fitVarCoreSHatSerial(const vec &x, const vec &y, const Spatia
     uword nDp = x.n_rows;
     vec betas(nDp, fill::zeros);
     shat = vec(2, fill::zeros);
-    for (uword i = 0; i < nDp ; i++)
+    // std::pair<uword, uword> workRange = mWorkRange.value_or(make_pair(0, nDp));
+    for (uword i = 0; i < nDp; i++)
     {
         GWM_LOG_STOP_BREAK(mStatus);
         vec w = sw.weightVector(i);
@@ -902,27 +927,28 @@ vec GWRMultiscale::fitVarCoreSHatCuda(const vec &x, const vec &y, const SpatialW
     u_betas.get(betas.memptr());
     return betas.t();
 }
+#endif // ENABLE_CUDA
 
 vec GWRMultiscale::fitVarMpi(const size_t var)
 {
     uword nDp = mX.n_rows;
     mat S;
-    vec beta = (this->*mFitVarCore)(mXi, mYi, mSpatialWeights[var], S).t();
+    vec beta = (this->*mFitVarCore)(mXi, mYi, mSpatialWeights[var], S);
     GWM_MPI_MASTER_BEGIN
     umat received(mWorkerNum, 1, fill::zeros);
     received.row(0).fill(1);
     int bufSize = nDp;
     unique_ptr<double[], std::default_delete<double[]>> buf(new double[bufSize]);
-    while (!all(all(received)))
+    while (!all(all(received == 1)))
     {
         MPI_Status status;
         MPI_Recv(buf.get(), bufSize, MPI_DOUBLE, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
         received(status.MPI_SOURCE, status.MPI_TAG - int(GWRMultiscaleFitMPITags::Betas)) = 1;
-        uword rangeFrom = status.MPI_SOURCE * mWorkRangeSize, rangeTo = min(rangeFrom + mWorkRangeSize, nDp), rangeSize = rangeTo - rangeFrom;
+        uword rangeFrom = status.MPI_SOURCE * mWorkRangeSize, rangeTo = min(rangeFrom + mWorkRangeSize, nDp);
         switch (GWRMultiscaleFitMPITags(status.MPI_TAG))
         {
         case GWRMultiscaleFitMPITags::Betas:
-            beta.rows(rangeFrom, rangeTo - 1) = vec(buf.get(), nDp).rows(rangeFrom, rangeTo - 1);
+            beta.rows(rangeFrom, rangeTo - 1) += vec(buf.get(), nDp).rows(rangeFrom, rangeTo - 1);
             break;
         default:
             break;
@@ -930,31 +956,40 @@ vec GWRMultiscale::fitVarMpi(const size_t var)
     }
     GWM_MPI_MASTER_END
     GWM_MPI_WORKER_BEGIN
-    MPI_Send(beta.memptr(), nDp, MPI_DOUBLE, 0, int(GWRMultiscaleFitMPITags::Betas), MPI_COMM_WORLD);
+    MPI_Send(beta.memptr(), beta.n_elem, MPI_DOUBLE, 0, int(GWRMultiscaleFitMPITags::Betas), MPI_COMM_WORLD);
     GWM_MPI_WORKER_END
-    MPI_Bcast(beta.memptr(), nDp, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    MPI_Bcast(beta.memptr(), beta.n_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD);
     if (mHasHatMatrix)
     {
         mat SArrayi = mSArray.slice(var) - mS0;
-        mSArray.slice(var) = S * SArrayi + S;
+        mat_mul_mpi(S, SArrayi, mSArray.slice(var), mWorkerId, mWorkerNum, mWorkRangeSize);
+        mSArray.slice(var) += S;
         mS0 = mSArray.slice(var) - SArrayi;
     }
     return beta;
 }
 
-#endif // ENABLE_CUDA
-
 GWRMultiscale::BandwidthSizeCriterionFunction GWRMultiscale::bandwidthSizeCriterionVar(GWRMultiscale::BandwidthSelectionCriterionType type)
 {
     // if (mParallelType & ParallelType::MPI)
     // {
-    switch (type)
-    {
-    case BandwidthSelectionCriterionType::AIC:
-        return &GWRMultiscale::bandwidthSizeCriterionVarAICBase;
-    default:
-        return &GWRMultiscale::bandwidthSizeCriterionVarCVBase;
-    }
+        switch (type)
+        {
+        case BandwidthSelectionCriterionType::AIC:
+            return &GWRMultiscale::bandwidthSizeCriterionVarAICBase;
+        default:
+            return &GWRMultiscale::bandwidthSizeCriterionVarCVBase;
+        }
+    // }
+    // else
+    // {
+    //     switch (type)
+    //     {
+    //     case BandwidthSelectionCriterionType::AIC:
+    //         return &GWRMultiscale::bandwidthSizeCriterionVarAICMpi;
+    //     default:
+    //         return &GWRMultiscale::bandwidthSizeCriterionVarCVMpi;
+    //     }
     // }
 }
 
@@ -983,6 +1018,14 @@ void GWRMultiscale::setParallelType(const ParallelType &type)
             mFitVarCoreCV = &GWRMultiscale::fitVarCoreCVSerial;
             mFitVarCoreSHat = &GWRMultiscale::fitVarCoreSHatSerial;
             break;
+        }
+        if (mParallelType & ParallelType::MPI)
+        {
+            mFitVar = &GWRMultiscale::fitVarMpi;
+        }
+        else
+        {
+            mFitVar = &GWRMultiscale::fitVarBase;
         }
     }
 }

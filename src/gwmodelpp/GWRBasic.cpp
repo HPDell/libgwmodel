@@ -247,9 +247,10 @@ mat GWRBasic::fitCoreSerial(const mat &x, const vec &y, const SpatialWeight &sw)
     mBetasSE = mat(nVar, nDp, fill::zeros);
     mSHat = vec(2, fill::zeros);
     mQDiag = vec(nDp, fill::zeros);
-    mS = mat(isStoreS() ? nDp : 1, nDp, fill::zeros);
-    mC = cube(nVar, nDp, isStoreC() ? nDp : 1, fill::zeros);
     std::pair<uword, uword> workRange = mWorkRange.value_or(make_pair(0, nDp));
+    uword rangeSize = workRange.second - workRange.first;
+    mS = mat(isStoreS() ? rangeSize : 1, nDp, fill::zeros);
+    mC = cube(nVar, nDp, isStoreC() ? rangeSize : 1, fill::zeros);
     // cout << mWorkerId << " process work range: [" << workRange.first << "," << workRange.second << "]\n";
     for (uword i = workRange.first; i < workRange.second; i++)
     {
@@ -270,8 +271,8 @@ mat GWRBasic::fitCoreSerial(const mat &x, const vec &y, const SpatialWeight &sw)
             vec p = - si.t();
             p(i) += 1.0;
             mQDiag += p % p;
-            mS.row(isStoreS() ? i : 0) = si;
-            mC.slice(isStoreC() ? i : 0) = ci;
+            mS.row(isStoreS() ? (i - workRange.first) : 0) = si;
+            mC.slice(isStoreC() ? (i - workRange.first) : 0) = ci;
         }
         catch (const exception& e)
         {
@@ -945,9 +946,9 @@ arma::mat gwm::GWRBasic::fitMpi()
     shat_all.col(0) = mSHat;
     qdiag_all.col(0) = mQDiag;
     // prepare to receive data
-    umat received(mWorkerNum, (isStoreS() ? 5 : 4), fill::zeros);
+    umat received(mWorkerNum, 4, fill::zeros);
     received.row(0).fill(1);
-    int bufSize = isStoreS() ? nDp * nDp : nDp * nVar;
+    int bufSize = nDp * nVar;
     unique_ptr<double[], std::default_delete<double[]>> buf(new double[bufSize]);
     while (!all(all(received)))
     {
@@ -970,25 +971,12 @@ arma::mat gwm::GWRBasic::fitMpi()
         case GWRBasicFitMpiTags::QDiag:
             qdiag_all.col(status.MPI_SOURCE) = vec(buf.get(), nDp);
             break;
-        case GWRBasicFitMpiTags::SMat:
-            mS.cols(rangeFrom, rangeTo - 1) = mat(buf.get(), nDp, rangeSize);
-            break;
         default:
             break;
         }
     }
-    mBetas = mBetas.t();
-    mBetasSE = mBetasSE.t();
-    mS = mS.t();
     mSHat = sum(shat_all, 1);
     mQDiag = sum(qdiag_all, 1);
-    // printf("shat [%lf,%lf]", mSHat(0), mSHat(1));
-    // diagnostic in master process
-    GWM_LOG_STAGE("Model Diagnostic");
-    mDiagnostic = CalcDiagnostic(mX, mY, mBetas, mSHat);
-    double trS = mSHat(0), trStS = mSHat(1);
-    double sigmaHat = mDiagnostic.RSS / (nDp - 2 * trS + trStS);
-    mBetasSE = sqrt(sigmaHat * mBetasSE);    
     // vec dybar2 = (mY - mean(mY)) % (mY - mean(mY));
     // vec dyhat2 = (mY - yhat) % (mY - yhat);
     // vec localR2 = vec(nDp, fill::zeros);
@@ -1010,13 +998,21 @@ arma::mat gwm::GWRBasic::fitMpi()
     MPI_Send(betasSE.memptr(), betasSE.n_elem, MPI_DOUBLE, 0, int(GWRBasicFitMpiTags::BetasSE), MPI_COMM_WORLD);
     MPI_Send(mSHat.memptr(), mSHat.n_elem, MPI_DOUBLE, 0, int(GWRBasicFitMpiTags::SHat), MPI_COMM_WORLD);
     MPI_Send(mQDiag.memptr(), mQDiag.n_elem, MPI_DOUBLE, 0, int(GWRBasicFitMpiTags::QDiag), MPI_COMM_WORLD);
-    if (isStoreS())
-    {
-        mat S = mS.cols(workRange.first, workRange.second - 1);
-        MPI_Send(S.memptr(), S.n_elem, MPI_DOUBLE, 0, int(GWRBasicFitMpiTags::SMat), MPI_COMM_WORLD);
-    }
     GWM_MPI_WORKER_END
-    
+    MPI_Bcast(mBetas.memptr(), mBetas.n_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    MPI_Bcast(mBetasSE.memptr(), mBetasSE.n_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    MPI_Bcast(mSHat.memptr(), mSHat.n_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    MPI_Bcast(mQDiag.memptr(), mQDiag.n_elem, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    mBetas = mBetas.t();
+    mBetasSE = mBetasSE.t();
+    mS = mS.t();
+    // printf("shat [%lf,%lf]", mSHat(0), mSHat(1));
+    // diagnostic in master process
+    GWM_LOG_STAGE("Model Diagnostic");
+    mDiagnostic = CalcDiagnostic(mX, mY, mBetas, mSHat);
+    double trS = mSHat(0), trStS = mSHat(1);
+    double sigmaHat = mDiagnostic.RSS / (nDp - 2 * trS + trStS);
+    mBetasSE = sqrt(sigmaHat * mBetasSE);    
     // check cancel status
     GWM_LOG_STOP_RETURN(mStatus, mat(nDp, nVar, arma::fill::zeros));
     return mBetas;
