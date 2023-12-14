@@ -486,10 +486,10 @@ vec GWRMultiscale::fitVarCoreSerial(const vec &x, const vec &y, const SpatialWei
     mat betas(1, nDp, fill::zeros);
     bool success = true;
     std::exception except;
+    std::pair<uword, uword> workRange = mWorkRange.value_or(make_pair(0, nDp));
     if (mHasHatMatrix)
     {
         mat ci, si;
-        std::pair<uword, uword> workRange = mWorkRange.value_or(make_pair(0, nDp));
         uword rangeSize = workRange.second - workRange.first;
         S = mat(rangeSize, nDp, fill::zeros);
         for (uword i = workRange.first; i < workRange.second; i++)
@@ -518,7 +518,7 @@ vec GWRMultiscale::fitVarCoreSerial(const vec &x, const vec &y, const SpatialWei
     }
     else
     {
-        for (int i = 0; (uword)i < nDp  ; i++)
+        for (uword i = workRange.first; i < workRange.second; i++)
         {
             GWM_LOG_STOP_BREAK(mStatus);
             vec w = sw.weightVector(i);
@@ -578,8 +578,8 @@ vec GWRMultiscale::fitVarCoreSHatSerial(const vec &x, const vec &y, const Spatia
     uword nDp = x.n_rows;
     vec betas(nDp, fill::zeros);
     shat = vec(2, fill::zeros);
-    // std::pair<uword, uword> workRange = mWorkRange.value_or(make_pair(0, nDp));
-    for (uword i = 0; i < nDp; i++)
+    std::pair<uword, uword> workRange = mWorkRange.value_or(make_pair(0, nDp));
+    for (uword i = workRange.first; i < workRange.second; i++)
     {
         GWM_LOG_STOP_BREAK(mStatus);
         vec w = sw.weightVector(i);
@@ -612,11 +612,13 @@ vec GWRMultiscale::fitVarCoreOmp(const vec &x, const vec &y, const SpatialWeight
     mat betas(1, nDp, fill::zeros);
     bool success = true;
     std::exception except;
+    std::pair<uword, uword> workRange = mWorkRange.value_or(make_pair(0, nDp));
     if (mHasHatMatrix)
     {
-        S = mat(mHasHatMatrix ? nDp : 1, nDp, fill::zeros);
+        uword rangeSize = workRange.second - workRange.first;
+        S = mat(rangeSize, nDp, fill::zeros);
 #pragma omp parallel for num_threads(mOmpThreadNum)
-        for (int i = 0; (uword)i < nDp; i++)
+        for (int i = int(workRange.first); (uword)i < workRange.second; i++)
         {
             GWM_LOG_STOP_CONTINUE(mStatus);
             vec w = sw.weightVector(i);
@@ -629,7 +631,7 @@ vec GWRMultiscale::fitVarCoreOmp(const vec &x, const vec &y, const SpatialWeight
                 betas.col(i) = xtwx_inv * xtwy;
                 mat ci = xtwx_inv * xtw;
                 mat si = x(i) * ci;
-                S.row(mHasHatMatrix ? i : 0) = si;
+                S.row(i - workRange.first) = si;
             }
             catch (const exception& e)
             {
@@ -643,7 +645,7 @@ vec GWRMultiscale::fitVarCoreOmp(const vec &x, const vec &y, const SpatialWeight
     else
     {
 #pragma omp parallel for num_threads(mOmpThreadNum)
-        for (int i = 0; (uword)i < nDp; i++)
+        for (int i = int(workRange.first); (uword)i < workRange.second; i++)
         {
             GWM_LOG_STOP_CONTINUE(mStatus);
             vec w = sw.weightVector(i);
@@ -676,8 +678,9 @@ vec GWRMultiscale::fitVarCoreCVOmp(const vec &x, const vec &y, const SpatialWeig
     uword nDp = mCoords.n_rows;
     vec beta(nDp, fill::zeros);
     bool flag = true;
+    std::pair<uword, uword> workRange = mWorkRange.value_or(make_pair(0, nDp));
 #pragma omp parallel for num_threads(mOmpThreadNum)
-    for (int i = 0; (uword)i < nDp; i++)
+    for (int i = workRange.first; (uword)i < workRange.second; i++)
     {
         GWM_LOG_STOP_CONTINUE(mStatus);
         if (flag)
@@ -708,8 +711,9 @@ vec GWRMultiscale::fitVarCoreSHatOmp(const vec &x, const vec &y, const SpatialWe
     vec betas(nDp, fill::zeros);
     mat shat_all(2, mOmpThreadNum, fill::zeros);
     bool flag = true;
+    std::pair<uword, uword> workRange = mWorkRange.value_or(make_pair(0, nDp));
 #pragma omp parallel for num_threads(mOmpThreadNum)
-    for (int i = 0; (uword)i < nDp; i++)
+    for (int i = workRange.first; (uword)i < workRange.second; i++)
     {
         GWM_LOG_STOP_CONTINUE(mStatus);
         if (flag)
@@ -1012,7 +1016,7 @@ double GWRMultiscale::bandwidthSizeCriterionVarAICMpi(BandwidthWeight* bandwidth
     shat_all = vec(size(shat));
     GWM_MPI_MASTER_END
     MPI_Reduce(betas.memptr(), betas_all.memptr(), betas.n_elem, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
-    MPI_Reduce(shat.memptr(), shat_all.memptr(), shat.n_elem, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+    MPI_Reduce(shat.memptr(), shat_all.memptr(), shat.n_elem, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
     GWM_MPI_MASTER_BEGIN
     aic = GWRBasic::AICc(mXi, mYi, betas_all, shat_all);
     GWM_MPI_MASTER_END

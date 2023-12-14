@@ -457,13 +457,14 @@ mat GWRBasic::fitCoreOmp(const mat& x, const vec& y, const SpatialWeight& sw)
     uword nDp = mCoords.n_rows, nVar = x.n_cols;
     mat betas(nVar, nDp, fill::zeros);
     mBetasSE = mat(nVar, nDp, fill::zeros);
-    mS = mat(isStoreS() ? nDp : 1, nDp, fill::zeros);
-    mC = cube(nVar, nDp, isStoreC() ? nDp : 1, fill::zeros);
+    std::pair<uword, uword> workRange = mWorkRange.value_or(make_pair(0, nDp));
+    uword rangeSize = workRange.second - workRange.first;
+    mS = mat(isStoreS() ? rangeSize : 1, nDp, fill::zeros);
+    mC = cube(nVar, nDp, isStoreC() ? rangeSize : 1, fill::zeros);
     mat shat_all(2, mOmpThreadNum, fill::zeros);
     mat qDiag_all(nDp, mOmpThreadNum, fill::zeros);
     bool success = true;
     std::exception except;
-    std::pair<uword, uword> workRange = mWorkRange.value_or(make_pair(0, nDp));
 #pragma omp parallel for num_threads(mOmpThreadNum)
     for (int i = int(workRange.first); (uword)i < workRange.second; i++)
     {
@@ -487,8 +488,8 @@ mat GWRBasic::fitCoreOmp(const mat& x, const vec& y, const SpatialWeight& sw)
                 vec p = - si.t();
                 p(i) += 1.0;
                 qDiag_all.col(thread) += p % p;
-                mS.row(isStoreS() ? i : 0) = si;
-                mC.slice(isStoreC() ? i : 0) = ci;
+                mS.row(isStoreS() ? (i - workRange.first) : 0) = si;
+                mC.slice(isStoreC() ? (i - workRange.first) : 0) = ci;
             }
             catch (const exception& e)
             {
@@ -521,7 +522,6 @@ arma::mat GWRBasic::fitCoreCVOmp(const arma::mat& x, const arma::vec& y, const S
         GWM_LOG_STOP_CONTINUE(mStatus);
         if (flag)
         {
-            int thread = omp_get_thread_num();
             vec w = sw.weightVector(i);
             w(i) = 0.0;
             mat xtw = trans(mX.each_col() % w);

@@ -41,10 +41,10 @@ TEST_CASE("MGWR: basic flow")
     const initializer_list<ParallelType> parallelTypes = {
         ParallelType::MPI_Serial,
 #ifdef ENABLE_OPENMP
-        ParallelType::OpenMP,
+        ParallelType::MPI_MP,
 #endif // ENABLE_OPENMP
 #ifdef ENABLE_CUDA
-        ParallelType::CUDA
+        ParallelType::MPI_CUDA
 #endif // ENABLE_CUDA
     };
 

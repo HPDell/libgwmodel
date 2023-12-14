@@ -12,7 +12,7 @@ void mat_mul_mpi(mat& a, mat& b, mat& c, const int ip, const int np, const size_
     MPI_Allgather(&b.n_rows, 1, MPI_UNSIGNED_LONG_LONG, b_rows.memptr(), 1, MPI_UNSIGNED_LONG_LONG, MPI_COMM_WORLD);
     c = mat(m, n, arma::fill::zeros);
     mat a_buf;
-    for (size_t pi = 0; pi < np; pi++)
+    for (int pi = 0; pi < np; pi++)
     {
         arma::Col<int> a_counts = b_rows(pi) * arma::conv_to<arma::Col<int>>::from(b_rows);
         arma::Col<int> a_disp = arma::cumsum(a_counts) - a_counts;
