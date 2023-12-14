@@ -758,15 +758,17 @@ vec GWRMultiscale::fitVarCoreCuda(const vec &x, const vec &y, const SpatialWeigh
     int *d_info, *p_info;
     p_info = new int[mGroupLength];
     checkCudaErrors(cudaMalloc(&d_info, sizeof(int) * mGroupLength));
-    size_t groups = nDp / mGroupLength + (nDp % mGroupLength == 0 ? 0 : 1);
-    S = mat(mHasHatMatrix ? nDp : 1, nDp, fill::zeros);
+    std::pair<uword, uword> workRange = mWorkRange.value_or(make_pair(0, nDp));
+    uword rangeSize = workRange.second - workRange.first;
+    size_t groups = rangeSize / mGroupLength + (rangeSize % mGroupLength == 0 ? 0 : 1);
+    S = mat(mHasHatMatrix ? rangeSize : 1, nDp, fill::zeros);
     if (mHasHatMatrix)
     {
         mat sg(nDp, mGroupLength, fill::zeros);
         for (size_t i = 0; i < groups; i++)
         {
             GWM_LOG_STOP_BREAK(mStatus);
-            size_t begin = i * mGroupLength, length = (begin + mGroupLength > nDp) ? (nDp - begin) : mGroupLength;
+            size_t begin = workRange.first + i * mGroupLength, length = (begin + mGroupLength > workRange.second) ? (workRange.second - begin) : mGroupLength;
             for (size_t j = 0, e = begin + j; j < length; j++, e++)
             {
                 checkCudaErrors(sw.weightVector(e, u_dists.dmem(), u_weights.dmem()));
@@ -798,7 +800,7 @@ vec GWRMultiscale::fitVarCoreCuda(const vec &x, const vec &y, const SpatialWeigh
         for (size_t i = 0; i < groups; i++)
         {
             GWM_LOG_STOP_BREAK(mStatus);
-            size_t begin = i * mGroupLength, length = (begin + mGroupLength > nDp) ? (nDp - begin) : mGroupLength;
+            size_t begin = workRange.first + i * mGroupLength, length = (begin + mGroupLength > workRange.second) ? (workRange.second - begin) : mGroupLength;
             for (size_t j = 0, e = begin + j; j < length; j++, e++)
             {
                 checkCudaErrors(sw.weightVector(e, u_dists.dmem(), u_weights.dmem()));
@@ -829,7 +831,6 @@ vec GWRMultiscale::fitVarCoreCuda(const vec &x, const vec &y, const SpatialWeigh
 vec GWRMultiscale::fitVarCoreCVCuda(const vec &x, const vec &y, const SpatialWeight& sw)
 {
     uword nDp = mCoords.n_rows;
-    size_t elems = nDp;
     constexpr size_t nVar = 1;
     cumat u_xt(mXi.t()), u_y(mYi);
     cumat u_dists(nDp, 1), u_weights(nDp, 1);
@@ -839,11 +840,13 @@ vec GWRMultiscale::fitVarCoreCVCuda(const vec &x, const vec &y, const SpatialWei
     p_info = new int[mGroupLength];
     checkCudaErrors(cudaMalloc(&d_info, sizeof(int) * mGroupLength));
     bool success = true;
-    size_t groups = nDp / mGroupLength + (nDp % mGroupLength == 0 ? 0 : 1);
+    std::pair<uword, uword> workRange = mWorkRange.value_or(make_pair(0, nDp));
+    uword rangeSize = workRange.second - workRange.first;
+    size_t groups = rangeSize / mGroupLength + (rangeSize % mGroupLength == 0 ? 0 : 1);
     for (size_t i = 0; i < groups && success; i++)
     {
         GWM_LOG_STOP_BREAK(mStatus);
-        size_t begin = i * mGroupLength, length = (begin + mGroupLength > nDp) ? (nDp - begin) : mGroupLength;
+        size_t begin = workRange.first + i * mGroupLength, length = (begin + mGroupLength > workRange.second) ? (workRange.second - begin) : mGroupLength;
         for (size_t j = 0, e = begin + j; j < length; j++, e++)
         {
             checkCudaErrors(sw.weightVector(e, u_dists.dmem(), u_weights.dmem()));
@@ -878,7 +881,6 @@ vec GWRMultiscale::fitVarCoreCVCuda(const vec &x, const vec &y, const SpatialWei
 vec GWRMultiscale::fitVarCoreSHatCuda(const vec &x, const vec &y, const SpatialWeight& sw, vec& shat)
 {
     uword nDp = mCoords.n_rows;
-    size_t elems = nDp;
     constexpr size_t nVar = 1;
     cumat u_xt(mXi.t()), u_y(mYi), u_betas(nVar, nDp);
     cumat u_dists(nDp, 1), u_weights(nDp, 1);
@@ -891,11 +893,13 @@ vec GWRMultiscale::fitVarCoreSHatCuda(const vec &x, const vec &y, const SpatialW
     p_info = new int[mGroupLength];
     checkCudaErrors(cudaMalloc(&d_info, sizeof(int) * mGroupLength));
     bool success = true;
-    size_t groups = nDp / mGroupLength + (nDp % mGroupLength == 0 ? 0 : 1);
+    std::pair<uword, uword> workRange = mWorkRange.value_or(make_pair(0, nDp));
+    uword rangeSize = workRange.second - workRange.first;
+    size_t groups = rangeSize / mGroupLength + (rangeSize % mGroupLength == 0 ? 0 : 1);
     for (size_t i = 0; i < groups && success; i++)
     {
         GWM_LOG_STOP_BREAK(mStatus);
-        size_t begin = i * mGroupLength, length = (begin + mGroupLength > nDp) ? (nDp - begin) : mGroupLength;
+        size_t begin = workRange.first + i * mGroupLength, length = (begin + mGroupLength > workRange.second) ? (workRange.second - begin) : mGroupLength;
         for (size_t j = 0, e = begin + j; j < length; j++, e++)
         {
             checkCudaErrors(sw.weightVector(e, u_dists.dmem(), u_weights.dmem()));
