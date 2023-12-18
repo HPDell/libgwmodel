@@ -136,6 +136,8 @@ mat GWRMultiscale::fit()
     }
     gwr.setStoreS(mHasHatMatrix);
     gwr.setStoreC(mHasHatMatrix);
+    if (mGoldenLowerBounds.has_value()) gwr.setGoldenLowerBounds(mGoldenLowerBounds.value());
+    if (mGoldenUpperBounds.has_value()) gwr.setGoldenUpperBounds(mGoldenUpperBounds.value());
     mat betas = gwr.fit();
     mBetasSE = gwr.betasSE();
     GWM_LOG_STOP_RETURN(mStatus, mat(nDp, nVar, arma::fill::zeros));
