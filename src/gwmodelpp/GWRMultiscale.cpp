@@ -252,6 +252,7 @@ mat GWRMultiscale::fit()
     vec shat(2, arma::fill::zeros);
     if (mHasHatMatrix)
     {
+#ifdef ENABLE_MPI
         if (mParallelType & ParallelType::MPI)
         {
             vec shati(2);
@@ -262,11 +263,14 @@ mat GWRMultiscale::fit()
         }
         else
         {
+#endif // ENABLE_MPI
             shat = {
                 mHasHatMatrix ? trace(mS0) : 0,
                 mHasHatMatrix ? trace(mS0 * mS0.t()) : 0
             };
+#ifdef ENABLE_MPI
         }
+#endif // ENABLE_MPI
         mBetasTV = mBetas / mBetasSE;
     }
     mDiagnostic = CalcDiagnostic(mX, mY, shat, mRSS0);
@@ -937,6 +941,7 @@ vec GWRMultiscale::fitVarCoreSHatCuda(const vec &x, const vec &y, const SpatialW
 }
 #endif // ENABLE_CUDA
 
+#ifdef ENABLE_MPI
 vec GWRMultiscale::fitVarMpi(const size_t var)
 {
     uword nDp = mXi.n_rows;
@@ -1034,9 +1039,11 @@ double GWRMultiscale::bandwidthSizeCriterionVarAICMpi(BandwidthWeight* bandwidth
     }
     else return DBL_MAX;
 }
+#endif // ENABLE_MPI
 
 GWRMultiscale::BandwidthSizeCriterionFunction GWRMultiscale::bandwidthSizeCriterionVar(GWRMultiscale::BandwidthSelectionCriterionType type)
 {
+#ifdef ENABLE_MPI
     if (mParallelType & ParallelType::MPI)
     {
         switch (type)
@@ -1047,6 +1054,7 @@ GWRMultiscale::BandwidthSizeCriterionFunction GWRMultiscale::bandwidthSizeCriter
             return &GWRMultiscale::bandwidthSizeCriterionVarCVMpi;
         }
     }
+#endif // ENABLE_MPI
     switch (type)
     {
     case BandwidthSelectionCriterionType::AIC:
@@ -1082,6 +1090,7 @@ void GWRMultiscale::setParallelType(const ParallelType &type)
             mFitVarCoreSHat = &GWRMultiscale::fitVarCoreSHatSerial;
             break;
         }
+#ifdef ENABLE_MPI
         if (mParallelType & ParallelType::MPI)
         {
             mFitVar = &GWRMultiscale::fitVarMpi;
@@ -1090,6 +1099,7 @@ void GWRMultiscale::setParallelType(const ParallelType &type)
         {
             mFitVar = &GWRMultiscale::fitVarBase;
         }
+#endif // ENABLE_MPI
     }
 }
 

@@ -814,7 +814,9 @@ private:
     int mGpuId = 0; //!< \~english The ID of selected GPU. \~chinese 选择的 GPU 的 ID。
     int mWorkerId = 0;
     int mWorkerNum = 1;
+#ifdef ENABLE_MPI
     arma::uword mWorkRangeSize = 0;
+#endif // ENABLE_MPI
     std::optional<std::pair<arma::uword, arma::uword>> mWorkRange;
 
 public:

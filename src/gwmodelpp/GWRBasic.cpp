@@ -14,7 +14,9 @@
 #include "cumat.hpp"
 #endif
 
+#ifdef ENABLE_MPI
 #include "mpi.h"
+#endif
 
 using namespace std;
 using namespace arma;
@@ -1041,6 +1043,7 @@ arma::mat gwm::GWRBasic::fitMpi()
 
 void GWRBasic::setBandwidthSelectionCriterion(const BandwidthSelectionCriterionType& criterion)
 {
+#ifdef ENABLE_MPI
     if (mParallelType & ParallelType::MPI)
     {
         switch (criterion)
@@ -1055,6 +1058,7 @@ void GWRBasic::setBandwidthSelectionCriterion(const BandwidthSelectionCriterionT
     }
     else
     {
+#endif // ENABLE_MPI
         switch (criterion)
         {
         case BandwidthSelectionCriterionType::CV:
@@ -1064,7 +1068,9 @@ void GWRBasic::setBandwidthSelectionCriterion(const BandwidthSelectionCriterionT
             mBandwidthSelectionCriterionFunction = &GWRBasic::bandwidthSizeCriterionAIC;
             break;
         }
+#ifdef ENABLE_MPI
     }
+#endif // ENABLE_MPI
     mBandwidthSelectionCriterion = criterion;
 }
 
