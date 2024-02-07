@@ -6,28 +6,28 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: libgwmodel \n"
+"Project-Id-Version: libgwmodel\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-07 12:00+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language: zh_CN\n"
+"PO-Revision-Date: 2024-02-07 12:41+0000\n"
+"Last-Translator: \n"
 "Language-Team: zh_CN <LL@li.org>\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 "Generated-By: Babel 2.11.0\n"
+"X-Generator: Poedit 3.4.2\n"
 
 #: ../../api/define_IGWRBasicGpuTask_8h_1ab09548a5cce8126021f32a1468f4e75f.rst:4
 msgid "Define GWMODELCUDA_API"
-msgstr ""
+msgstr "宏定义 GWMODELCUDA_API"
 
 #: ../../api/define_IGWRBasicGpuTask_8h_1ab09548a5cce8126021f32a1468f4e75f.rst:6
 msgid "Defined in :ref:`file_include_gwmodelcuda_IGWRBasicGpuTask.h`"
-msgstr ""
+msgstr "定义于 :ref:`file_include_gwmodelcuda_IGWRBasicGpuTask.h`"
 
 #: ../../api/define_IGWRBasicGpuTask_8h_1ab09548a5cce8126021f32a1468f4e75f.rst:10
 msgid "Define Documentation"
-msgstr ""
-
+msgstr "宏文档"
