@@ -13,7 +13,7 @@ This library consist of C++ implementations of some geographically weighted mode
   - [Scalable GWR][scgwr]
 - [Geographically Weighted Summary Statistics (GWSS)][gwss]
 - [Geographically Weighted Principal Component Analysis (GWPCA)][gwpca]
-- Geographically Weighted Density Regression (GWDR)
+- Geographically Weighted Density Regression (SDR)
 
 Comparing with other libraries, this library has these features:
 

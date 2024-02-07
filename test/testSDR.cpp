@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 #include <armadillo>
-#include "gwmodelpp/GWDR.h"
+#include "gwmodelpp/SDR.h"
 #include "gwmodelpp/spatialweight/OneDimDistance.h"
 #include "gwmodelpp/spatialweight/BandwidthWeight.h"
 #include "gwmodelpp/spatialweight/SpatialWeight.h"
@@ -15,11 +15,11 @@ using namespace std;
 using namespace arma;
 using namespace gwm;
 
-class GWDRTerminateCheckTelegram : public TerminateCheckTelegram
+class SDRTerminateCheckTelegram : public TerminateCheckTelegram
 {
 public:
 
-    GWDRTerminateCheckTelegram(std::string breakStage, std::size_t breakProgress) : TerminateCheckTelegram(breakStage, breakProgress) {}
+    SDRTerminateCheckTelegram(std::string breakStage, std::size_t breakProgress) : TerminateCheckTelegram(breakStage, breakProgress) {}
 
     void print(std::string message, LogLevel level, std::string fun_name, std::string file_name) override
     {
@@ -33,7 +33,7 @@ public:
     std::string last;
 };
 
-TEST_CASE("GWDR: basic flow")
+TEST_CASE("SDR: basic flow")
 {
     mat londonhp100_coord, londonhp100_data;
     vector<string> londonhp100_fields;
@@ -54,7 +54,7 @@ TEST_CASE("GWDR: basic flow")
     vec y = londonhp100_data.col(0);
     mat x = join_rows(ones(londonhp100_data.n_rows), londonhp100_data.cols(1, 3));
 
-    GWDR algorithm;
+    SDR algorithm;
     algorithm.setCoords(londonhp100_coord);
     algorithm.setDependentVariable(y);
     algorithm.setIndependentVariables(x);
@@ -70,7 +70,7 @@ TEST_CASE("GWDR: basic flow")
     REQUIRE(algorithm.hasIntercept() == true);
 }
 
-// TEST_CASE("GWDR: basic flow with bandwidth optimization (CV)")
+// TEST_CASE("SDR: basic flow with bandwidth optimization (CV)")
 // {
 //     mat londonhp100_coord, londonhp100_data;
 //     vector<string> londonhp100_fields;
@@ -91,14 +91,14 @@ TEST_CASE("GWDR: basic flow")
 //     vec y = londonhp100_data.col(0);
 //     mat x = join_rows(ones(londonhp100_data.n_rows), londonhp100_data.cols(1, 3));
 
-//     GWDR algorithm;
+//     SDR algorithm;
 //     algorithm.setCoords(londonhp100_coord);
 //     algorithm.setDependentVariable(y);
 //     algorithm.setIndependentVariables(x);
 //     algorithm.setSpatialWeights(spatials);
 //     algorithm.setEnableBandwidthOptimize(true);
 //     algorithm.setBandwidthOptimizeStep(0.01);
-//     algorithm.setBandwidthCriterionType(GWDR::CV);
+//     algorithm.setBandwidthCriterionType(SDR::CV);
 //     algorithm.setHasHatMatrix(true);
 //     REQUIRE_NOTHROW(algorithm.fit());
 
@@ -107,7 +107,7 @@ TEST_CASE("GWDR: basic flow")
 //     // REQUIRE_THAT(spatialWeights[1].weight<BandwidthWeight>()->bandwidth(), Catch::Matchers::WithinAbs(2550816, 1e-12));
 // }
 
-TEST_CASE("GWDR: basic flow with bandwidth optimization (AIC)")
+TEST_CASE("SDR: basic flow with bandwidth optimization (AIC)")
 {
     mat londonhp100_coord, londonhp100_data;
     vector<string> londonhp100_fields;
@@ -128,13 +128,13 @@ TEST_CASE("GWDR: basic flow with bandwidth optimization (AIC)")
     vec y = londonhp100_data.col(0);
     mat x = join_rows(ones(londonhp100_data.n_rows), londonhp100_data.cols(1, 3));
 
-    GWDR algorithm;
+    SDR algorithm;
     algorithm.setCoords(londonhp100_coord);
     algorithm.setDependentVariable(y);
     algorithm.setIndependentVariables(x);
     algorithm.setSpatialWeights(spatials);
     algorithm.setEnableBandwidthOptimize(true);
-    algorithm.setBandwidthCriterionType(GWDR::AIC);
+    algorithm.setBandwidthCriterionType(SDR::AIC);
     algorithm.setHasHatMatrix(true);
     REQUIRE_NOTHROW(algorithm.fit());
 
@@ -143,7 +143,7 @@ TEST_CASE("GWDR: basic flow with bandwidth optimization (AIC)")
     REQUIRE_THAT(spatialWeights[1].weight<BandwidthWeight>()->bandwidth(), Catch::Matchers::WithinAbs(189, 1e-12));
 }
 
-TEST_CASE("GWDR: basic flow with independent variable selection")
+TEST_CASE("SDR: basic flow with independent variable selection")
 {
     mat londonhp100_coord, londonhp100_data;
     vector<string> londonhp100_fields;
@@ -164,13 +164,13 @@ TEST_CASE("GWDR: basic flow with independent variable selection")
     vec y = londonhp100_data.col(0);
     mat x = join_rows(ones(londonhp100_data.n_rows), londonhp100_data.cols(1, 3));
 
-    GWDR algorithm;
+    SDR algorithm;
     algorithm.setCoords(londonhp100_coord);
     algorithm.setDependentVariable(y);
     algorithm.setIndependentVariables(x);
     algorithm.setSpatialWeights(spatials);
     algorithm.setEnableIndepVarSelect(true);
-    algorithm.setBandwidthCriterionType(GWDR::AIC);
+    algorithm.setBandwidthCriterionType(SDR::AIC);
     algorithm.setHasHatMatrix(true);
     REQUIRE_NOTHROW(algorithm.fit());
 
@@ -193,7 +193,7 @@ TEST_CASE("GWDR: basic flow with independent variable selection")
 }
 
 #ifdef ENABLE_OPENMP
-TEST_CASE("GWDR: basic flow (multithread)")
+TEST_CASE("SDR: basic flow (multithread)")
 {
     mat londonhp100_coord, londonhp100_data;
     vector<string> londonhp100_fields;
@@ -214,14 +214,14 @@ TEST_CASE("GWDR: basic flow (multithread)")
     vec y = londonhp100_data.col(0);
     mat x = join_rows(ones(londonhp100_data.n_rows), londonhp100_data.cols(1, 3));
 
-    GWDR algorithm;
+    SDR algorithm;
     algorithm.setCoords(londonhp100_coord);
     algorithm.setDependentVariable(y);
     algorithm.setIndependentVariables(x);
     algorithm.setSpatialWeights(spatials);
     algorithm.setEnableBandwidthOptimize(true);
     algorithm.setEnableIndepVarSelect(true);
-    algorithm.setBandwidthCriterionType(GWDR::AIC);
+    algorithm.setBandwidthCriterionType(SDR::AIC);
     algorithm.setHasHatMatrix(true);
     algorithm.setParallelType(ParallelType::OpenMP);
     REQUIRE_NOTHROW(algorithm.fit());
@@ -255,7 +255,7 @@ TEST_CASE("GWDR: basic flow (multithread)")
 #endif
 
 // #ifdef ENABLE_OPENMP
-// TEST_CASE("GWDR: basic flow with bandwidth optimization (CV, multithread)")
+// TEST_CASE("SDR: basic flow with bandwidth optimization (CV, multithread)")
 // {
 //     mat londonhp100_coord, londonhp100_data;
 //     vector<string> londonhp100_fields;
@@ -276,14 +276,14 @@ TEST_CASE("GWDR: basic flow (multithread)")
 //     vec y = londonhp100_data.col(0);
 //     mat x = join_rows(ones(londonhp100_data.n_rows), londonhp100_data.cols(1, 3));
 
-//     GWDR algorithm;
+//     SDR algorithm;
 //     algorithm.setCoords(londonhp100_coord);
 //     algorithm.setDependentVariable(y);
 //     algorithm.setIndependentVariables(x);
 //     algorithm.setSpatialWeights(spatials);
 //     algorithm.setEnableBandwidthOptimize(true);
 //     algorithm.setBandwidthOptimizeStep(0.01);
-//     algorithm.setBandwidthCriterionType(GWDR::CV);
+//     algorithm.setBandwidthCriterionType(SDR::CV);
 //     algorithm.setHasHatMatrix(true);
 //     algorithm.setParallelType(ParallelType::OpenMP);
 //     REQUIRE_NOTHROW(algorithm.fit());
@@ -295,7 +295,7 @@ TEST_CASE("GWDR: basic flow (multithread)")
 // #endif
 
 
-TEST_CASE("GWDR: cancel")
+TEST_CASE("SDR: cancel")
 {
     mat londonhp100_coord, londonhp100_data;
     vector<string> londonhp100_fields;
@@ -334,8 +334,8 @@ TEST_CASE("GWDR: cancel")
         for (auto &&stage : fit_stages)
         {
             cout << "Stage: " << stage.first << " (" << stage.second << ")\n";
-            auto telegram = make_unique<GWDRTerminateCheckTelegram>(stage.first, stage.second);
-            GWDR algorithm;
+            auto telegram = make_unique<SDRTerminateCheckTelegram>(stage.first, stage.second);
+            SDR algorithm;
             algorithm.setTelegram(std::move(telegram));
             algorithm.setCoords(londonhp100_coord);
             algorithm.setDependentVariable(y);
@@ -343,7 +343,7 @@ TEST_CASE("GWDR: cancel")
             algorithm.setSpatialWeights(spatials);
             algorithm.setEnableBandwidthOptimize(true);
             algorithm.setEnableIndepVarSelect(true);
-            algorithm.setBandwidthCriterionType(GWDR::CV);
+            algorithm.setBandwidthCriterionType(SDR::CV);
             algorithm.setHasHatMatrix(true);
             REQUIRE_NOTHROW(algorithm.fit());
             REQUIRE(algorithm.status() == Status::Terminated);
@@ -355,8 +355,8 @@ TEST_CASE("GWDR: cancel")
         for (auto &&stage : fit_stages)
         {
             cout << "Stage: " << stage.first << " (" << stage.second << ")\n";
-            auto telegram = make_unique<GWDRTerminateCheckTelegram>(stage.first, stage.second);
-            GWDR algorithm;
+            auto telegram = make_unique<SDRTerminateCheckTelegram>(stage.first, stage.second);
+            SDR algorithm;
             algorithm.setTelegram(std::move(telegram));
             algorithm.setCoords(londonhp100_coord);
             algorithm.setDependentVariable(y);
@@ -364,7 +364,7 @@ TEST_CASE("GWDR: cancel")
             algorithm.setSpatialWeights(spatials);
             algorithm.setEnableBandwidthOptimize(true);
             algorithm.setEnableIndepVarSelect(true);
-            algorithm.setBandwidthCriterionType(GWDR::AIC);
+            algorithm.setBandwidthCriterionType(SDR::AIC);
             algorithm.setHasHatMatrix(true);
             REQUIRE_NOTHROW(algorithm.fit());
             REQUIRE(algorithm.status() == Status::Terminated);
@@ -375,8 +375,8 @@ TEST_CASE("GWDR: cancel")
     {
         for (auto &&stage : fit_stages)
         {
-            auto telegram = make_unique<GWDRTerminateCheckTelegram>(stage.first, stage.second);
-            GWDR algorithm;
+            auto telegram = make_unique<SDRTerminateCheckTelegram>(stage.first, stage.second);
+            SDR algorithm;
             algorithm.setTelegram(std::move(telegram));
             algorithm.setCoords(londonhp100_coord);
             algorithm.setDependentVariable(y);
@@ -384,7 +384,7 @@ TEST_CASE("GWDR: cancel")
             algorithm.setSpatialWeights(spatials);
             algorithm.setEnableBandwidthOptimize(true);
             algorithm.setEnableIndepVarSelect(true);
-            algorithm.setBandwidthCriterionType(GWDR::AIC);
+            algorithm.setBandwidthCriterionType(SDR::AIC);
             algorithm.setHasHatMatrix(true);
             REQUIRE_NOTHROW(algorithm.fit());
             REQUIRE_NOTHROW(algorithm.predict(londonhp100_coord));
@@ -398,8 +398,8 @@ TEST_CASE("GWDR: cancel")
         for (auto &&stage : fit_stages)
         {
             cout << "Stage: " << stage.first << " (" << stage.second << ")\n";
-            auto telegram = make_unique<GWDRTerminateCheckTelegram>(stage.first, stage.second);
-            GWDR algorithm;
+            auto telegram = make_unique<SDRTerminateCheckTelegram>(stage.first, stage.second);
+            SDR algorithm;
             algorithm.setTelegram(std::move(telegram));
             algorithm.setCoords(londonhp100_coord);
             algorithm.setDependentVariable(y);
@@ -407,7 +407,7 @@ TEST_CASE("GWDR: cancel")
             algorithm.setSpatialWeights(spatials);
             algorithm.setEnableBandwidthOptimize(true);
             algorithm.setEnableIndepVarSelect(true);
-            algorithm.setBandwidthCriterionType(GWDR::CV);
+            algorithm.setBandwidthCriterionType(SDR::CV);
             algorithm.setHasHatMatrix(true);
             algorithm.setParallelType(ParallelType::OpenMP);
             REQUIRE_NOTHROW(algorithm.fit());
@@ -420,8 +420,8 @@ TEST_CASE("GWDR: cancel")
         for (auto &&stage : fit_stages)
         {
             cout << "Stage: " << stage.first << " (" << stage.second << ")\n";
-            auto telegram = make_unique<GWDRTerminateCheckTelegram>(stage.first, stage.second);
-            GWDR algorithm;
+            auto telegram = make_unique<SDRTerminateCheckTelegram>(stage.first, stage.second);
+            SDR algorithm;
             algorithm.setTelegram(std::move(telegram));
             algorithm.setCoords(londonhp100_coord);
             algorithm.setDependentVariable(y);
@@ -429,7 +429,7 @@ TEST_CASE("GWDR: cancel")
             algorithm.setSpatialWeights(spatials);
             algorithm.setEnableBandwidthOptimize(true);
             algorithm.setEnableIndepVarSelect(true);
-            algorithm.setBandwidthCriterionType(GWDR::AIC);
+            algorithm.setBandwidthCriterionType(SDR::AIC);
             algorithm.setHasHatMatrix(true);
             algorithm.setParallelType(ParallelType::OpenMP);
             REQUIRE_NOTHROW(algorithm.fit());
@@ -441,8 +441,8 @@ TEST_CASE("GWDR: cancel")
     {
         for (auto &&stage : fit_stages)
         {
-            auto telegram = make_unique<GWDRTerminateCheckTelegram>(stage.first, stage.second);
-            GWDR algorithm;
+            auto telegram = make_unique<SDRTerminateCheckTelegram>(stage.first, stage.second);
+            SDR algorithm;
             algorithm.setTelegram(std::move(telegram));
             algorithm.setCoords(londonhp100_coord);
             algorithm.setDependentVariable(y);
@@ -450,7 +450,7 @@ TEST_CASE("GWDR: cancel")
             algorithm.setSpatialWeights(spatials);
             algorithm.setEnableBandwidthOptimize(true);
             algorithm.setEnableIndepVarSelect(true);
-            algorithm.setBandwidthCriterionType(GWDR::CV);
+            algorithm.setBandwidthCriterionType(SDR::CV);
             algorithm.setHasHatMatrix(true);
             algorithm.setParallelType(ParallelType::OpenMP);
             REQUIRE_NOTHROW(algorithm.fit());
