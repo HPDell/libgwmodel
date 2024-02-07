@@ -1,0 +1,49 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2023, GWmodel Lab
+# This file is distributed under the same license as the libgwmodel package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: libgwmodel \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-02-07 12:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.11.0\n"
+
+#: ../../api/dir_include_gwmodelcuda.rst:5
+msgid "Directory gwmodelcuda"
+msgstr ""
+
+#: ../../api/dir_include_gwmodelcuda.rst:8
+msgid "|exhale_lsh| :ref:`Parent directory <dir_include>` (``include``)"
+msgstr ""
+
+#: ../../api/dir_include_gwmodelcuda.rst:13
+msgid "*Directory path:* ``include/gwmodelcuda``"
+msgstr ""
+
+#: ../../api/dir_include_gwmodelcuda.rst:17
+msgid "Files"
+msgstr ""
+
+#: ../../api/dir_include_gwmodelcuda.rst:19
+msgid ":ref:`file_include_gwmodelcuda_GWRBasicGpuTask.h`"
+msgstr ""
+
+#: ../../api/dir_include_gwmodelcuda.rst:20
+msgid ":ref:`file_include_gwmodelcuda_IGWRBasicGpuTask.h`"
+msgstr ""
+
+#: ../../api/dir_include_gwmodelcuda.rst:21
+msgid ":ref:`file_include_gwmodelcuda_StdTelegram.h`"
+msgstr ""
+

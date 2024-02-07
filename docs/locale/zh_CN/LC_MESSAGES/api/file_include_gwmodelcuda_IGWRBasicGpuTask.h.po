@@ -1,0 +1,79 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2023, GWmodel Lab
+# This file is distributed under the same license as the libgwmodel package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: libgwmodel \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-02-07 12:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.11.0\n"
+
+#: ../../api/file_include_gwmodelcuda_IGWRBasicGpuTask.h.rst:5
+msgid "File IGWRBasicGpuTask.h"
+msgstr ""
+
+#: ../../api/file_include_gwmodelcuda_IGWRBasicGpuTask.h.rst:7
+msgid ""
+"|exhale_lsh| :ref:`Parent directory <dir_include_gwmodelcuda>` "
+"(``include/gwmodelcuda``)"
+msgstr ""
+
+#: ../../api/file_include_gwmodelcuda_IGWRBasicGpuTask.h.rst:14
+msgid "Contents"
+msgstr ""
+
+#: ../../api/file_include_gwmodelcuda_IGWRBasicGpuTask.h.rst:17
+msgid "Definition (``include/gwmodelcuda/IGWRBasicGpuTask.h``)"
+msgstr ""
+
+#: ../../api/file_include_gwmodelcuda_IGWRBasicGpuTask.h.rst:32
+msgid "Included By"
+msgstr ""
+
+#: ../../api/file_include_gwmodelcuda_IGWRBasicGpuTask.h.rst:35
+msgid ":ref:`file_include_gwmodelcuda_GWRBasicGpuTask.h`"
+msgstr ""
+
+#: ../../api/file_include_gwmodelcuda_IGWRBasicGpuTask.h.rst:41
+msgid "Classes"
+msgstr ""
+
+#: ../../api/file_include_gwmodelcuda_IGWRBasicGpuTask.h.rst:44
+msgid ":ref:`exhale_class_classIGWRBasicGpuTask`"
+msgstr ""
+
+#: ../../api/file_include_gwmodelcuda_IGWRBasicGpuTask.h.rst:48
+msgid "Functions"
+msgstr ""
+
+#: ../../api/file_include_gwmodelcuda_IGWRBasicGpuTask.h.rst:51
+msgid ":ref:`exhale_function_IGWRBasicGpuTask_8h_1a4487a31588c77e3eceebf257737787d8`"
+msgstr ""
+
+#: ../../api/file_include_gwmodelcuda_IGWRBasicGpuTask.h.rst:53
+msgid ":ref:`exhale_function_IGWRBasicGpuTask_8h_1a9739dbf3a5bee2b7bed9fb1bf83cca7a`"
+msgstr ""
+
+#: ../../api/file_include_gwmodelcuda_IGWRBasicGpuTask.h.rst:55
+msgid ":ref:`exhale_function_IGWRBasicGpuTask_8h_1acd31edf00fab8b297f6c01bd12adfc24`"
+msgstr ""
+
+#: ../../api/file_include_gwmodelcuda_IGWRBasicGpuTask.h.rst:59
+msgid "Defines"
+msgstr ""
+
+#: ../../api/file_include_gwmodelcuda_IGWRBasicGpuTask.h.rst:62
+msgid ":ref:`exhale_define_IGWRBasicGpuTask_8h_1ab09548a5cce8126021f32a1468f4e75f`"
+msgstr ""
+

@@ -1,0 +1,65 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2023, GWmodel Lab
+# This file is distributed under the same license as the libgwmodel package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: libgwmodel\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-02-07 12:00+0000\n"
+"PO-Revision-Date: 2024-02-07 12:11+0000\n"
+"Last-Translator: \n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.11.0\n"
+"X-Generator: Poedit 3.4.2\n"
+
+#: ../../api/classcubase.rst:4
+msgid "Class cubase"
+msgstr "类 cubase"
+
+#: ../../api/classcubase.rst:6
+msgid "Defined in :ref:`file_include_gwmodelpp_utils_cumat.hpp`"
+msgstr "在 :ref:`file_include_gwmodelpp_utils_cumat.hpp` 中定义"
+
+#: ../../api/classcubase.rst:10
+msgid "Inheritance Relationships"
+msgstr "继承关系"
+
+#: ../../api/classcubase.rst:13
+msgid "Derived Types"
+msgstr "派生类型"
+
+#: ../../api/classcubase.rst:15
+msgid "``public cumat`` (:ref:`exhale_class_classcumat`)"
+msgstr ""
+
+#: ../../api/classcubase.rst:16
+msgid "``public custride`` (:ref:`exhale_class_classcustride`)"
+msgstr ""
+
+#: ../../api/classcubase.rst:20
+msgid "Class Documentation"
+msgstr "类文件"
+
+#: ../../api/classcubase.rst
+msgid "Public Types"
+msgstr "公共类型"
+
+#: ../../api/classcubase.rst
+msgid "Public Functions"
+msgstr "公共职能"
+
+#: ../../api/classcubase.rst
+msgid "Public Static Attributes"
+msgstr "公共静态属性"
+
+#: ../../api/classcubase.rst
+msgid "Protected Attributes"
+msgstr "受保护属性"

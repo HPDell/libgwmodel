@@ -5,18 +5,18 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: libgwmodel\n"
+"Project-Id-Version:  libgwmodel\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-23 20:46+0000\n"
+"POT-Creation-Date: 2024-02-07 12:00+0000\n"
 "PO-Revision-Date: 2023-01-31 13:12+0000\n"
 "Last-Translator: Yigong Hu <huyg0180110559@outook.com>\n"
-"Language-Team: \n"
 "Language: zh_CN\n"
+"Language-Team: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.8.0\n"
-"X-Generator: Poedit 3.2.2\n"
+"Generated-By: Babel 2.11.0\n"
 
 #: ../../api/file_include_gwmodelpp_IMultivariableAnalysis.h.rst:5
 msgid "File IMultivariableAnalysis.h"
@@ -49,25 +49,30 @@ msgid "Included By"
 msgstr "被下列头文件包含"
 
 #: ../../api/file_include_gwmodelpp_IMultivariableAnalysis.h.rst:41
-msgid ":ref:`file_include_gwmodelpp_GWPCA.h`"
+msgid ":ref:`file_include_gwmodelpp_GWDA.h`"
 msgstr ""
 
 #: ../../api/file_include_gwmodelpp_IMultivariableAnalysis.h.rst:43
+msgid ":ref:`file_include_gwmodelpp_GWPCA.h`"
+msgstr ""
+
+#: ../../api/file_include_gwmodelpp_IMultivariableAnalysis.h.rst:45
 msgid ":ref:`file_include_gwmodelpp_GWSS.h`"
 msgstr ""
 
-#: ../../api/file_include_gwmodelpp_IMultivariableAnalysis.h.rst:49
+#: ../../api/file_include_gwmodelpp_IMultivariableAnalysis.h.rst:51
 msgid "Namespaces"
 msgstr "命名空间"
 
-#: ../../api/file_include_gwmodelpp_IMultivariableAnalysis.h.rst:52
+#: ../../api/file_include_gwmodelpp_IMultivariableAnalysis.h.rst:54
 msgid ":ref:`namespace_gwm`"
 msgstr ""
 
-#: ../../api/file_include_gwmodelpp_IMultivariableAnalysis.h.rst:56
+#: ../../api/file_include_gwmodelpp_IMultivariableAnalysis.h.rst:58
 msgid "Classes"
 msgstr "类"
 
-#: ../../api/file_include_gwmodelpp_IMultivariableAnalysis.h.rst:59
+#: ../../api/file_include_gwmodelpp_IMultivariableAnalysis.h.rst:61
 msgid ":ref:`exhale_struct_structgwm_1_1IMultivariableAnalysis`"
 msgstr ""
+

@@ -8,15 +8,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libgwmodel \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-23 20:21+0000\n"
+"POT-Creation-Date: 2024-02-07 12:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.8.0\n"
+"Generated-By: Babel 2.11.0\n"
 
 #: ../../api/reference.rst:3
 msgid "Library Reference"
@@ -46,15 +47,19 @@ msgstr "命名空间"
 msgid "Classes and Structs"
 msgstr "类和结构"
 
-#: ../../api/unabridged_api.rst.include:224
+#: ../../api/unabridged_api.rst.include:359
 msgid "Enums"
 msgstr "枚举"
 
-#: ../../api/unabridged_api.rst.include:233
+#: ../../api/unabridged_api.rst.include:373
+msgid "Functions"
+msgstr ""
+
+#: ../../api/unabridged_api.rst.include:437
 msgid "Defines"
 msgstr "宏定义"
 
-#: ../../api/unabridged_api.rst.include:262
+#: ../../api/unabridged_api.rst.include:546
 msgid "Typedefs"
 msgstr "类型别名"
 

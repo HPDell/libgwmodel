@@ -5,19 +5,18 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: libgwmodel\n"
+"Project-Id-Version:  libgwmodel\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-23 20:21+0000\n"
+"POT-Creation-Date: 2024-02-07 12:00+0000\n"
 "PO-Revision-Date: 2023-01-31 12:08+0000\n"
 "Last-Translator: Yigong Hu <huyg0180110559@outook.com>\n"
-"Language-Team: \n"
 "Language: zh_CN\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
+"Language-Team: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"Generated-By: Babel 2.8.0\n"
-"X-Generator: Poedit 3.2.2\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.11.0\n"
 
 #: ../../api/classgwm_1_1Distance.rst:4
 msgid "Class Distance"
@@ -53,15 +52,23 @@ msgstr ""
 
 #: ../../api/classgwm_1_1Distance.rst:26
 msgid ""
-"``public gwm::DMatDistance`` (:ref:`exhale_class_classgwm_1_1DMatDistance`)"
+"``public gwm::CRSSTDistance`` "
+"(:ref:`exhale_class_classgwm_1_1CRSSTDistance`)"
 msgstr ""
 
 #: ../../api/classgwm_1_1Distance.rst:27
 msgid ""
-"``public gwm::OneDimDistance`` (:ref:`exhale_class_classgwm_1_1OneDimDistance`)"
+"``public gwm::DMatDistance`` "
+"(:ref:`exhale_class_classgwm_1_1DMatDistance`)"
 msgstr ""
 
-#: ../../api/classgwm_1_1Distance.rst:31
+#: ../../api/classgwm_1_1Distance.rst:28
+msgid ""
+"``public gwm::OneDimDistance`` "
+"(:ref:`exhale_class_classgwm_1_1OneDimDistance`)"
+msgstr ""
+
+#: ../../api/classgwm_1_1Distance.rst:32
 msgid "Class Documentation"
 msgstr "类文档"
 
@@ -74,17 +81,16 @@ msgid "Public Functions"
 msgstr "公有方法"
 
 #: ../../api/classgwm_1_1Distance.rst
-msgid "Returns"
-msgstr "返回"
-
-#: ../../api/classgwm_1_1Distance.rst
-msgid "Parameters"
-msgstr "参数"
-
-#: ../../api/classgwm_1_1Distance.rst
 msgid "Public Static Attributes"
 msgstr "公有静态属性"
 
 #: ../../api/classgwm_1_1Distance.rst
 msgid "Public Members"
 msgstr "公有成员"
+
+#~ msgid "Returns"
+#~ msgstr "返回"
+
+#~ msgid "Parameters"
+#~ msgstr "参数"
+

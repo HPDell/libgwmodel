@@ -5,18 +5,18 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: libgwmodel\n"
+"Project-Id-Version:  libgwmodel\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-23 20:21+0000\n"
+"POT-Creation-Date: 2024-02-07 12:00+0000\n"
 "PO-Revision-Date: 2023-01-31 12:34+0000\n"
 "Last-Translator: Yigong Hu <huyg0180110559@outook.com>\n"
-"Language-Team: \n"
 "Language: zh_CN\n"
+"Language-Team: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.8.0\n"
-"X-Generator: Poedit 3.2.2\n"
+"Generated-By: Babel 2.11.0\n"
 
 #: ../../api/file_include_gwmodelpp_Algorithm.h.rst:5
 msgid "File Algorithm.h"
@@ -36,30 +36,108 @@ msgstr "内容"
 msgid "Definition (``include/gwmodelpp/Algorithm.h``)"
 msgstr "定义 (``include/gwmodelpp/Algorithm.h``)"
 
-#: ../../api/file_include_gwmodelpp_Algorithm.h.rst:32
-msgid "Included By"
+#: ../../api/file_include_gwmodelpp_Algorithm.h.rst:30
+#, fuzzy
+msgid "Includes"
 msgstr "被下列头文件包含"
 
+#: ../../api/file_include_gwmodelpp_Algorithm.h.rst:33
+msgid "``Logger.h`` (:ref:`file_include_gwmodelpp_Logger.h`)"
+msgstr ""
+
 #: ../../api/file_include_gwmodelpp_Algorithm.h.rst:35
-msgid ":ref:`file_include_gwmodel.h`"
+msgid "``Status.h`` (:ref:`file_include_gwmodelpp_Status.h`)"
 msgstr ""
 
 #: ../../api/file_include_gwmodelpp_Algorithm.h.rst:37
+msgid "``cfloat``"
+msgstr ""
+
+#: ../../api/file_include_gwmodelpp_Algorithm.h.rst:39
+msgid "``memory``"
+msgstr ""
+
+#: ../../api/file_include_gwmodelpp_Algorithm.h.rst:41
+msgid "``sstream``"
+msgstr ""
+
+#: ../../api/file_include_gwmodelpp_Algorithm.h.rst:46
+msgid "Included By"
+msgstr "被下列头文件包含"
+
+#: ../../api/file_include_gwmodelpp_Algorithm.h.rst:49
+msgid ":ref:`file_include_gwmodel.h`"
+msgstr ""
+
+#: ../../api/file_include_gwmodelpp_Algorithm.h.rst:51
 msgid ":ref:`file_include_gwmodelpp_SpatialAlgorithm.h`"
 msgstr ""
 
-#: ../../api/file_include_gwmodelpp_Algorithm.h.rst:43
+#: ../../api/file_include_gwmodelpp_Algorithm.h.rst:57
 msgid "Namespaces"
 msgstr "命名空间"
 
-#: ../../api/file_include_gwmodelpp_Algorithm.h.rst:46
+#: ../../api/file_include_gwmodelpp_Algorithm.h.rst:60
 msgid ":ref:`namespace_gwm`"
 msgstr ""
 
-#: ../../api/file_include_gwmodelpp_Algorithm.h.rst:50
+#: ../../api/file_include_gwmodelpp_Algorithm.h.rst:64
 msgid "Classes"
 msgstr "类"
 
-#: ../../api/file_include_gwmodelpp_Algorithm.h.rst:53
+#: ../../api/file_include_gwmodelpp_Algorithm.h.rst:67
 msgid ":ref:`exhale_class_classgwm_1_1Algorithm`"
 msgstr ""
+
+#: ../../api/file_include_gwmodelpp_Algorithm.h.rst:71
+msgid "Defines"
+msgstr ""
+
+#: ../../api/file_include_gwmodelpp_Algorithm.h.rst:74
+msgid ":ref:`exhale_define_Algorithm_8h_1a3e7277692bce66fb31ec0fafdf2c2f44`"
+msgstr ""
+
+#: ../../api/file_include_gwmodelpp_Algorithm.h.rst:76
+msgid ":ref:`exhale_define_Algorithm_8h_1aa0c46696737698397f560901beb58425`"
+msgstr ""
+
+#: ../../api/file_include_gwmodelpp_Algorithm.h.rst:78
+msgid ":ref:`exhale_define_Algorithm_8h_1a86d76dda1788cd388f5033ec6e989d9c`"
+msgstr ""
+
+#: ../../api/file_include_gwmodelpp_Algorithm.h.rst:80
+msgid ":ref:`exhale_define_Algorithm_8h_1a70ae4960df6ada8395844443dca7f5cc`"
+msgstr ""
+
+#: ../../api/file_include_gwmodelpp_Algorithm.h.rst:82
+msgid ":ref:`exhale_define_Algorithm_8h_1af8fe0908c1e018bf2839d0958be6a708`"
+msgstr ""
+
+#: ../../api/file_include_gwmodelpp_Algorithm.h.rst:84
+msgid ":ref:`exhale_define_Algorithm_8h_1abd85b0789ff6ea0203e7b326c852a0bb`"
+msgstr ""
+
+#: ../../api/file_include_gwmodelpp_Algorithm.h.rst:86
+msgid ":ref:`exhale_define_Algorithm_8h_1a133188f010eccb753b0451a52fe03a9a`"
+msgstr ""
+
+#: ../../api/file_include_gwmodelpp_Algorithm.h.rst:88
+msgid ":ref:`exhale_define_Algorithm_8h_1a81aeca29b10fe0fe76ad2a31d9816c2f`"
+msgstr ""
+
+#: ../../api/file_include_gwmodelpp_Algorithm.h.rst:90
+msgid ":ref:`exhale_define_Algorithm_8h_1a78536ea976dfe7442b894b9c0ea3d69c`"
+msgstr ""
+
+#: ../../api/file_include_gwmodelpp_Algorithm.h.rst:92
+msgid ":ref:`exhale_define_Algorithm_8h_1a517c29498b507893108fb2961e3140d7`"
+msgstr ""
+
+#: ../../api/file_include_gwmodelpp_Algorithm.h.rst:94
+msgid ":ref:`exhale_define_Algorithm_8h_1a9a6822a722a1654fe9358651500657b2`"
+msgstr ""
+
+#: ../../api/file_include_gwmodelpp_Algorithm.h.rst:96
+msgid ":ref:`exhale_define_Algorithm_8h_1a63405819e78dea96e294ff200c113a37`"
+msgstr ""
+
