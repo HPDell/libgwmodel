@@ -16,14 +16,17 @@ RegressionDiagnostic GWRLocalCollinearity::CalcDiagnostic(const mat& x, const ve
     vec r = y - sum(betas % x, 1);
     double rss = sum(r % r);
     double n = (double)x.n_rows;
-    double AIC = n * log(rss / n) + n * log(2 * datum::pi) + n + shat(0);
-    double AICc = n * log(rss / n) + n * log(2 * datum::pi) + n * ((n + shat(0)) / (n - 2 - shat(0)));
+    // double AIC = n * log(rss / n) + n * log(2 * datum::pi) + n + shat(0);//这个计算结果不知道为什么不对。
+    // double AICc = n * log(rss / n) + n * log(2 * datum::pi) + n * ((n + shat(0)) / (n - 2 - shat(0)));
     double edf = n - 2 * shat(0) + shat(1);
     double enp = 2 * shat(0) - shat(1);
+    double s2 = rss / (n - enp);
+    double AIC = n * (log(2 * datum::pi * s2) + 1) + 2 * (enp + 1);
+    double AICc = n * (log(2 * datum::pi * s2)) + n * ((1 + enp / n) / (1 - (enp + 2) / n));
     double yss = sum((y - mean(y)) % (y - mean(y)));
     double r2 = 1 - rss / yss;
     double r2_adj = 1 - (1 - r2) * (n - 1) / (edf - 1);
-    return { rss, AIC, AICc, enp, edf, r2, r2_adj };
+    return {rss, AIC, AICc, enp, edf, r2, r2_adj};
 }
 
 GWRLocalCollinearity::GWRLocalCollinearity()
@@ -76,14 +79,18 @@ mat GWRLocalCollinearity::fit()
     GWM_LOG_STAGE("Model Diagnostic");
     vec mYHat = sum(mBetas % mX,1);
     vec mResidual = mY - mYHat;
-    mDiagnostic.RSS = sum(mResidual % mResidual);
-    mDiagnostic.ENP = 2*this->mTrS - this->mTrStS;
-    mDiagnostic.EDF = nDp - mDiagnostic.ENP;
-    double s2 = mDiagnostic.RSS / (nDp - mDiagnostic.ENP);
-    mDiagnostic.AIC = nDp * (log(2*M_PI*s2)+1) + 2*(mDiagnostic.ENP + 1);
-    mDiagnostic.AICc = nDp * (log(2*M_PI*s2)) + nDp*( (1+mDiagnostic.ENP/nDp) / (1-(mDiagnostic.ENP+2)/nDp) );
-    mDiagnostic.RSquare = 1 - mDiagnostic.RSS/sum((mY - mean(mY)) % (mY - mean(mY)));
-    mDiagnostic.RSquareAdjust = 1 - (1 - mDiagnostic.RSquare)*(nDp - 1) / (mDiagnostic.EDF);
+    vec shat = vec(2, fill::zeros);
+    shat(0)=mTrS;
+    shat(1)=mTrStS;
+    mDiagnostic = CalcDiagnostic(mX, mY, mBetas, shat);
+    // mDiagnostic.RSS = sum(mResidual % mResidual);
+    // mDiagnostic.ENP = 2*this->mTrS - this->mTrStS;
+    // mDiagnostic.EDF = nDp - mDiagnostic.ENP;
+    // double s2 = mDiagnostic.RSS / (nDp - mDiagnostic.ENP);
+    // mDiagnostic.AIC = nDp * (log(2*M_PI*s2)+1) + 2*(mDiagnostic.ENP + 1);
+    // mDiagnostic.AICc = nDp * (log(2*M_PI*s2)) + nDp*( (1+mDiagnostic.ENP/nDp) / (1-(mDiagnostic.ENP+2)/nDp) );
+    // mDiagnostic.RSquare = 1 - mDiagnostic.RSS/sum((mY - mean(mY)) % (mY - mean(mY)));
+    // mDiagnostic.RSquareAdjust = 1 - (1 - mDiagnostic.RSquare)*(nDp - 1) / (mDiagnostic.EDF);//这里少了一个-1
 
     return mBetas;
 }
@@ -334,6 +341,7 @@ mat GWRLocalCollinearity::fitSerial(const mat& x, const vec& y)
     vec localcn(nDp, fill::zeros);
     vec locallambda(nDp, fill::zeros);
     vec hatrow(nDp, fill::zeros);
+    vec shat = vec(2, fill::zeros);
     for(uword i=0;i<nDp ;i++)
     {
         GWM_LOG_STOP_BREAK(mStatus);
@@ -363,13 +371,20 @@ mat GWRLocalCollinearity::fitSerial(const mat& x, const vec& y)
         }
         betas.row(i) = trans(ridgelm(wi,locallambda(i)) );
         //如果没有给regressionpoint
-        mat xm = x;
+        // mat xm = x;
         mat xtw = trans(x % (wi * wispan1));
         mat xtwx = xtw * x;
-        mat xtwxinv = inv(xtwx);
-        rowvec hatrow = x1w.row(i) * xtwxinv * trans(x1w);
-        this->mTrS += hatrow(i);
-        this->mTrStS += sum(hatrow % hatrow);
+        try{
+            mat xtwxinv = inv(xtwx);
+            rowvec hatrow = x1w.row(i) * xtwxinv * trans(x1w);
+            this->mTrS += hatrow(i);
+            this->mTrStS += sum(hatrow % hatrow);
+        }
+        catch (const exception& e)
+        {
+            GWM_LOG_ERROR(e.what());
+            throw e;
+        }
         GWM_LOG_PROGRESS(i + 1, nDp);
     }
     return betas;

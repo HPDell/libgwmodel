@@ -327,7 +327,7 @@ private:
     bool mIsAutoselectBandwidth = false;
     double mTrS = 0;
     double mTrStS = 0;
-    arma::vec mSHat;
+    // arma::vec mSHat;
 
     FitCalculator mFitFunction = &GWRLocalCollinearity::fitSerial;
     PredictCalculator mPredictFunction = &GWRLocalCollinearity::predictSerial;

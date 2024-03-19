@@ -41,10 +41,10 @@ TEST_CASE("LocalCollinearityGWR: basic flow")
     REQUIRE_NOTHROW(algorithm.fit());
 
     RegressionDiagnostic diagnostic = algorithm.diagnostic();
-    /*REQUIRE_THAT(diagnostic.AIC, Catch::MatchersWithinAbs(2461.565456, 1e-6));
-    REQUIRE_THAT(diagnostic.AICc, Catch::MatchersWithinAbs(2464.600255, 1e-6));
-    REQUIRE_THAT(diagnostic.RSquare, Catch::MatchersWithinAbs(0.708010632044736, 1e-6));
-    REQUIRE_THAT(diagnostic.RSquareAdjust, Catch::MatchersWithinAbs(0.674975341723766, 1e-6));*/
+    REQUIRE_THAT(diagnostic.AIC, Catch::Matchers::WithinAbs(2461.5654565, 1e-8));
+    REQUIRE_THAT(diagnostic.AICc, Catch::Matchers::WithinAbs(2464.60025589, 1e-8));
+    REQUIRE_THAT(diagnostic.RSquare, Catch::Matchers::WithinAbs(0.708010632043, 1e-8));
+    REQUIRE_THAT(diagnostic.RSquareAdjust, Catch::Matchers::WithinAbs(0.674975341722, 1e-8));
 
     REQUIRE(algorithm.hasIntercept() == true);
 }
