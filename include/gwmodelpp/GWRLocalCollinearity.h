@@ -276,18 +276,19 @@ protected:
     double mBandwidthLastCriterion = DBL_MAX;   //!< \~english Last criterion for bandwidth selection. \~chinese 上一次带宽优选的有效指标值。
 
 
-    /**
-     * @brief \~english Get the CV. \~chinese 返回cv的函数
-     * 
-     * @param bw \~english  \~chinese 
-     * @param kernel \~english  \~chinese 
-     * @param adaptive \~english  \~chinese 
-     * @param lambda \~english  \~chinese 
-     * @param lambdaAdjust \~english  \~chinese 
-     * @param cnThresh \~english  \~chinese 
-     * @return double \~english  \~chinese 
-     */
-    double LcrCV(double bw,arma::uword kernel, bool adaptive,double lambda,bool lambdaAdjust,double cnThresh);
+    // //这个函数并没有完成，计算local cv的话，直接放在了循环里面算，所以需求似乎也不大
+    // /**
+    //  * @brief \~english Get the CV. \~chinese 返回cv的函数
+    //  * 
+    //  * @param bw \~english  \~chinese 
+    //  * @param kernel \~english  \~chinese 
+    //  * @param adaptive \~english  \~chinese 
+    //  * @param lambda \~english  \~chinese 
+    //  * @param lambdaAdjust \~english  \~chinese 
+    //  * @param cnThresh \~english  \~chinese 
+    //  * @return double \~english  \~chinese 
+    //  */
+    // double LcrCV(double bw,arma::uword kernel, bool adaptive,double lambda,bool lambdaAdjust,double cnThresh);
     
     /**
      * @brief \~english Ridge linear regression. \~chinese 岭回归。

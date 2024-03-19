@@ -83,14 +83,6 @@ mat GWRLocalCollinearity::fit()
     shat(0)=mTrS;
     shat(1)=mTrStS;
     mDiagnostic = CalcDiagnostic(mX, mY, mBetas, shat);
-    // mDiagnostic.RSS = sum(mResidual % mResidual);
-    // mDiagnostic.ENP = 2*this->mTrS - this->mTrStS;
-    // mDiagnostic.EDF = nDp - mDiagnostic.ENP;
-    // double s2 = mDiagnostic.RSS / (nDp - mDiagnostic.ENP);
-    // mDiagnostic.AIC = nDp * (log(2*M_PI*s2)+1) + 2*(mDiagnostic.ENP + 1);
-    // mDiagnostic.AICc = nDp * (log(2*M_PI*s2)) + nDp*( (1+mDiagnostic.ENP/nDp) / (1-(mDiagnostic.ENP+2)/nDp) );
-    // mDiagnostic.RSquare = 1 - mDiagnostic.RSS/sum((mY - mean(mY)) % (mY - mean(mY)));
-    // mDiagnostic.RSquareAdjust = 1 - (1 - mDiagnostic.RSquare)*(nDp - 1) / (mDiagnostic.EDF);//这里少了一个-1
 
     return mBetas;
 }
@@ -471,15 +463,21 @@ mat GWRLocalCollinearity::fitOmp(const mat& x, const vec& y)
         }
         betas.row(i) = trans( ridgelm(wi,locallambda(i)) );
         //如果没有给regressionpoint
-        mat xm = x;
         mat xtw = trans(x % (wi * wispan1));
         mat xtwx = xtw * x;
-        mat xtwxinv = inv(xtwx);
-        rowvec hatrow = x1w.row(i) * xtwxinv * trans(x1w);
-        shat_all(0, thread) += hatrow(i);
-        shat_all(1, thread) += sum(hatrow % hatrow);
-        this->mTrS += hatrow(i);
-        this->mTrStS += sum(hatrow % hatrow);
+        try{
+            mat xtwxinv = inv(xtwx);
+            rowvec hatrow = x1w.row(i) * xtwxinv * trans(x1w);
+            shat_all(0, thread) += hatrow(i);
+            shat_all(1, thread) += sum(hatrow % hatrow);
+            this->mTrS += hatrow(i);
+            this->mTrStS += sum(hatrow % hatrow);
+        }
+        catch (const exception& e)
+        {
+            GWM_LOG_ERROR(e.what());
+            throw e;
+        }
         GWM_LOG_PROGRESS(i + 1, nDp);
     }
     vec shat = sum(shat_all,1);
