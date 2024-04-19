@@ -1,0 +1,65 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2023, GWmodel Lab
+# This file is distributed under the same license as the libgwmodel package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: libgwmodel\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-02-07 12:00+0000\n"
+"PO-Revision-Date: 2024-02-07 12:22+0000\n"
+"Last-Translator: \n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.11.0\n"
+"X-Generator: Poedit 3.4.2\n"
+
+#: ../../api/classgwm_1_1CRSSTDistance.rst:4
+msgid "Class CRSSTDistance"
+msgstr "类 CRSSTDistance"
+
+#: ../../api/classgwm_1_1CRSSTDistance.rst:6
+msgid "Defined in :ref:`file_include_gwmodelpp_spatialweight_CRSSTDistance.h`"
+msgstr "定义于 :ref:`file_include_gwmodelpp_spatialweight_CRSSTDistance.h`"
+
+#: ../../api/classgwm_1_1CRSSTDistance.rst:10
+msgid "Inheritance Relationships"
+msgstr "继承关系"
+
+#: ../../api/classgwm_1_1CRSSTDistance.rst:13
+msgid "Base Type"
+msgstr "基类"
+
+#: ../../api/classgwm_1_1CRSSTDistance.rst:15
+msgid "``public gwm::Distance`` (:ref:`exhale_class_classgwm_1_1Distance`)"
+msgstr ""
+
+#: ../../api/classgwm_1_1CRSSTDistance.rst:19
+msgid "Class Documentation"
+msgstr "类文档"
+
+#: ../../api/classgwm_1_1CRSSTDistance.rst
+msgid "Public Types"
+msgstr "公有类型"
+
+#: ../../api/classgwm_1_1CRSSTDistance.rst
+msgid "Public Functions"
+msgstr "公有方法"
+
+#: ../../api/classgwm_1_1CRSSTDistance.rst
+msgid "Parameters"
+msgstr ""
+
+#: ../../api/classgwm_1_1CRSSTDistance.rst
+msgid "Public Static Functions"
+msgstr "公有静态方法"
+
+#: ../../api/classgwm_1_1CRSSTDistance.rst
+msgid "Protected Attributes"
+msgstr "保护属性"

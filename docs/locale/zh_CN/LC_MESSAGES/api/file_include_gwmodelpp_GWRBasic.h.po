@@ -5,18 +5,18 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: libgwmodel\n"
+"Project-Id-Version:  libgwmodel\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-23 20:21+0000\n"
+"POT-Creation-Date: 2024-02-07 12:00+0000\n"
 "PO-Revision-Date: 2023-01-31 13:10+0000\n"
 "Last-Translator: Yigong Hu <huyg0180110559@outook.com>\n"
-"Language-Team: \n"
 "Language: zh_CN\n"
+"Language-Team: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.8.0\n"
-"X-Generator: Poedit 3.2.2\n"
+"Generated-By: Babel 2.11.0\n"
 
 #: ../../api/file_include_gwmodelpp_GWRBasic.h.rst:5
 msgid "File GWRBasic.h"
@@ -24,8 +24,8 @@ msgstr "文件 GWRBasic.h"
 
 #: ../../api/file_include_gwmodelpp_GWRBasic.h.rst:7
 msgid ""
-"|exhale_lsh| :ref:`Parent directory <dir_include_gwmodelpp>` (``include/"
-"gwmodelpp``)"
+"|exhale_lsh| :ref:`Parent directory <dir_include_gwmodelpp>` "
+"(``include/gwmodelpp``)"
 msgstr ""
 
 #: ../../api/file_include_gwmodelpp_GWRBasic.h.rst:14
@@ -46,8 +46,8 @@ msgstr ""
 
 #: ../../api/file_include_gwmodelpp_GWRBasic.h.rst:35
 msgid ""
-"``IBandwidthSelectable.h`` (:ref:"
-"`file_include_gwmodelpp_IBandwidthSelectable.h`)"
+"``IBandwidthSelectable.h`` "
+"(:ref:`file_include_gwmodelpp_IBandwidthSelectable.h`)"
 msgstr ""
 
 #: ../../api/file_include_gwmodelpp_GWRBasic.h.rst:37
@@ -56,14 +56,14 @@ msgstr ""
 
 #: ../../api/file_include_gwmodelpp_GWRBasic.h.rst:39
 msgid ""
-"``IVarialbeSelectable.h`` (:ref:`file_include_gwmodelpp_IVarialbeSelectable."
-"h`)"
+"``IVarialbeSelectable.h`` "
+"(:ref:`file_include_gwmodelpp_IVarialbeSelectable.h`)"
 msgstr ""
 
 #: ../../api/file_include_gwmodelpp_GWRBasic.h.rst:41
 msgid ""
-"``RegressionDiagnostic.h`` (:ref:"
-"`file_include_gwmodelpp_RegressionDiagnostic.h`)"
+"``RegressionDiagnostic.h`` "
+"(:ref:`file_include_gwmodelpp_RegressionDiagnostic.h`)"
 msgstr ""
 
 #: ../../api/file_include_gwmodelpp_GWRBasic.h.rst:43
@@ -71,41 +71,46 @@ msgid "``initializer_list``"
 msgstr ""
 
 #: ../../api/file_include_gwmodelpp_GWRBasic.h.rst:45
-msgid "``string``"
+msgid "``optional``"
 msgstr ""
 
 #: ../../api/file_include_gwmodelpp_GWRBasic.h.rst:47
+msgid "``string``"
+msgstr ""
+
+#: ../../api/file_include_gwmodelpp_GWRBasic.h.rst:49
 msgid "``utility``"
 msgstr ""
 
-#: ../../api/file_include_gwmodelpp_GWRBasic.h.rst:52
+#: ../../api/file_include_gwmodelpp_GWRBasic.h.rst:54
 msgid "Included By"
 msgstr "被下列头文件包含"
 
-#: ../../api/file_include_gwmodelpp_GWRBasic.h.rst:55
+#: ../../api/file_include_gwmodelpp_GWRBasic.h.rst:57
 msgid ":ref:`file_include_gwmodel.h`"
 msgstr ""
 
-#: ../../api/file_include_gwmodelpp_GWRBasic.h.rst:57
+#: ../../api/file_include_gwmodelpp_GWRBasic.h.rst:59
 msgid ":ref:`file_include_gwmodelpp_GWRGeneralized.h`"
 msgstr ""
 
-#: ../../api/file_include_gwmodelpp_GWRBasic.h.rst:59
+#: ../../api/file_include_gwmodelpp_GWRBasic.h.rst:61
 msgid ":ref:`file_include_gwmodelpp_GWRRobust.h`"
 msgstr ""
 
-#: ../../api/file_include_gwmodelpp_GWRBasic.h.rst:65
+#: ../../api/file_include_gwmodelpp_GWRBasic.h.rst:67
 msgid "Namespaces"
 msgstr "命名空间"
 
-#: ../../api/file_include_gwmodelpp_GWRBasic.h.rst:68
+#: ../../api/file_include_gwmodelpp_GWRBasic.h.rst:70
 msgid ":ref:`namespace_gwm`"
 msgstr ""
 
-#: ../../api/file_include_gwmodelpp_GWRBasic.h.rst:72
+#: ../../api/file_include_gwmodelpp_GWRBasic.h.rst:74
 msgid "Classes"
 msgstr "类"
 
-#: ../../api/file_include_gwmodelpp_GWRBasic.h.rst:75
+#: ../../api/file_include_gwmodelpp_GWRBasic.h.rst:77
 msgid ":ref:`exhale_class_classgwm_1_1GWRBasic`"
 msgstr ""
+

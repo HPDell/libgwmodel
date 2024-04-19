@@ -1,0 +1,49 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2023, GWmodel Lab
+# This file is distributed under the same license as the libgwmodel package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: libgwmodel\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-02-07 12:00+0000\n"
+"PO-Revision-Date: 2024-02-07 12:21+0000\n"
+"Last-Translator: \n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.11.0\n"
+"X-Generator: Poedit 3.4.2\n"
+
+#: ../../api/classIGWRBasicGpuTask.rst:4
+msgid "Class IGWRBasicGpuTask"
+msgstr "类 IGWRBasicGpuTask"
+
+#: ../../api/classIGWRBasicGpuTask.rst:6
+msgid "Defined in :ref:`file_include_gwmodelcuda_IGWRBasicGpuTask.h`"
+msgstr "定义于 :ref:`file_include_gwmodelcuda_IGWRBasicGpuTask.h`"
+
+#: ../../api/classIGWRBasicGpuTask.rst:10
+msgid "Inheritance Relationships"
+msgstr "继承关系"
+
+#: ../../api/classIGWRBasicGpuTask.rst:13
+msgid "Derived Type"
+msgstr "派生类"
+
+#: ../../api/classIGWRBasicGpuTask.rst:15
+msgid "``public GWRBasicGpuTask`` (:ref:`exhale_class_classGWRBasicGpuTask`)"
+msgstr ""
+
+#: ../../api/classIGWRBasicGpuTask.rst:19
+msgid "Class Documentation"
+msgstr "类文档"
+
+#: ../../api/classIGWRBasicGpuTask.rst
+msgid "Public Functions"
+msgstr "公有方法"

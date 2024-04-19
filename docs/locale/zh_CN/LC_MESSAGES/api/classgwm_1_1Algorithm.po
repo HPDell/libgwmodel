@@ -5,19 +5,18 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: libgwmodel\n"
+"Project-Id-Version:  libgwmodel\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-23 20:21+0000\n"
+"POT-Creation-Date: 2024-02-07 12:00+0000\n"
 "PO-Revision-Date: 2023-01-31 11:54+0000\n"
 "Last-Translator: \n"
-"Language-Team: chin\n"
 "Language: zh_CN\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
+"Language-Team: chin\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"Generated-By: Babel 2.8.0\n"
-"X-Generator: Poedit 3.2.2\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.11.0\n"
 
 #: ../../api/classgwm_1_1Algorithm.rst:4
 msgid "Class Algorithm"
@@ -37,8 +36,8 @@ msgstr "派生类"
 
 #: ../../api/classgwm_1_1Algorithm.rst:15
 msgid ""
-"``public gwm::SpatialAlgorithm`` (:ref:"
-"`exhale_class_classgwm_1_1SpatialAlgorithm`)"
+"``public gwm::SpatialAlgorithm`` "
+"(:ref:`exhale_class_classgwm_1_1SpatialAlgorithm`)"
 msgstr ""
 
 #: ../../api/classgwm_1_1Algorithm.rst:19
@@ -50,5 +49,18 @@ msgid "Public Functions"
 msgstr "公有方法"
 
 #: ../../api/classgwm_1_1Algorithm.rst
+msgid "Parameters"
+msgstr ""
+
+#: ../../api/classgwm_1_1Algorithm.rst
 msgid "Returns"
 msgstr "返回"
+
+#: ../../api/classgwm_1_1Algorithm.rst
+msgid "Protected Functions"
+msgstr ""
+
+#: ../../api/classgwm_1_1Algorithm.rst
+msgid "Protected Attributes"
+msgstr ""
+

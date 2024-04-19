@@ -211,6 +211,7 @@ exhale_args = {
         INPUT = ../include
         MACRO_EXPANSION = YES
         OUTPUT_LANGUAGE = {lang}
+        CASE_SENSE_NAMES = YES
     """.format(lang=language_map.get(doxygen_language, 'en')))
 }
 

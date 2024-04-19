@@ -58,11 +58,11 @@ add_test(
     COMMAND $<TARGET_FILE:testGWPCA> --success
 )
 
-add_executable(testGWDR testGWDR.cpp ${ADDON_SOURCES})
-target_link_libraries(testGWDR PRIVATE gwmodel ${ARMADILLO_LIBRARIES} Catch2::Catch2WithMain)
+add_executable(testSDR testSDR.cpp ${ADDON_SOURCES})
+target_link_libraries(testSDR PRIVATE gwmodel ${ARMADILLO_LIBRARIES} Catch2::Catch2WithMain)
 add_test(
-    NAME testGWDR 
-    COMMAND $<TARGET_FILE:testGWDR> --success
+    NAME testSDR 
+    COMMAND $<TARGET_FILE:testSDR> --success
 )
 
 add_executable(testGWRMultiscale testGWRMultiscale.cpp ${ADDON_SOURCES})

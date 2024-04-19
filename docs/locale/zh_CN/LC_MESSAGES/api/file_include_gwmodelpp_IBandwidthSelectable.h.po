@@ -5,18 +5,18 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: libgwmodel\n"
+"Project-Id-Version:  libgwmodel\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-23 20:46+0000\n"
+"POT-Creation-Date: 2024-02-07 12:00+0000\n"
 "PO-Revision-Date: 2023-01-31 13:12+0000\n"
 "Last-Translator: Yigong Hu <huyg0180110559@outook.com>\n"
-"Language-Team: \n"
 "Language: zh_CN\n"
+"Language-Team: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.8.0\n"
-"X-Generator: Poedit 3.2.2\n"
+"Generated-By: Babel 2.11.0\n"
 
 #: ../../api/file_include_gwmodelpp_IBandwidthSelectable.h.rst:5
 msgid "File IBandwidthSelectable.h"
@@ -24,7 +24,8 @@ msgstr "文件 IBandwidthSelectable.h"
 
 #: ../../api/file_include_gwmodelpp_IBandwidthSelectable.h.rst:7
 msgid ""
-"|exhale_lsh| :ref:`Parent directory <dir_include_gwmodelpp>` (``include/gwmodelpp``)"
+"|exhale_lsh| :ref:`Parent directory <dir_include_gwmodelpp>` "
+"(``include/gwmodelpp``)"
 msgstr ""
 
 #: ../../api/file_include_gwmodelpp_IBandwidthSelectable.h.rst:14
@@ -40,63 +41,84 @@ msgid "Includes"
 msgstr "包含"
 
 #: ../../api/file_include_gwmodelpp_IBandwidthSelectable.h.rst:33
-msgid ""
-"``spatialweight/BandwidthWeight.h`` (:ref:"
-"`file_include_gwmodelpp_spatialweight_BandwidthWeight.h`)"
+msgid "``Status.h`` (:ref:`file_include_gwmodelpp_Status.h`)"
 msgstr ""
 
-#: ../../api/file_include_gwmodelpp_IBandwidthSelectable.h.rst:38
+#: ../../api/file_include_gwmodelpp_IBandwidthSelectable.h.rst:35
+msgid ""
+"``spatialweight/BandwidthWeight.h`` "
+"(:ref:`file_include_gwmodelpp_spatialweight_BandwidthWeight.h`)"
+msgstr ""
+
+#: ../../api/file_include_gwmodelpp_IBandwidthSelectable.h.rst:40
 msgid "Included By"
 msgstr "被下列头文件包含"
 
-#: ../../api/file_include_gwmodelpp_IBandwidthSelectable.h.rst:41
+#: ../../api/file_include_gwmodelpp_IBandwidthSelectable.h.rst:43
 msgid ":ref:`file_include_gwmodelpp_BandwidthSelector.h`"
 msgstr ""
 
-#: ../../api/file_include_gwmodelpp_IBandwidthSelectable.h.rst:43
-msgid ":ref:`file_include_gwmodelpp_GWRBasic.h`"
-msgstr ""
-
 #: ../../api/file_include_gwmodelpp_IBandwidthSelectable.h.rst:45
-msgid ":ref:`file_include_gwmodelpp_GWRGeneralized.h`"
+msgid ":ref:`file_include_gwmodelpp_GTWR.h`"
 msgstr ""
 
 #: ../../api/file_include_gwmodelpp_IBandwidthSelectable.h.rst:47
-msgid ":ref:`file_include_gwmodelpp_GWRLocalCollinearity.h`"
+msgid ":ref:`file_include_gwmodelpp_GWRBasic.h`"
 msgstr ""
 
 #: ../../api/file_include_gwmodelpp_IBandwidthSelectable.h.rst:49
-msgid ":ref:`file_include_gwmodelpp_GWRMultiscale.h`"
+msgid ":ref:`file_include_gwmodelpp_GWRGeneralized.h`"
 msgstr ""
 
 #: ../../api/file_include_gwmodelpp_IBandwidthSelectable.h.rst:51
-msgid ":ref:`file_include_gwmodelpp_GWRRobust.h`"
+msgid ":ref:`file_include_gwmodelpp_GWRLocalCollinearity.h`"
 msgstr ""
 
 #: ../../api/file_include_gwmodelpp_IBandwidthSelectable.h.rst:53
+msgid ":ref:`file_include_gwmodelpp_GWRMultiscale.h`"
+msgstr ""
+
+#: ../../api/file_include_gwmodelpp_IBandwidthSelectable.h.rst:55
+msgid ":ref:`file_include_gwmodelpp_GWRRobust.h`"
+msgstr ""
+
+#: ../../api/file_include_gwmodelpp_IBandwidthSelectable.h.rst:57
 msgid ":ref:`file_include_gwmodelpp_GWRScalable.h`"
 msgstr ""
 
 #: ../../api/file_include_gwmodelpp_IBandwidthSelectable.h.rst:59
+msgid ":ref:`file_include_gwmodelpp_SDR.h`"
+msgstr ""
+
+#: ../../api/file_include_gwmodelpp_IBandwidthSelectable.h.rst:65
 msgid "Namespaces"
 msgstr "命名空间"
 
-#: ../../api/file_include_gwmodelpp_IBandwidthSelectable.h.rst:62
+#: ../../api/file_include_gwmodelpp_IBandwidthSelectable.h.rst:68
 msgid ":ref:`namespace_gwm`"
 msgstr ""
 
-#: ../../api/file_include_gwmodelpp_IBandwidthSelectable.h.rst:66
+#: ../../api/file_include_gwmodelpp_IBandwidthSelectable.h.rst:72
 msgid "Classes"
 msgstr "类"
 
-#: ../../api/file_include_gwmodelpp_IBandwidthSelectable.h.rst:69
+#: ../../api/file_include_gwmodelpp_IBandwidthSelectable.h.rst:75
 msgid ":ref:`exhale_struct_structgwm_1_1IBandwidthSelectable`"
 msgstr ""
 
-#: ../../api/file_include_gwmodelpp_IBandwidthSelectable.h.rst:73
+#: ../../api/file_include_gwmodelpp_IBandwidthSelectable.h.rst:79
+msgid "Defines"
+msgstr ""
+
+#: ../../api/file_include_gwmodelpp_IBandwidthSelectable.h.rst:82
+msgid ":ref:`exhale_define_IBandwidthSelectable_8h_1ac255781338c0f15a823cefaca6911599`"
+msgstr ""
+
+#: ../../api/file_include_gwmodelpp_IBandwidthSelectable.h.rst:86
 msgid "Typedefs"
 msgstr ""
 
-#: ../../api/file_include_gwmodelpp_IBandwidthSelectable.h.rst:76
+#: ../../api/file_include_gwmodelpp_IBandwidthSelectable.h.rst:89
 msgid ":ref:`exhale_typedef_IBandwidthSelectable_8h_1ae90108073e4144ac3fbed1a68bb44031`"
 msgstr ""
+

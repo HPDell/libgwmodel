@@ -1,0 +1,58 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2023, GWmodel Lab
+# This file is distributed under the same license as the libgwmodel package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: libgwmodel \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-02-07 12:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.11.0\n"
+
+#: ../../api/file_include_gwmodelpp_spatialweight_cuda_BandwidthWeightKernel.h.rst:5
+msgid "File BandwidthWeightKernel.h"
+msgstr ""
+
+#: ../../api/file_include_gwmodelpp_spatialweight_cuda_BandwidthWeightKernel.h.rst:7
+msgid ""
+"|exhale_lsh| :ref:`Parent directory "
+"<dir_include_gwmodelpp_spatialweight_cuda>` "
+"(``include/gwmodelpp/spatialweight/cuda``)"
+msgstr ""
+
+#: ../../api/file_include_gwmodelpp_spatialweight_cuda_BandwidthWeightKernel.h.rst:14
+msgid "Contents"
+msgstr ""
+
+#: ../../api/file_include_gwmodelpp_spatialweight_cuda_BandwidthWeightKernel.h.rst:17
+msgid ""
+"Definition "
+"(``include/gwmodelpp/spatialweight/cuda/BandwidthWeightKernel.h``)"
+msgstr ""
+
+#: ../../api/file_include_gwmodelpp_spatialweight_cuda_BandwidthWeightKernel.h.rst:30
+msgid "Includes"
+msgstr ""
+
+#: ../../api/file_include_gwmodelpp_spatialweight_cuda_BandwidthWeightKernel.h.rst:33
+msgid "``cuda_runtime.h``"
+msgstr ""
+
+#: ../../api/file_include_gwmodelpp_spatialweight_cuda_BandwidthWeightKernel.h.rst:41
+msgid "Functions"
+msgstr ""
+
+#: ../../api/file_include_gwmodelpp_spatialweight_cuda_BandwidthWeightKernel.h.rst:44
+msgid ":ref:`exhale_function_BandwidthWeightKernel_8h_1a80af99b3d9c47285057b5757e39cde91`"
+msgstr ""
+

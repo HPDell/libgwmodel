@@ -1,0 +1,37 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2023, GWmodel Lab
+# This file is distributed under the same license as the libgwmodel package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: libgwmodel\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-02-07 12:00+0000\n"
+"PO-Revision-Date: 2024-02-07 12:18+0000\n"
+"Last-Translator: \n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.11.0\n"
+"X-Generator: Poedit 3.4.2\n"
+
+#: ../../api/classcuop__matmul_3_01A_00_01B_00_01cubase_1_1Type_1_1Mat_00_01cubase_1_1Type_1_1Mat_01_4.rst:4
+msgid "Template Class cuop_matmul< A, B, cubase::Type::Mat, cubase::Type::Mat >"
+msgstr "模板类 cuop_matmul< A, B, cubase::Type::Mat, cubase::Type::Mat >"
+
+#: ../../api/classcuop__matmul_3_01A_00_01B_00_01cubase_1_1Type_1_1Mat_00_01cubase_1_1Type_1_1Mat_01_4.rst:6
+msgid "Defined in :ref:`file_include_gwmodelpp_utils_cumat.hpp`"
+msgstr "定义于 :ref:`file_include_gwmodelpp_utils_cumat.hpp`"
+
+#: ../../api/classcuop__matmul_3_01A_00_01B_00_01cubase_1_1Type_1_1Mat_00_01cubase_1_1Type_1_1Mat_01_4.rst:10
+msgid "Class Documentation"
+msgstr "类文档"
+
+#: ../../api/classcuop__matmul_3_01A_00_01B_00_01cubase_1_1Type_1_1Mat_00_01cubase_1_1Type_1_1Mat_01_4.rst
+msgid "Public Functions"
+msgstr "公有方法"

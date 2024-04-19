@@ -36,7 +36,7 @@
 #include "gwmodelpp/GWRMultiscale.h"
 #include "gwmodelpp/GWRRobust.h"
 #include "gwmodelpp/GWRScalable.h"
-#include "gwmodelpp/GWDR.h"
+#include "gwmodelpp/SDR.h"
 #include "gwmodelpp/GWSS.h"
 #include "gwmodelpp/GWPCA.h"
 

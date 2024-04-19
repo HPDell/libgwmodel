@@ -5,18 +5,18 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: libgwmodel\n"
+"Project-Id-Version:  libgwmodel\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-23 20:21+0000\n"
+"POT-Creation-Date: 2024-02-07 12:00+0000\n"
 "PO-Revision-Date: 2023-01-31 16:04+0000\n"
 "Last-Translator: Yigong Hu <huyg0180110559@outook.com>\n"
-"Language-Team: \n"
 "Language: zh_CN\n"
+"Language-Team: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.8.0\n"
-"X-Generator: Poedit 3.2.2\n"
+"Generated-By: Babel 2.11.0\n"
 
 #: ../../api/structgwm_1_1CRSDistance_1_1Parameter.rst:4
 msgid "Struct CRSDistance::Parameter"
@@ -32,10 +32,9 @@ msgstr "嵌套关系"
 
 #: ../../api/structgwm_1_1CRSDistance_1_1Parameter.rst:12
 msgid ""
-"This struct is a nested type of :ref:"
-"`exhale_class_classgwm_1_1CRSDistance`."
-msgstr ""
-"该结构体是 :ref:`exhale_class_classgwm_1_1CRSDistance` 中的嵌套类型。"
+"This struct is a nested type of "
+":ref:`exhale_class_classgwm_1_1CRSDistance`."
+msgstr "该结构体是 :ref:`exhale_class_classgwm_1_1CRSDistance` 中的嵌套类型。"
 
 #: ../../api/structgwm_1_1CRSDistance_1_1Parameter.rst:16
 msgid "Inheritance Relationships"
@@ -47,8 +46,8 @@ msgstr "基类"
 
 #: ../../api/structgwm_1_1CRSDistance_1_1Parameter.rst:21
 msgid ""
-"``public gwm::Distance::Parameter`` (:ref:"
-"`exhale_struct_structgwm_1_1Distance_1_1Parameter`)"
+"``public gwm::Distance::Parameter`` "
+"(:ref:`exhale_struct_structgwm_1_1Distance_1_1Parameter`)"
 msgstr ""
 
 #: ../../api/structgwm_1_1CRSDistance_1_1Parameter.rst:25
@@ -60,9 +59,9 @@ msgid "Public Functions"
 msgstr "公有成员函数"
 
 #: ../../api/structgwm_1_1CRSDistance_1_1Parameter.rst
-msgid "Parameters"
-msgstr "参数"
-
-#: ../../api/structgwm_1_1CRSDistance_1_1Parameter.rst
 msgid "Public Members"
 msgstr "公有成员"
+
+#~ msgid "Parameters"
+#~ msgstr "参数"
+

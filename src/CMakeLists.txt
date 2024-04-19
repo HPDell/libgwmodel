@@ -60,7 +60,7 @@ set(SOURCES_CXX
     gwmodelpp/GWRBasic.cpp
     gwmodelpp/GWSS.cpp
     gwmodelpp/GWPCA.cpp
-    gwmodelpp/GWDR.cpp
+    gwmodelpp/SDR.cpp
     gwmodelpp/GWRMultiscale.cpp
     gwmodelpp/GWRRobust.cpp
     gwmodelpp/GWRGeneralized.cpp
@@ -98,7 +98,7 @@ set(HEADERS_CXX
     ../include/gwmodelpp/GWRBasic.h
     ../include/gwmodelpp/GWSS.h
     ../include/gwmodelpp/GWPCA.h
-    ../include/gwmodelpp/GWDR.h
+    ../include/gwmodelpp/SDR.h
     ../include/gwmodelpp/GWRMultiscale.h
     ../include/gwmodelpp/Logger.h
     ../include/gwmodelpp/GWRRobust.h

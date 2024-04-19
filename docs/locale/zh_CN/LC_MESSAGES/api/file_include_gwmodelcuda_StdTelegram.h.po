@@ -1,0 +1,79 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2023, GWmodel Lab
+# This file is distributed under the same license as the libgwmodel package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: libgwmodel \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-02-07 12:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.11.0\n"
+
+#: ../../api/file_include_gwmodelcuda_StdTelegram.h.rst:5
+msgid "File StdTelegram.h"
+msgstr ""
+
+#: ../../api/file_include_gwmodelcuda_StdTelegram.h.rst:7
+msgid ""
+"|exhale_lsh| :ref:`Parent directory <dir_include_gwmodelcuda>` "
+"(``include/gwmodelcuda``)"
+msgstr ""
+
+#: ../../api/file_include_gwmodelcuda_StdTelegram.h.rst:14
+msgid "Contents"
+msgstr ""
+
+#: ../../api/file_include_gwmodelcuda_StdTelegram.h.rst:17
+msgid "Definition (``include/gwmodelcuda/StdTelegram.h``)"
+msgstr ""
+
+#: ../../api/file_include_gwmodelcuda_StdTelegram.h.rst:30
+msgid "Includes"
+msgstr ""
+
+#: ../../api/file_include_gwmodelcuda_StdTelegram.h.rst:33
+msgid "``condition_variable``"
+msgstr ""
+
+#: ../../api/file_include_gwmodelcuda_StdTelegram.h.rst:35
+msgid "``fstream``"
+msgstr ""
+
+#: ../../api/file_include_gwmodelcuda_StdTelegram.h.rst:37
+msgid "``gwmodel.h`` (:ref:`file_include_gwmodel.h`)"
+msgstr ""
+
+#: ../../api/file_include_gwmodelcuda_StdTelegram.h.rst:39
+msgid "``mutex``"
+msgstr ""
+
+#: ../../api/file_include_gwmodelcuda_StdTelegram.h.rst:41
+msgid "``queue``"
+msgstr ""
+
+#: ../../api/file_include_gwmodelcuda_StdTelegram.h.rst:43
+msgid "``string``"
+msgstr ""
+
+#: ../../api/file_include_gwmodelcuda_StdTelegram.h.rst:45
+msgid "``thread``"
+msgstr ""
+
+#: ../../api/file_include_gwmodelcuda_StdTelegram.h.rst:53
+msgid "Classes"
+msgstr ""
+
+#: ../../api/file_include_gwmodelcuda_StdTelegram.h.rst:56
+msgid ":ref:`exhale_class_classStdTelegram`"
+msgstr ""
+

@@ -1,0 +1,73 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2023, GWmodel Lab
+# This file is distributed under the same license as the libgwmodel package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: libgwmodel\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-02-07 12:00+0000\n"
+"PO-Revision-Date: 2024-02-07 12:24+0000\n"
+"Last-Translator: \n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.11.0\n"
+"X-Generator: Poedit 3.4.2\n"
+
+#: ../../api/file_include_gwmodelcuda_GWRBasicGpuTask.h.rst:5
+msgid "File GWRBasicGpuTask.h"
+msgstr "文件 GWRBasicGpuTask.h"
+
+#: ../../api/file_include_gwmodelcuda_GWRBasicGpuTask.h.rst:7
+msgid ""
+"|exhale_lsh| :ref:`Parent directory <dir_include_gwmodelcuda>` "
+"(``include/gwmodelcuda``)"
+msgstr ""
+
+#: ../../api/file_include_gwmodelcuda_GWRBasicGpuTask.h.rst:14
+msgid "Contents"
+msgstr "内容"
+
+#: ../../api/file_include_gwmodelcuda_GWRBasicGpuTask.h.rst:17
+msgid "Definition (``include/gwmodelcuda/GWRBasicGpuTask.h``)"
+msgstr ""
+
+#: ../../api/file_include_gwmodelcuda_GWRBasicGpuTask.h.rst:30
+msgid "Includes"
+msgstr "包含"
+
+#: ../../api/file_include_gwmodelcuda_GWRBasicGpuTask.h.rst:33
+msgid "``../gwmodel.h``"
+msgstr ""
+
+#: ../../api/file_include_gwmodelcuda_GWRBasicGpuTask.h.rst:35
+msgid ""
+"``IGWRBasicGpuTask.h`` (:ref:"
+"`file_include_gwmodelcuda_IGWRBasicGpuTask.h`)"
+msgstr ""
+
+#: ../../api/file_include_gwmodelcuda_GWRBasicGpuTask.h.rst:37
+msgid "``armadillo``"
+msgstr ""
+
+#: ../../api/file_include_gwmodelcuda_GWRBasicGpuTask.h.rst:39
+msgid "``memory``"
+msgstr ""
+
+#: ../../api/file_include_gwmodelcuda_GWRBasicGpuTask.h.rst:41
+msgid "``vector``"
+msgstr ""
+
+#: ../../api/file_include_gwmodelcuda_GWRBasicGpuTask.h.rst:49
+msgid "Classes"
+msgstr "类"
+
+#: ../../api/file_include_gwmodelcuda_GWRBasicGpuTask.h.rst:52
+msgid ":ref:`exhale_class_classGWRBasicGpuTask`"
+msgstr ""

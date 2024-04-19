@@ -5,18 +5,18 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: libgwmodel\n"
+"Project-Id-Version:  libgwmodel\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-23 20:46+0000\n"
+"POT-Creation-Date: 2024-02-07 12:00+0000\n"
 "PO-Revision-Date: 2023-01-31 16:08+0000\n"
 "Last-Translator: Yigong Hu <huyg0180110559@outook.com>\n"
-"Language-Team: \n"
 "Language: zh_CN\n"
+"Language-Team: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.8.0\n"
-"X-Generator: Poedit 3.2.2\n"
+"Generated-By: Babel 2.11.0\n"
 
 #: ../../api/structgwm_1_1IParallelOpenmpEnabled.rst:4
 msgid "Struct IParallelOpenmpEnabled"
@@ -35,36 +35,44 @@ msgid "Derived Types"
 msgstr "派生类"
 
 #: ../../api/structgwm_1_1IParallelOpenmpEnabled.rst:15
-msgid "``public gwm::GWDR`` (:ref:`exhale_class_classgwm_1_1GWDR`)"
+msgid "``public gwm::GTWR`` (:ref:`exhale_class_classgwm_1_1GTWR`)"
 msgstr ""
 
 #: ../../api/structgwm_1_1IParallelOpenmpEnabled.rst:16
-msgid "``public gwm::GWRBasic`` (:ref:`exhale_class_classgwm_1_1GWRBasic`)"
+msgid "``public gwm::GWDA`` (:ref:`exhale_class_classgwm_1_1GWDA`)"
 msgstr ""
 
 #: ../../api/structgwm_1_1IParallelOpenmpEnabled.rst:17
-msgid ""
-"``public gwm::GWRGeneralized`` (:ref:"
-"`exhale_class_classgwm_1_1GWRGeneralized`)"
+msgid "``public gwm::GWRBasic`` (:ref:`exhale_class_classgwm_1_1GWRBasic`)"
 msgstr ""
 
 #: ../../api/structgwm_1_1IParallelOpenmpEnabled.rst:18
 msgid ""
-"``public gwm::GWRLocalCollinearity`` (:ref:"
-"`exhale_class_classgwm_1_1GWRLocalCollinearity`)"
+"``public gwm::GWRGeneralized`` "
+"(:ref:`exhale_class_classgwm_1_1GWRGeneralized`)"
 msgstr ""
 
 #: ../../api/structgwm_1_1IParallelOpenmpEnabled.rst:19
 msgid ""
-"``public gwm::GWRMultiscale`` (:ref:"
-"`exhale_class_classgwm_1_1GWRMultiscale`)"
+"``public gwm::GWRLocalCollinearity`` "
+"(:ref:`exhale_class_classgwm_1_1GWRLocalCollinearity`)"
 msgstr ""
 
 #: ../../api/structgwm_1_1IParallelOpenmpEnabled.rst:20
+msgid ""
+"``public gwm::GWRMultiscale`` "
+"(:ref:`exhale_class_classgwm_1_1GWRMultiscale`)"
+msgstr ""
+
+#: ../../api/structgwm_1_1IParallelOpenmpEnabled.rst:21
 msgid "``public gwm::GWSS`` (:ref:`exhale_class_classgwm_1_1GWSS`)"
 msgstr ""
 
-#: ../../api/structgwm_1_1IParallelOpenmpEnabled.rst:24
+#: ../../api/structgwm_1_1IParallelOpenmpEnabled.rst:22
+msgid "``public gwm::SDR`` (:ref:`exhale_class_classgwm_1_1SDR`)"
+msgstr ""
+
+#: ../../api/structgwm_1_1IParallelOpenmpEnabled.rst:26
 msgid "Struct Documentation"
 msgstr "结构体文档"
 
@@ -75,3 +83,7 @@ msgstr "公有成员函数"
 #: ../../api/structgwm_1_1IParallelOpenmpEnabled.rst
 msgid "Parameters"
 msgstr "参数"
+
+#~ msgid "``public gwm::GWDR`` (:ref:`exhale_class_classgwm_1_1GWDR`)"
+#~ msgstr ""
+

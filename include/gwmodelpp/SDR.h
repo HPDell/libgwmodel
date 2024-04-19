@@ -1,5 +1,5 @@
-#ifndef GWDR_H
-#define GWDR_H
+#ifndef SDR_H
+#define SDR_H
 
 #include <vector>
 #include <armadillo>
@@ -18,12 +18,12 @@ namespace gwm
  * @brief \~english Geographically Weighted Density Regression \~chinese 地理加权密度回归模型
  * 
  */
-class GWDR : public SpatialAlgorithm, public IRegressionAnalysis, public IVarialbeSelectable, public IParallelizable, public IParallelOpenmpEnabled
+class SDR : public SpatialAlgorithm, public IRegressionAnalysis, public IVarialbeSelectable, public IParallelizable, public IParallelOpenmpEnabled
 {
 public:
-    typedef arma::mat (GWDR::*PredictCalculator)(const arma::mat&, const arma::mat&, const arma::vec&); //!< \~english Calculator to predict \~chinese 用于预测的函数
+    typedef arma::mat (SDR::*PredictCalculator)(const arma::mat&, const arma::mat&, const arma::vec&); //!< \~english Calculator to predict \~chinese 用于预测的函数
 
-    typedef arma::mat (GWDR::*FitCalculator)(const arma::mat&, const arma::vec&, arma::mat&, arma::vec&, arma::vec&, arma::mat&);   //!< \~english Calculator to fit \~chinese 用于拟合的函数
+    typedef arma::mat (SDR::*FitCalculator)(const arma::mat&, const arma::vec&, arma::mat&, arma::vec&, arma::vec&, arma::mat&);   //!< \~english Calculator to fit \~chinese 用于拟合的函数
 
     /**
      * @brief \~english Type of bandwidth criterion. \~chinese 带宽优选指标值类型。
@@ -35,9 +35,9 @@ public:
         AIC     //!< AIC
     };
 
-    typedef double (GWDR::*BandwidthCriterionCalculator)(const std::vector<BandwidthWeight*>&); //!< \~english Calculator to get criterion for bandwidth optimization \~chinese 带宽优选指标值计算函数
+    typedef double (SDR::*BandwidthCriterionCalculator)(const std::vector<BandwidthWeight*>&); //!< \~english Calculator to get criterion for bandwidth optimization \~chinese 带宽优选指标值计算函数
 
-    typedef double (GWDR::*IndepVarCriterionCalculator)(const std::vector<std::size_t>&); //!< \~english Calculator to get criterion for variable optimization \~chinese 变量优选指标值计算函数
+    typedef double (SDR::*IndepVarCriterionCalculator)(const std::vector<std::size_t>&); //!< \~english Calculator to get criterion for variable optimization \~chinese 变量优选指标值计算函数
 
 public:
     /**
@@ -95,13 +95,13 @@ public:
 public:
 
     /**
-     * @brief \~english Construct a new GWDR object. \~chinese 构造一个新的 GWDR 对象。
+     * @brief \~english Construct a new SDR object. \~chinese 构造一个新的 SDR 对象。
      * 
      */
-    GWDR() {}
+    SDR() {}
 
     /**
-     * @brief \~english Construct a new GWDR object. \~chinese 构造一个新的 GWDR 对象。
+     * @brief \~english Construct a new SDR object. \~chinese 构造一个新的 SDR 对象。
      * 
      * @param x \~english Independent variables \~chinese 自变量
      * @param y \~english Dependent variables \~chinese 因变量
@@ -110,7 +110,7 @@ public:
      * @param hasHatMatrix \~english Whether has hat matrix \~chinese 是否计算帽子矩阵
      * @param hasIntercept \~english Whether has intercept \~chinese 是否包含截距
      */
-    GWDR(const arma::mat& x, const arma::vec& y, const arma::mat& coords, const std::vector<SpatialWeight>& spatialWeights, bool hasHatMatrix = true, bool hasIntercept = true) : SpatialAlgorithm(coords),
+    SDR(const arma::mat& x, const arma::vec& y, const arma::mat& coords, const std::vector<SpatialWeight>& spatialWeights, bool hasHatMatrix = true, bool hasIntercept = true) : SpatialAlgorithm(coords),
         mX(x),
         mY(y),
         mSpatialWeights(spatialWeights),
@@ -120,10 +120,10 @@ public:
     }
 
     /**
-     * @brief \~english Destroy the GWDR object. \~chinese 销毁 GWDR 对象。
+     * @brief \~english Destroy the SDR object. \~chinese 销毁 SDR 对象。
      * 
      */
-    virtual ~GWDR() {}
+    virtual ~SDR() {}
 
 public:
 
@@ -493,12 +493,12 @@ private:
     bool mHasIntercept = true;          //!< \~english Whether has intercept \~chinese 是否包含截距 
     RegressionDiagnostic mDiagnostic = RegressionDiagnostic();   //!< \~english Diagnostic information \~chinese 诊断信息
 
-    PredictCalculator mPredictFunction = &GWDR::predictSerial;  //!< \~english Calculator to predict \~chinese 用于预测的函数
-    FitCalculator mFitFunction = &GWDR::fitSerial;              //!< \~english Calculator to fit \~chinese 用于拟合的函数
+    PredictCalculator mPredictFunction = &SDR::predictSerial;  //!< \~english Calculator to predict \~chinese 用于预测的函数
+    FitCalculator mFitFunction = &SDR::fitSerial;              //!< \~english Calculator to fit \~chinese 用于拟合的函数
 
     bool mEnableBandwidthOptimize = false;  //!< \~english Whether bandwidth optimization is enabled \~chinese 是否进行带宽优选
     BandwidthCriterionType mBandwidthCriterionType = BandwidthCriterionType::CV;    //!< \~english Type of criterion for bandwidth optimization \~chinese 带宽优选指标类型
-    BandwidthCriterionCalculator mBandwidthCriterionFunction = &GWDR::bandwidthCriterionCVSerial;   //!< \~english Calculator to get criterion for given bandwidth value \~chinese 用于根据给定带宽值计算指标值的函数
+    BandwidthCriterionCalculator mBandwidthCriterionFunction = &SDR::bandwidthCriterionCVSerial;   //!< \~english Calculator to get criterion for given bandwidth value \~chinese 用于根据给定带宽值计算指标值的函数
     double mBandwidthOptimizeEps = 1e-6;    //!< \~english Threshold for bandwidth optimization \~chinese 带宽优选阈值
     std::size_t mBandwidthOptimizeMaxIter = 100000; //!< \~english Maximum iteration for bandwidth optimization \~chinese 带宽优选最大迭代次数
     double mBandwidthOptimizeStep = 0.01;   //!< \~english Step size for bandwidth optimization \~chinese 带宽优选步长
@@ -507,7 +507,7 @@ private:
     bool mEnableIndepVarSelect = false;     //!< \~english Whether independent variable selection is enabled \~chinese 是否优选变量
     double mIndepVarSelectThreshold = 3.0;  //!< \~english Threshold for independent variable selection \~chinese 变量优选阈值
     VariablesCriterionList mIndepVarCriterionList;  //!< \~english List of criterion values for each variable combination in independent variable selection \~chinese 变量优选过程中每种变量组合对应的指标值列表
-    IndepVarCriterionCalculator mIndepVarCriterionFunction = &GWDR::indepVarCriterionSerial;    //!< \~english Calculator to get criterion for given independent variable combination \~chinese 用于根据给定变量组合计算指标值的函数
+    IndepVarCriterionCalculator mIndepVarCriterionFunction = &SDR::indepVarCriterionSerial;    //!< \~english Calculator to get criterion for given independent variable combination \~chinese 用于根据给定变量组合计算指标值的函数
     std::vector<std::size_t> mSelectedIndepVars;    //!< \~english Selected independent variable \~chinese 选中的变量组合
     std::size_t mIndepVarSelectionProgressTotal = 0; //!< \~english Total number of independent variable combination. \~chinese 自变量所有组合总数。
     std::size_t mIndepVarSelectionProgressCurrent = 0; //!< \~english Current progress of independent variable selection. \~chinese 当前自变量优选的进度。
@@ -522,7 +522,7 @@ private:
 };
 
 
-class GWDRBandwidthOptimizer
+class SDRBandwidthOptimizer
 {
 public:
 
@@ -532,7 +532,7 @@ public:
      */
     struct Parameter
     {
-        GWDR* instance;     //!< \~english A GWDR instance \~chinese 一个 GWDR 实例
+        SDR* instance;     //!< \~english A SDR instance \~chinese 一个 SDR 实例
         std::vector<BandwidthWeight*>* bandwidths;  //!< \~english Bandwidths \~chinese 带宽
         arma::uword featureCount;   //!< \~english Total number of features \~chinese 要素总数
     };
@@ -585,23 +585,23 @@ public:
 public:
 
     /**
-     * @brief \~english Construct a new GWDRBandwidthOptimizer object. \~chinese 构造一个新的 GWDRBandwidthOptimizer 对象。 
+     * @brief \~english Construct a new SDRBandwidthOptimizer object. \~chinese 构造一个新的 SDRBandwidthOptimizer 对象。 
      * 
      * @param weights \~english Initial values of bandwidths \~chinese 带宽初始值
      */
-    explicit GWDRBandwidthOptimizer(const std::vector<BandwidthWeight*>& weights) : mBandwidths(weights) {}
+    explicit SDRBandwidthOptimizer(const std::vector<BandwidthWeight*>& weights) : mBandwidths(weights) {}
 
     /**
-     * @brief \~english Optimize bandwidth for a GWDR model. \~chinese 为 GWDR 模型优选带宽。
+     * @brief \~english Optimize bandwidth for a SDR model. \~chinese 为 SDR 模型优选带宽。
      * 
-     * @param instance \~english A GWDR instance \~chinese 一个 GWDR 实例
+     * @param instance \~english A SDR instance \~chinese 一个 SDR 实例
      * @param featureCount \~english Total number of features \~chinese 要素总数
      * @param maxIter \~english Maximum of iteration \~chinese 最大迭代次数
      * @param eps \~english Threshold of convergence \~chinese 收敛阈值
      * @param step \~english Step size \~chinese 步长
      * @return const int \~english Optimizer status \~chinese 优化器退出状态
      */
-    const int optimize(GWDR* instance, arma::uword featureCount, std::size_t maxIter, double eps, double step);
+    const int optimize(SDR* instance, arma::uword featureCount, std::size_t maxIter, double eps, double step);
 
 private:
     std::vector<BandwidthWeight*> mBandwidths;  //!< \~english Bandwidths \~chinese 带宽
@@ -609,4 +609,4 @@ private:
 
 }
 
-#endif  // GWDR_H
+#endif  // SDR_H
